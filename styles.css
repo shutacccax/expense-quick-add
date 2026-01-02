@@ -130,6 +130,16 @@
       opacity: 0.7;
     }
 
+    .balances-link {
+    display: block;
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    }
+
     /* --- Bottom Navigation --- */
     .bottom-nav {
     position: fixed;
@@ -173,35 +183,59 @@
     }
 
     /* --- Balances --- */
+    .balances-loading {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 14px;
+    opacity: 0.6;
+    }
+
     .balances {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-top: 24px;
     }
 
     .balance-card {
-    padding: 8px 10px;
-    border-radius: 10px;
-    font-size: 13px;
-    line-height: 1.2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 16px 14px;
+    border-radius: 16px;
     border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90px;
     }
 
-    /* Account name */
+
+    .balance-card {
+    animation: fadeIn 0.25s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .balance-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+    @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+    }
+
     .balance-account {
-    font-weight: 600;
-    opacity: 0.85;
+    font-size: 12px;
+    font-weight: 400; /* not bold */
+    opacity: 0.7;
     }
 
-    /* Amount */
+
     .balance-amount {
+    font-size: 18px;
     font-weight: 700;
-    font-size: 14px;
+    margin-top: 6px;
     }
+
 
     /* --- Color coding --- */
     .balance-cash {

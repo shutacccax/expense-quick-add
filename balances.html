@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Balances</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-180.png">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="card">
+
+      <h1>💰 Balances</h1>
+
+      <div id="balances-loading" class="balances-loading">
+        Loading balances…
+      </div>
+
+<div id="balances" class="balances"></div>
+
+
+      <!-- Balances container -->
+      <div id="balances" class="balances"></div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="index.html" class="nav-btn">Expense</a>
+      <a href="inflow.html" class="nav-btn">Inflow</a>
+      <a href="transfer.html" class="nav-btn">Transfer</a>
+    </div>
+  </nav>
+
+  <!-- Toast (optional, reuse styles) -->
+  <div id="toast">Updated</div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
+
+    async function loadBalances() {
+    const loading = document.getElementById("balances-loading");
+    const container = document.getElementById("balances");
+
+    try {
+        loading.style.display = "block";
+        container.innerHTML = "";
+
+        const res = await fetch(scriptURL);
+        const data = await res.json();
+
+        if (data.status !== "success") {
+        loading.textContent = "Failed to load balances.";
+        return;
+        }
+
+        loading.style.display = "none";
+
+        data.balances.forEach(item => {
+        const account = String(item.account).toLowerCase();
+        let colorClass = "";
+
+        if (account.includes("gcash")) colorClass = "balance-gcash";
+        else if (account.includes("maya")) colorClass = "balance-maya";
+        else if (account.includes("mari")) colorClass = "balance-maribank";
+        else if (account.includes("cash")) colorClass = "balance-cash";
+
+        const card = document.createElement("div");
+        card.className = `balance-card ${colorClass}`;
+
+        card.innerHTML = `
+            <span class="balance-account">${item.account}</span>
+            <span class="balance-amount">
+            ₱${Number(item.balance).toLocaleString()}
+            </span>
+        `;
+
+        container.appendChild(card);
+        });
+
+    } catch (err) {
+        loading.textContent = "Unable to load balances.";
+        console.warn("Failed to load balances", err);
+    }
+    }
+
+
+    loadBalances();
+
+    /* Dark mode sync */
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark");
+    }
+  </script>
+
+</body>
+</html>

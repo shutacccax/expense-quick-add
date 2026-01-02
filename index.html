@@ -20,7 +20,11 @@
     <div class="card">
 
       <h1>➕ Add Expense</h1>
-      <div id="balances" class="balances"></div>
+
+      <a href="balances.html" class="balances-link">
+        View balances
+      </a>
+
 
       <button id="themeToggle" type="button" aria-label="Toggle dark mode">
         🌙
@@ -97,46 +101,6 @@
   const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
   const addButton = document.getElementById("addExpenseBtn");
-
-  async function loadBalances() {
-    try {
-      const res = await fetch(scriptURL);
-      const data = await res.json();
-
-      if (data.status !== "success") return;
-
-      const container = document.getElementById("balances");
-      if (!container) return;
-
-      container.innerHTML = "";
-
-      data.balances.forEach(item => {
-        const account = String(item.account).toLowerCase();
-
-        let colorClass = "";
-        if (account.includes("cash")) colorClass = "balance-cash";
-        else if (account.includes("gcash")) colorClass = "balance-gcash";
-        else if (account.includes("maya")) colorClass = "balance-maya";
-        else if (account.includes("mari")) colorClass = "balance-maribank";
-
-        const card = document.createElement("div");
-        card.className = `balance-card ${colorClass}`;
-
-        card.innerHTML = `
-          <span class="balance-account">${item.account}</span>
-          <span class="balance-amount">
-            ₱${Number(item.balance).toLocaleString()}
-          </span>
-        `;
-
-        container.appendChild(card);
-      });
-
-    } catch (err) {
-      console.warn("Failed to load balances");
-    }
-  }
-
 
   addButton.addEventListener("click", async () => {
     const date = document.getElementById("date").value;
