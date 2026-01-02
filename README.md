@@ -1,144 +1,111 @@
-# 💸 Expense Quick Add (PWA)
+# Personal Expense Tracker (PWA + Google Sheets)
 
-A mobile-first Progressive Web App (PWA) for quickly logging expenses into Google Sheets.
+A lightweight, mobile-first personal finance tracker built using a Progressive Web App (PWA) frontend and Google Sheets as the backend database.
 
-Built for speed, simplicity, and daily use — no clutter, no overengineering.
-
----
-
-## ✨ What this is
-
-This app is a Quick Add interface for an existing Google Sheets expense tracker.
-
-- Mobile-friendly (installable on iPhone)
-- Fast, one-screen expense logging
-- Dark mode support
-- Automatically updates your Google Sheets dashboard
-- No accounts, no ads, no subscriptions
-
-Think of it as:
-“The fastest way to log an expense without opening a spreadsheet.”
+Designed for **fast daily logging**, minimal friction, and full control over data.
 
 ---
 
-## 🧠 How it works
+## ✨ Features
 
-PWA (this app)
-→ Google Apps Script (Web API)
-→ Google Sheets (Expenses sheet)
+### Core
+- 📱 **PWA (Add to Home Screen)** — works like a native app
+- ➕ **Quick Add Expense**
+- 💰 **Add Inflows**
+- 🔁 **Transfer Between Accounts**
+- 📊 **Dedicated Balances Page**
+- 🌙 **Light / Dark Mode (persistent)**
+- 🔔 **Toast feedback + haptic vibration**
 
-- The app collects expense details
-- Sends them to a Google Apps Script endpoint
-- Appends the data to your existing Expenses sheet
-- All formulas, dashboards, and summaries update automatically
+### Accounting Logic
+- Real-time balance updates
+- Prevents expenses when balance is insufficient
+- Supports multiple accounts (Cash, GCash, Maya, MariBank)
+- Transfers debit one account and credit another
+- Single source of truth: Google Sheets
 
----
-
-## 📱 Features
-
-- Add expense with:
-  - Date
-  - Description (optional)
-  - Category
-  - Payment method
-  - Amount
-- Floating dark mode toggle
-- Toast confirmation on save
-- Prevents double submissions
-- Installable to Home Screen (iOS PWA)
-- Uses Google Sheets as the single source of truth
+### UX
+- Bottom navigation (app-style)
+- Clean, distraction-free input flow
+- Color-coded balances
+- Loading states for async data
+- Mobile-first spacing and layout
 
 ---
 
-## 🛠 Tech Stack
+## 🧱 Architecture
 
-Frontend:
-- HTML
-- CSS (mobile-first card layout)
-- Vanilla JavaScript
+### Frontend
+- HTML + CSS + Vanilla JavaScript
+- Progressive Web App (PWA)
+- Hosted via GitHub Pages
+- Optimized for mobile use
 
-Backend:
+### Backend
 - Google Apps Script (Web App)
-
-Database:
-- Google Sheets
-
-Hosting:
-- GitHub Pages
+- Single API endpoint:
+  - `POST` → add expense / inflow / transfer
+  - `GET` → fetch balances
+- Google Sheets as database
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## 📂 Pages
 
-1. Clone the repository
-   git clone https://github.com/YOUR_USERNAME/expense-quick-add.git
-   cd expense-quick-add
+- `index.html` — Add Expense
+- `inflow.html` — Add Inflow
+- `transfer.html` — Transfer Funds
+- `balances.html` — View Account Balances
 
-2. Open with Live Server (recommended)
-   - Install the Live Server VS Code extension
-   - Right-click index.html
-   - Click “Open with Live Server”
+Each page is focused on **one task only**.
 
 ---
 
-## 🌐 Deployment
+## 📊 Data Model (Sheets)
 
-This app is deployed using GitHub Pages.
+- **Expenses sheet** — all expense entries
+- **Inflows sheet** — incoming funds
+- **Transfers sheet** — internal transfers
+- **Balances sheet** — current account balances (authoritative)
 
-Once pushed to main, updates are automatically live at:
-
-https://YOUR_USERNAME.github.io/expense-quick-add/
-
----
-
-## 📲 Install on iPhone
-
-1. Open the app URL in Safari
-2. Tap Share
-3. Tap “Add to Home Screen”
-4. Open it like a native app
+All validations are enforced server-side.
 
 ---
 
-## 🔐 Security Notes
+## 🔐 Design Principles
 
-- The app only appends rows to Google Sheets
-- No delete or overwrite permissions
-- No credentials stored in the app
-- Google Apps Script handles authorization
-
----
-
-## 🎯 Design Philosophy
-
-- Capture first, analyze later
-- Reduce taps and thinking
-- Avoid feature creep
-- Keep maintenance close to zero
-
-If it doesn’t make expense logging faster, it doesn’t belong here.
+- Backend is the source of truth
+- Frontend never assumes balances
+- No auto-corrections or silent overrides
+- Errors are explicit and user-friendly
+- UI favors clarity over density
 
 ---
 
-## 🧩 Future Ideas (Optional)
+## 🧠 Why This Exists
 
-- Budget warning toast
-- Today’s total display
-- System dark mode detection
-- Offline queue (if ever needed)
+This tracker was built for:
+- Personal daily use
+- Full ownership of data
+- No subscriptions
+- No ads
+- No third-party finance APIs
+
+Simple, fast, and intentional.
+
+---
+
+## 🚧 Future Ideas (Optional)
+
+- Total balance summary
+- Low-balance warnings
+- Undo last transaction
+- Read-only monthly summaries
+- Widgets / shortcuts
 
 ---
 
 ## 📄 License
 
-This project is for personal use and learning.
-Feel free to fork and adapt it for your own workflow.
+Personal use only.
 
----
-
-## ❤️ Acknowledgements
-
-Built with:
-- Google Sheets
-- GitHub Pages
-- A desire to stop forgetting small expenses
