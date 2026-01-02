@@ -111,7 +111,7 @@
       container.innerHTML = "";
 
       data.balances.forEach(item => {
-        const account = item.account.toLowerCase();
+        const account = String(item.account).toLowerCase();
 
         let colorClass = "";
         if (account.includes("cash")) colorClass = "balance-cash";
