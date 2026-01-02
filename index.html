@@ -7,12 +7,37 @@
 
   <link rel="manifest" href="manifest.json" />
 
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+
   <style>
+
+    :root {
+      --bg: #eef1f5;
+      --card: #ffffff;
+      --text: #000000;
+      --input-bg: #ffffff;
+      --border: #cccccc;
+      --primary: #4f8ef7;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #ffffff;
+      --input-bg: #2a2a2a;
+      --border: #444444;
+      --primary: #6aa8ff;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #eef1f5;
-      margin: 5px;
-      padding: 5px;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
     }
 
     .container {
@@ -22,7 +47,7 @@
     }
 
     .card {
-      background: #ffffff;
+      background: var(--card);
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
@@ -50,9 +75,10 @@
       padding: 10px 12px;
       font-size: 16px;
       border-radius: 8px;
-      border: 1px solid #ccc;
       box-sizing: border-box;
-      background: #fff;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
       appearance: none;
       -webkit-appearance: none;
     }
@@ -84,6 +110,58 @@
     button:active {
       opacity: 0.85;
     }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  #toast.show {
+    opacity: 1;
+  }
+
+  #themeToggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background 0.2s ease, transform 0.15s ease;
+    opacity: 0.7;
+  }
+
+  #themeToggle:hover {
+    background: rgba(0, 0, 0, 0.75);
+    opacity: 1;
+  }
+
+  #themeToggle:active {
+    transform: scale(0.95);
+  }
+
+
   </style>
 </head>
 <body>
@@ -92,6 +170,11 @@
     <div class="card">
 
       <h1>➕ Add Expense</h1>
+
+      <button id="themeToggle" type="button" aria-label="Toggle dark mode">
+        🌙
+      </button>
+
 
       <label for="date">Date</label>
       <input type="date" id="date" />
@@ -119,19 +202,53 @@
       </select>
 
       <label for="amount">Amount</label>
-      <input type="number" id="amount" placeholder="0.00" />
+      <input type="number" id="amount" placeholder="0.00" inputmode="decimal" />
 
-      <button>Add Expense</button>
+      <button id="addExpenseBtn" type="button">
+        Add Expense
+      </button>
+
 
     </div>
   </div>
 
+
+
   <script>
+    
+  document.getElementById("date").valueAsDate = new Date();
+
+  document.getElementById("amount").addEventListener("keydown", e => {
+    if (e.key === "Enter") addButton.click();
+  });
+
+
+  const body = document.body;
+  const themeToggle = document.getElementById("themeToggle");
+
+  // Load saved theme
+  if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark");
+    themeToggle.textContent = "☀️";
+  } else {
+    themeToggle.textContent = "🌙";
+  }
+
+  themeToggle.addEventListener("click", () => {
+    body.classList.toggle("dark");
+    const isDark = body.classList.contains("dark");
+
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    themeToggle.textContent = isDark ? "☀️" : "🌙";
+  });
+
+  
   const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
-  const button = document.querySelector("button");
+  const addButton = document.getElementById("addExpenseBtn");
 
-  button.addEventListener("click", async () => {
+
+  addButton.addEventListener("click", async () => {
     const date = document.getElementById("date").value;
     const description = document.getElementById("description").value;
     const category = document.getElementById("category").value;
@@ -143,8 +260,8 @@
       return;
     }
 
-    button.disabled = true;
-    button.textContent = "Adding...";
+    addButton.disabled = true;
+    addButton.textContent = "Adding...";
 
     try {
       const response = await fetch(scriptURL, {
@@ -163,7 +280,13 @@
       if (result.status === "success") {
         document.getElementById("description").value = "";
         document.getElementById("amount").value = "";
-        alert("Expense added ✅");
+
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2000);
+
+        if (navigator.vibrate) navigator.vibrate(40);
+
       } else {
         alert("Error: " + result.message);
       }
@@ -172,10 +295,12 @@
       alert("Network error. Try again.");
     }
 
-    button.disabled = false;
-    button.textContent = "Add Expense";
+    addButton.disabled = false;
+    addButton.textContent = "Add Expense";
   });
 </script>
+
+<div id="toast">Expense added ✅</div>
 
 
 </body>
