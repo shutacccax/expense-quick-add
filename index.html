@@ -11,8 +11,8 @@
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #eef1f5;
-      margin: 5;
-      padding: 5;
+      margin: 5px;
+      padding: 5px;
     }
 
     .container {
@@ -53,6 +53,14 @@
       border: 1px solid #ccc;
       box-sizing: border-box;
       background: #fff;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    /* 🔑 iOS DATE INPUT FIX */
+    input[type="date"] {
+      line-height: 46px;
+      padding-right: 12px;
     }
 
     input:focus,
@@ -106,8 +114,8 @@
       <select id="payment">
         <option>Cash</option>
         <option>GCash</option>
-        <option>Bank</option>
-        <option>Credit Card</option>
+        <option>MariBank</option>
+        <option>Maya</option>
       </select>
 
       <label for="amount">Amount</label>
