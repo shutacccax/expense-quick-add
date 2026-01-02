@@ -99,31 +99,44 @@
   const addButton = document.getElementById("addExpenseBtn");
 
   async function loadBalances() {
-  try {
-    const res = await fetch(scriptURL);
-    const data = await res.json();
+    try {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
 
-    if (data.status !== "success") return;
+      if (data.status !== "success") return;
 
-    const container = document.getElementById("balances");
-    container.innerHTML = "";
+      const container = document.getElementById("balances");
+      if (!container) return;
 
-    data.balances.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "balance-card";
+      container.innerHTML = "";
 
-      card.innerHTML = `
-        <div class="balance-account">${item.account}</div>
-        <div class="balance-amount">₱${Number(item.balance).toLocaleString()}</div>
-      `;
+      data.balances.forEach(item => {
+        const account = item.account.toLowerCase();
 
-      container.appendChild(card);
-    });
+        let colorClass = "";
+        if (account.includes("cash")) colorClass = "balance-cash";
+        else if (account.includes("gcash")) colorClass = "balance-gcash";
+        else if (account.includes("maya")) colorClass = "balance-maya";
+        else if (account.includes("mari")) colorClass = "balance-maribank";
 
-  } catch (err) {
-    console.warn("Failed to load balances");
+        const card = document.createElement("div");
+        card.className = `balance-card ${colorClass}`;
+
+        card.innerHTML = `
+          <span class="balance-account">${item.account}</span>
+          <span class="balance-amount">
+            ₱${Number(item.balance).toLocaleString()}
+          </span>
+        `;
+
+        container.appendChild(card);
+      });
+
+    } catch (err) {
+      console.warn("Failed to load balances");
+    }
   }
-}
+
 
   addButton.addEventListener("click", async () => {
     const date = document.getElementById("date").value;

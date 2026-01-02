@@ -169,24 +169,71 @@
     .balances {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 16px;
     }
 
     .balance-card {
-    background: var(--input-bg);
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 12px;
     }
 
+    /* Account name */
     .balance-account {
-    font-size: 12px;
-    opacity: 0.7;
+    font-weight: 600;
+    opacity: 0.85;
     }
 
+    /* Amount */
     .balance-amount {
-    font-size: 16px;
     font-weight: 700;
-    margin-top: 4px;
+    font-size: 14px;
+    }
+
+    /* --- Color coding --- */
+    .balance-cash {
+    background: #f2f2f2;
+    color: #333;
+    }
+
+    .balance-gcash {
+    background: #e7f0ff;
+    color: #1c4fd7;
+    }
+
+    .balance-maya {
+    background: #e9f7ef;
+    color: #1e824c;
+    }
+
+    .balance-maribank {
+    background: #fff1e6;
+    color: #c25a00;
+    }
+
+    /* Dark mode tweaks */
+    body.dark .balance-cash {
+    background: #2a2a2a;
+    color: #ddd;
+    }
+
+    body.dark .balance-gcash {
+    background: #1f2a44;
+    color: #9bbcff;
+    }
+
+    body.dark .balance-maya {
+    background: #1f3a2d;
+    color: #7de0a6;
+    }
+
+    body.dark .balance-maribank {
+    background: #3a2a1f;
+    color: #ffb36b;
     }
