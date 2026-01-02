@@ -20,6 +20,7 @@
     <div class="card">
 
       <h1>➕ Add Expense</h1>
+      <div id="balances" class="balances"></div>
 
       <button id="themeToggle" type="button" aria-label="Toggle dark mode">
         🌙
@@ -97,6 +98,32 @@
 
   const addButton = document.getElementById("addExpenseBtn");
 
+  async function loadBalances() {
+  try {
+    const res = await fetch(scriptURL);
+    const data = await res.json();
+
+    if (data.status !== "success") return;
+
+    const container = document.getElementById("balances");
+    container.innerHTML = "";
+
+    data.balances.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "balance-card";
+
+      card.innerHTML = `
+        <div class="balance-account">${item.account}</div>
+        <div class="balance-amount">₱${Number(item.balance).toLocaleString()}</div>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.warn("Failed to load balances");
+  }
+}
 
   addButton.addEventListener("click", async () => {
     const date = document.getElementById("date").value;
@@ -131,6 +158,8 @@
         document.getElementById("description").value = "";
         document.getElementById("amount").value = "";
 
+        loadBalances();
+
         const toast = document.getElementById("toast");
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2000);
@@ -148,6 +177,9 @@
     addButton.disabled = false;
     addButton.textContent = "Add Expense";
   });
+
+  loadBalances();
+
 </script>
 
 <div id="toast">Expense added ✅</div>
