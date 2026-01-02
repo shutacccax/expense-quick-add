@@ -19,7 +19,6 @@ Designed for **fast daily logging**, minimal friction, and full control over dat
 
 ### Accounting Logic
 - Real-time balance updates
-- Prevents expenses when balance is insufficient
 - Supports multiple accounts (Cash, GCash, Maya, MariBank)
 - Transfers debit one account and credit another
 - Single source of truth: Google Sheets
