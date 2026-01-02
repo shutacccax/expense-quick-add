@@ -8,6 +8,27 @@
   <link rel="manifest" href="manifest.json" />
 
   <style>
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .field {
+      flex: 1;
+    }
+    
+    label {
+      margin-top: 16px;
+    }
+    
+    input, select {
+      height: 44px;
+    }
+    
+    button {
+      height: 50px;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f4f6f8;
@@ -52,35 +73,48 @@
 
   <h1>➕ Add Expense</h1>
 
-  <label>Date</label>
-  <input type="date" id="date" />
+  <div class="row">
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="date" />
+    </div>
+
+    <div class="field">
+      <label>Amount</label>
+      <input type="number" id="amount" placeholder="0.00" />
+    </div>
+  </div>
 
   <label>Description</label>
   <input type="text" id="description" placeholder="Optional" />
 
-  <label>Category</label>
-  <select id="category">
-    <option>Food</option>
-    <option>Transportation</option>
-    <option>Bills</option>
-    <option>School/Work</option>
-    <option>Shopping</option>
-    <option>Entertainment</option>
-    <option>Others</option>
-  </select>
+  <div class="row">
+    <div class="field">
+      <label>Category</label>
+      <select id="category">
+        <option>Food</option>
+        <option>Transportation</option>
+        <option>Bills</option>
+        <option>School/Work</option>
+        <option>Shopping</option>
+        <option>Entertainment</option>
+        <option>Others</option>
+      </select>
+    </div>
 
-  <label>Payment</label>
-  <select id="payment">
-    <option>Cash</option>
-    <option>GCash</option>
-    <option>Bank</option>
-    <option>Credit Card</option>
-  </select>
-
-  <label>Amount</label>
-  <input type="number" id="amount" placeholder="0.00" />
+    <div class="field">
+      <label>Payment</label>
+      <select id="payment">
+        <option>Cash</option>
+        <option>GCash</option>
+        <option>Bank</option>
+        <option>Credit Card</option>
+      </select>
+    </div>
+  </div>
 
   <button>Add Expense</button>
 
 </body>
+
 </html>
