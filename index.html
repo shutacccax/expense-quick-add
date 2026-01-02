@@ -126,5 +126,57 @@
     </div>
   </div>
 
+  <script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
+
+  const button = document.querySelector("button");
+
+  button.addEventListener("click", async () => {
+    const date = document.getElementById("date").value;
+    const description = document.getElementById("description").value;
+    const category = document.getElementById("category").value;
+    const payment = document.getElementById("payment").value;
+    const amount = document.getElementById("amount").value;
+
+    if (!date || !amount) {
+      alert("Please enter at least a date and amount.");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Adding...";
+
+    try {
+      const response = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({
+          date,
+          description,
+          category,
+          payment,
+          amount
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        document.getElementById("description").value = "";
+        document.getElementById("amount").value = "";
+        alert("Expense added ✅");
+      } else {
+        alert("Error: " + result.message);
+      }
+
+    } catch (err) {
+      alert("Network error. Try again.");
+    }
+
+    button.disabled = false;
+    button.textContent = "Add Expense";
+  });
+</script>
+
+
 </body>
 </html>
