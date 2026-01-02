@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Add Expense</title>
+  <title>Quick Add Inflow</title>
 
   <link rel="manifest" href="manifest.json" />
 
@@ -171,11 +171,11 @@
   <div class="container">
     <div class="card">
 
-      <h1>➕ Add Expense</h1>
+      <h1>➕ Add Inflow</h1>
 
       <p style="text-align:center; margin-bottom:12px; font-size:14px;">
-        <strong>Expense</strong> ·
-        <a href="inflow.html">Inflow</a> ·
+        <a href="index.html">Expense</a> ·
+        <strong>Inflow</strong> ·
         <a href="transfer.html">Transfer</a>
       </p>
 
@@ -191,30 +191,21 @@
       <label for="description">Description</label>
       <input type="text" id="description" placeholder="Optional" />
 
-      <label for="category">Category</label>
-      <select id="category">
-        <option>Food</option>
-        <option>Transpo</option>
-        <option>Bills</option>
-        <option>Personal</option>
-        <option>Shopping</option>
-        <option>Entertainment</option>
-        <option>Others</option>
-      </select>
 
-      <label for="payment">Payment</label>
-      <select id="payment">
-        <option>Cash</option>
-        <option>GCash</option>
-        <option>MariBank</option>
-        <option>Maya</option>
-      </select>
+      <label for="account">Account</label>
+        <select id="account">
+            <option>Cash</option>
+            <option>GCash</option>
+            <option>MariBank</option>
+            <option>Maya</option>
+        </select>
+
 
       <label for="amount">Amount</label>
       <input type="number" id="amount" placeholder="0.00" inputmode="decimal" />
 
-      <button id="addExpenseBtn" type="button">
-        Add Expense
+      <button id="addInflowBtn" type="button">
+        Add Inflow
       </button>
 
 
@@ -254,15 +245,14 @@
   
   const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
-  const addButton = document.getElementById("addExpenseBtn");
-
+  const addButton = document.getElementById("addInflowBtn");
 
   addButton.addEventListener("click", async () => {
     const date = document.getElementById("date").value;
     const description = document.getElementById("description").value;
-    const category = document.getElementById("category").value;
-    const payment = document.getElementById("payment").value;
     const amount = document.getElementById("amount").value;
+    const account = document.getElementById("account").value;
+
 
     if (!date || !amount) {
       alert("Please enter at least a date and amount.");
@@ -275,13 +265,13 @@
     try {
       const response = await fetch(scriptURL, {
         method: "POST",
-        body: JSON.stringify({
-          date,
-          description,
-          category,
-          payment,
-          amount
-        })
+            body: JSON.stringify({
+            type: "inflow",
+            date,
+            description,
+            account,
+            amount
+            })
       });
 
       const result = await response.json();
@@ -305,11 +295,11 @@
     }
 
     addButton.disabled = false;
-    addButton.textContent = "Add Expense";
+    addButton.textContent = "Add Inflow";
   });
 </script>
 
-<div id="toast">Expense added ✅</div>
+<div id="toast">Inflow added ✅</div>
 
 
 </body>
