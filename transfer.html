@@ -54,7 +54,9 @@
   <div id="toast">Transfer added ✅</div>
 
   <script>
-    document.getElementById("date").valueAsDate = new Date();
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    document.getElementById("date").value = today.toISOString().slice(0, 10);
 
     const body = document.body;
     const themeToggle = document.getElementById("themeToggle");
