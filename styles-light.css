@@ -286,7 +286,7 @@ body {
   border-radius: 14px;
   border: none;
   background: #f2f4f8;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
 }
 
@@ -419,28 +419,6 @@ body {
   padding: 16px 0;
 }
 
-.date-compact {
-  width: auto;
-  min-width: 120px;
-
-  height: 32px;
-  padding: 4px 8px;
-
-  font-size: 13px;
-  border-radius: 8px;
-  border: none;
-
-  background: rgba(0,0,0,0.01);
-  color: inherit;
-
-  outline: none;
-}
-
-.form-row.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
 
 .form-group select,
 .form-group input {
