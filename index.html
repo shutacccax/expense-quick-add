@@ -77,10 +77,11 @@ input, select, button, textarea {
           </div>
 
           <!-- DATE (now same width) -->
-          <div class="form-group">
-            <label>Date</label>
+          <div class="date-row">
+            <span id="dateText" class="date-text">Today</span>
             <input type="date" id="date" />
           </div>
+
 
 
   </div>
@@ -134,9 +135,41 @@ themeToggle.onclick = () => {
 applyTheme();
 
 /* ===== DATE DEFAULT ===== */
+const dateInput = document.getElementById("date");
+const dateText = document.getElementById("dateText");
+
+// default to today
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-document.getElementById("date").value = today.toISOString().slice(0, 10);
+dateInput.value = today.toISOString().slice(0, 10);
+
+// helper
+function formatDate(value) {
+  const d = new Date(value);
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+// initial text
+dateText.textContent = "Today";
+
+// update text when changed
+dateInput.addEventListener("change", () => {
+  if (dateInput.value === today.toISOString().slice(0, 10)) {
+    dateText.textContent = "Today";
+  } else {
+    dateText.textContent = formatDate(dateInput.value);
+  }
+});
+
+// tap text → open picker
+dateText.addEventListener("click", () => {
+  dateInput.showPicker?.() || dateInput.click();
+});
+
 
 function showToast(message) {
   const toast = document.getElementById("toast");

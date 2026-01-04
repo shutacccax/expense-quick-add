@@ -418,3 +418,29 @@ body {
   opacity: 0.6;
   padding: 16px 0;
 }
+
+input[type="date"] {
+  height: 48px;              /* match other inputs */
+  padding: 0 14px;           /* same as text inputs */
+  font-size: 15px;
+}
+
+.date-row {
+  position: relative;
+}
+
+#date {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.date-text {
+  font-size: 14px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+#date {
+  pointer-events: none;
+}

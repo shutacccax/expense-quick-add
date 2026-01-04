@@ -138,3 +138,10 @@ body {
   border: none;
   box-shadow: none;
 }
+
+input[type="date"] {
+  height: 48px;              /* match other inputs */
+  padding: 0 14px;           /* same as text inputs */
+  font-size: 15px;
+  letter-spacing: -0.2px;
+}
