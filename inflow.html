@@ -44,29 +44,23 @@ input, select, button, textarea {
       <input type="text" id="description" placeholder="Optional" />
     </div>
 
-    <div class="form-group">
-      <label>Account</label>
-      <select id="account">
-        <option>Cash</option>
-        <option>GCash</option>
-        <option>MariBank</option>
-        <option>Maya</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-            <div class="date-row">
-              <div class="date-control">
-                <span id="dateLabel" class="date-label">Today</span>
-
-                <button id="changeDateBtn" class="date-icon-btn" aria-label="Change date">
-                  <img src="svgs/calendar-minimalistic-svgrepo-com.svg" alt="">
-                </button>
-
-                <input type="date" id="date" class="date-input-hidden">
-              </div>
+            <div class="form-row two-col">
+            <div class="form-group">
+              <label>Account</label>
+              <select id="payment">
+                <option>Cash</option>
+                <option>GCash</option>
+                <option>MariBank</option>
+                <option>Maya</option>
+              </select>
             </div>
-    </div>
+
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="date" class="date-compact">
+            </div>
+          </div>
+
 
   </div>
 
@@ -123,7 +117,6 @@ applyTheme();
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
 const dateLabel = document.getElementById("dateLabel");
-const changeBtn = document.getElementById("changeDateBtn");
 
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
@@ -138,17 +131,12 @@ function formatDate(value) {
   });
 }
 
-changeBtn.addEventListener("click", () => {
-  dateInput.showPicker?.() || dateInput.click();
-});
-
 dateInput.addEventListener("change", () => {
   dateLabel.textContent =
     dateInput.value === todayISO
       ? "Today"
       : formatDate(dateInput.value);
 });
-
 
 /* ===== TOAST ===== */
 function showToast(message) {

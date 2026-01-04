@@ -109,45 +109,6 @@ body {
   color: #9bbcff;
 }
 
-.month-select {
-  background: #1c1c1e;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-.month-select option {
-  background: #1c1c1e;
-  color: #fff;
-}
-
-.month-select:focus {
-  outline: none;
-  border-color: rgba(255,255,255,0.3);
-}
-
-.month-select {
-  outline: none;
-  border: none;
-  box-shadow: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.month-select:focus,
-.month-select:focus-visible {
-  outline: none;
-  border: none;
-  box-shadow: none;
-}
-
-input[type="date"] {
-  height: 48px;              /* match other inputs */
-  padding: 0 14px;           /* same as text inputs */
-  font-size: 15px;
-  letter-spacing: -0.2px;
-}
-
-.date-icon-btn img {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1); /* force white */
+.dark .date-compact {
+  background: rgba(255,255,255,0.12);
 }
