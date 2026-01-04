@@ -1,129 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Balances</title>
 
-  <title>Balances</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
 
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles-light.css">
+<link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
+
 </head>
 
 <body>
 
-  <div class="container">
-    <div class="card">
+<button id="themeToggle" class="theme-toggle">🌙</button>
 
-      <h1>💰 Balances</h1>
+<div class="app">
 
-      <div id="balances-loading" class="balances-loading">
-        Loading balances…
-      </div>
-
-      <button id="themeToggle" type="button" aria-label="Toggle dark mode">
-        🌙
-      </button>
-
-    <div id="balances" class="balances"></div>
-
-
-      <!-- Balances container -->
-      <div id="balances" class="balances"></div>
-
+  <!-- BALANCE CARD -->
+  <div class="balance-card">
+    <div>
+      <div class="balance-label">Current Balance</div>
+      <div id="totalBalance" class="balance-amount">₱0.00</div>
     </div>
+
+    <button id="eyeToggle" class="eye-btn">
+      <img id="eyeIcon" src="svgs/eye-svgrepo-com.svg">
+    </button>
   </div>
 
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <a href="index.html" class="nav-btn">Expense</a>
-      <a href="inflow.html" class="nav-btn">Inflow</a>
-      <a href="transfer.html" class="nav-btn">Transfer</a>
-    </div>
-  </nav>
+  <!-- ACCOUNTS -->
+  <div class="section-title">Accounts</div>
 
-  <!-- Toast (optional, reuse styles) -->
-  <div id="toast">Updated</div>
+  <div id="balancesLoading" class="balances-loading">
+    Loading balances
+  </div>
 
-  <script>
+  <div id="accounts" class="accounts"></div>
 
-    const body = document.body;
-    const themeToggle = document.getElementById("themeToggle");
 
-    // Load saved theme
-    if (localStorage.getItem("theme") === "dark") {
-        body.classList.add("dark");
-        themeToggle.textContent = "☀️";
-    } else {
-        themeToggle.textContent = "🌙";
-    }
+  <!-- ACCOUNTS -->
+<div class="expenses-header">
+  <div class="section-title">Expenses</div>
 
-    themeToggle.addEventListener("click", () => {
-        body.classList.toggle("dark");
-        const isDark = body.classList.contains("dark");
+  <select id="monthSelect" class="month-select inline"></select>
+</div>
 
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-        themeToggle.textContent = isDark ? "☀️" : "🌙";
+<div id="categoryTotals" class="category-totals"></div>
+
+
+
+</div>
+
+<!-- NAVBAR -->
+<nav class="bottom-nav">
+  <a class="nav-item active">
+    <img src="svgs/home-svgrepo-com-filled.svg">
+    <span>Home</span>
+  </a>
+
+  <a href="expense.html" class="nav-item">
+    <img src="svgs/minus-square-svgrepo-com.svg">
+    <span>Expense</span>
+  </a>
+
+  <a href="inflow.html" class="nav-item">
+    <img src="svgs/add-square-svgrepo-com.svg">
+    <span>Inflow</span>
+  </a>
+
+  <a href="transfer.html" class="nav-item">
+    <img src="svgs/refresh-square-svgrepo-com.svg">
+    <span>Transfer</span>
+  </a>
+</nav>
+
+<script>
+/* ================= THEME ================= */
+const body = document.body;
+const themeToggle = document.getElementById("themeToggle");
+const darkStyles = document.getElementById("darkStyles");
+
+const CATEGORY_EMOJIS = {
+  Food: "🍔",
+  Transpo: "🚌",
+  Bills: "💡",
+  Personal: "👤",
+  Shopping: "🛍",
+  Entertainment: "🎬",
+  Others: "📦"
+};
+
+
+function applyTheme() {
+  const dark = localStorage.getItem("theme") === "dark";
+  darkStyles.disabled = !dark;
+  themeToggle.textContent = dark ? "☀️" : "🌙";
+}
+
+themeToggle.onclick = () => {
+  const dark = localStorage.getItem("theme") !== "dark";
+  localStorage.setItem("theme", dark ? "dark" : "light");
+  applyTheme();
+};
+
+applyTheme();
+
+/* ================= BALANCE VISIBILITY ================= */
+const eyeToggle = document.getElementById("eyeToggle");
+const eyeIcon = document.getElementById("eyeIcon");
+
+let balancesVisible = localStorage.getItem("balancesVisible") === "true";
+let realTotal = 0;
+let realAccounts = [];
+
+function maskAmount(value) {
+  const str = Number(value).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  return "₱" + str.replace(/\d/g, "*");
+}
+
+
+function updateBalanceVisibility() {
+  const totalEl = document.getElementById("totalBalance");
+
+  if (balancesVisible) {
+    // SHOW REAL VALUES
+    totalEl.textContent =
+      "₱" + realTotal.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+    realAccounts.forEach(el => {
+      const val = Number(el.dataset.real);
+      el.textContent =
+        "₱" + val.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
     });
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
+    eyeIcon.src = "svgs/eye-svgrepo-com.svg";
+  } else {
+    // MASK VALUES
+    totalEl.textContent = maskAmount(realTotal);
 
-    async function loadBalances() {
-    const loading = document.getElementById("balances-loading");
-    const container = document.getElementById("balances");
+    realAccounts.forEach(el => {
+      el.textContent = maskAmount(el.dataset.real);
+    });
 
-    try {
-        loading.style.display = "block";
-        container.innerHTML = "";
+    eyeIcon.src = "svgs/eye-closed-svgrepo-com.svg";
+  }
 
-        const res = await fetch(scriptURL);
-        const data = await res.json();
+  localStorage.setItem("balancesVisible", balancesVisible);
+}
 
-        if (data.status !== "success") {
-        loading.textContent = "Failed to load balances.";
-        return;
-        }
 
-        loading.style.display = "none";
+/* Eye animation */
+eyeToggle.onclick = () => {
+  balancesVisible = !balancesVisible;
+  eyeToggle.classList.add("animate");
+  updateBalanceVisibility();
+  setTimeout(() => eyeToggle.classList.remove("animate"), 250);
+};
 
-        data.balances.forEach(item => {
-        const account = String(item.account).toLowerCase();
-        let colorClass = "";
+/* ================= LOAD BALANCES ================= */
+const scriptURL =
+"https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
-        if (account.includes("gcash")) colorClass = "balance-gcash";
-        else if (account.includes("maya")) colorClass = "balance-maya";
-        else if (account.includes("mari")) colorClass = "balance-maribank";
-        else if (account.includes("cash")) colorClass = "balance-cash";
+async function loadBalances() {
+  const loadingEl = document.getElementById("balancesLoading");
+  const container = document.getElementById("accounts");
 
-        const card = document.createElement("div");
-        card.className = `balance-card ${colorClass}`;
+  loadingEl.style.display = "block";
+  container.innerHTML = "";
 
-        card.innerHTML = `
-            <span class="balance-account">${item.account}</span>
-            <span class="balance-amount">
-            ₱${Number(item.balance).toLocaleString()}
-            </span>
-        `;
+  try {
+    const res = await fetch(scriptURL);
+    const json = await res.json();
 
-        container.appendChild(card);
-        });
-
-    } catch (err) {
-        loading.textContent = "Unable to load balances.";
-        console.warn("Failed to load balances", err);
-    }
+    if (json.status !== "success") {
+      throw new Error(json.message);
     }
 
+    realTotal = 0;
+    realAccounts = [];
 
-    loadBalances();
+    json.data.forEach(b => {
+      const amount = Number(b.balance);
+      realTotal += amount;
 
-    /* Dark mode sync */
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark");
+      let cls = "";
+      const name = b.account.toLowerCase();
+      if (name.includes("gcash")) cls = "gcash";
+      else if (name.includes("cash")) cls = "cash";
+      else if (name.includes("maya")) cls = "maya";
+      else cls = "maribank";
+
+      const card = document.createElement("div");
+      card.className = `account-card ${cls}`;
+
+      const amountEl = document.createElement("div");
+      amountEl.className = "account-amount";
+      amountEl.dataset.real = amount;
+
+      card.innerHTML = `<div class="account-name">${b.account}</div>`;
+      card.appendChild(amountEl);
+
+      container.appendChild(card);
+      realAccounts.push(amountEl);
+    });
+
+    updateBalanceVisibility();
+    loadingEl.style.display = "none";
+
+  } catch (err) {
+    loadingEl.textContent = "Failed to load balances.";
+    console.error("Error loading balances:", err);
+  }
+}
+
+
+const monthSelect = document.getElementById("monthSelect");
+
+const now = new Date();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth() + 1;
+
+// Generate last 12 months
+for (let i = 0; i < 12; i++) {
+  const d = new Date(currentYear, currentMonth - 1 - i, 1);
+  const value = `${d.getFullYear()}-${d.getMonth() + 1}`;
+  const label = d.toLocaleString("default", {
+    month: "long",
+    year: "numeric"
+  });
+
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+
+  monthSelect.appendChild(option);
+}
+
+// Default = current month
+monthSelect.value = `${currentYear}-${currentMonth}`;
+
+monthSelect.addEventListener("change", () => {
+  const [year, month] = monthSelect.value.split("-");
+  loadCategoryTotals(Number(year), Number(month));
+});
+
+// Load initial month
+loadCategoryTotals(currentYear, currentMonth);
+
+async function loadCategoryTotals(year, month) {
+  const container = document.getElementById("categoryTotals");
+  container.innerHTML = `<div class="empty">Loading…</div>`;
+
+  const url = `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`;
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (json.status !== "success") {
+      throw new Error(json.message);
     }
-  </script>
+
+    json.data.sort((a, b) => b.total - a.total);
+
+    container.innerHTML = "";
+
+    if (json.data.length === 0) {
+      container.innerHTML = `<div class="empty">No expenses this month</div>`;
+      return;
+    }
+
+    json.data.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "category-row";
+
+      row.innerHTML = `
+        <span class="cat-name">
+          ${CATEGORY_EMOJIS[item.category] || "📁"} ${item.category}
+        </span>
+
+        <span class="cat-amount">₱${item.total.toLocaleString()}</span>
+      `;
+
+      container.appendChild(row);
+    });
+
+  } catch (err) {
+    container.innerHTML = `<div class="empty">Failed to load data</div>`;
+    console.error(err);
+  }
+}
+
+
+
+
+loadBalances();
+
+</script>
 
 </body>
 </html>

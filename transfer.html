@@ -1,143 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Add Transfer</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon-180.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Add Transfer</title>
 
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+
+<!-- Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles-light.css">
+<link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
+
+<style>
+input, select, button {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="card">
 
-      <h1>⇄ Add Transfer</h1>
+<button id="themeToggle" class="theme-toggle">🌙</button>
 
-      <a href="balances.html" class="balances-link">
-        View balances
-      </a>
+<div class="app">
 
-      <button id="themeToggle" type="button">🌙</button>
+  <div class="expense-header">New Transfer</div>
 
-      <label for="date">Date</label>
-      <input type="date" id="date" />
+  <!-- AMOUNT -->
+  <div class="amount-wrapper">
+    <span>₱</span>
+    <input type="number" id="amount" placeholder="0.00" inputmode="decimal" />
+  </div>
 
-      <label for="from">From</label>
+  <div class="form-section">
+
+    <div class="form-group">
+      <label>From</label>
       <select id="from">
         <option>Cash</option>
         <option>GCash</option>
         <option>MariBank</option>
         <option>Maya</option>
       </select>
+    </div>
 
-      <label for="to">To</label>
+    <div class="form-group">
+      <label>To</label>
       <select id="to">
         <option>Cash</option>
         <option>GCash</option>
         <option>MariBank</option>
         <option>Maya</option>
       </select>
-
-      <label for="amount">Amount</label>
-      <input type="number" id="amount" placeholder="0.00" inputmode="decimal" />
-
-      <button id="addTransferBtn" type="button">Add Transfer</button>
-
     </div>
+
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="date" />
+    </div>
+
   </div>
 
-  <div id="toast">Transfer added ✅</div>
+  <button id="addTransferBtn" class="add-expense-btn">
+    Save
+  </button>
 
-  <script>
-    const today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    document.getElementById("date").value = today.toISOString().slice(0, 10);
+</div>
 
-    const body = document.body;
-    const themeToggle = document.getElementById("themeToggle");
+<!-- NAVBAR -->
+<nav class="bottom-nav">
+  <a href="balances.html" class="nav-item">
+    <img src="svgs/home-1-svgrepo-com.svg">
+    <span>Home</span>
+  </a>
 
-    if (localStorage.getItem("theme") === "dark") {
-      body.classList.add("dark");
-      themeToggle.textContent = "☀️";
-    }
+  <a href="expense.html" class="nav-item">
+    <img src="svgs/minus-square-svgrepo-com.svg">
+    <span>Expense</span>
+  </a>
 
-    themeToggle.addEventListener("click", () => {
-      body.classList.toggle("dark");
-      const isDark = body.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      themeToggle.textContent = isDark ? "☀️" : "🌙";
+  <a href="inflow.html" class="nav-item">
+    <img src="svgs/add-square-svgrepo-com.svg">
+    <span>Inflow</span>
+  </a>
+
+  <a class="nav-item active">
+    <img src="svgs/refresh-square-svgrepo-com-filled.svg">
+    <span>Transfer</span>
+  </a>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ===== THEME ===== */
+const themeToggle = document.getElementById("themeToggle");
+const darkStyles = document.getElementById("darkStyles");
+
+function applyTheme() {
+  const dark = localStorage.getItem("theme") === "dark";
+  darkStyles.disabled = !dark;
+  themeToggle.textContent = dark ? "☀️" : "🌙";
+}
+
+themeToggle.onclick = () => {
+  const dark = localStorage.getItem("theme") !== "dark";
+  localStorage.setItem("theme", dark ? "dark" : "light");
+  applyTheme();
+};
+
+applyTheme();
+
+/* ===== DATE DEFAULT ===== */
+const today = new Date();
+today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+date.value = today.toISOString().slice(0, 10);
+
+/* ===== TOAST ===== */
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+/* ===== GOOGLE SHEETS SUBMIT ===== */
+const scriptURL =
+"https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
+
+const addBtn = document.getElementById("addTransferBtn");
+
+addBtn.onclick = async () => {
+  const payload = {
+    type: "transfer",
+    date: date.value,
+    from: from.value,
+    to: to.value,
+    amount: amount.value
+  };
+
+  if (!payload.date || !payload.amount) {
+    showToast("Please enter date and amount");
+    return;
+  }
+
+  if (payload.from === payload.to) {
+    showToast("From and To accounts must be different");
+    return;
+  }
+
+  addBtn.disabled = true;
+  addBtn.textContent = "Adding...";
+
+  try {
+    await fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
-    const addButton = document.getElementById("addTransferBtn");
+    amount.value = "";
 
-    addButton.addEventListener("click", async () => {
-      const date = document.getElementById("date").value;
-      const from = document.getElementById("from").value;
-      const to = document.getElementById("to").value;
-      const amount = document.getElementById("amount").value;
+    showToast("Transfer added ✅");
+    if (navigator.vibrate) navigator.vibrate(40);
 
-      if (!date || !amount) {
-        alert("Please enter date and amount.");
-        return;
-      }
+  } catch {
+    showToast("Network error ❌");
+  }
 
-      if (from === to) {
-        alert("From and To accounts must be different.");
-        return;
-      }
-
-      addButton.disabled = true;
-      addButton.textContent = "Adding...";
-
-      try {
-        const response = await fetch(scriptURL, {
-          method: "POST",
-          body: JSON.stringify({
-            type: "transfer",
-            date,
-            from,
-            to,
-            amount
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.status === "success") {
-          document.getElementById("amount").value = "";
-
-          const toast = document.getElementById("toast");
-          toast.classList.add("show");
-          setTimeout(() => toast.classList.remove("show"), 2000);
-
-          if (navigator.vibrate) navigator.vibrate(40);
-        } else {
-          alert("Error: " + result.message);
-        }
-
-      } catch (err) {
-        alert("Network error. Try again.");
-      }
-
-      addButton.disabled = false;
-      addButton.textContent = "Add Transfer";
-    });
-  </script>
-
-  <nav class="bottom-nav">
-    <div class="bottom-nav-inner">
-        <a href="index.html" class="nav-btn">Expense</a>
-        <a href="inflow.html" class="nav-btn">Inflow</a>
-        <span class="nav-btn active">Transfer</span>
-    </div>
-  </nav>
-
+  addBtn.disabled = false;
+  addBtn.textContent = "Save";
+};
+</script>
 
 </body>
 </html>

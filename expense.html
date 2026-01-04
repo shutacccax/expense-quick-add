@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Add Inflow</title>
+<title>Add Expense</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -17,9 +17,14 @@
 <link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
 
 <style>
+/* ===== ENSURE INTER FOR FORM CONTROLS ===== */
 input, select, button, textarea {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+
+
+
 </style>
 </head>
 
@@ -29,7 +34,7 @@ input, select, button, textarea {
 
 <div class="app">
 
-  <div class="expense-header">New Inflow</div>
+  <div class="expense-header">New Expense</div>
 
   <!-- AMOUNT -->
   <div class="amount-wrapper">
@@ -37,31 +42,52 @@ input, select, button, textarea {
     <input type="number" id="amount" placeholder="0.00" inputmode="decimal" />
   </div>
 
+
   <div class="form-section">
+        <!-- DESCRIPTION -->
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="description" placeholder="Optional" />
+          </div>
 
-    <div class="form-group">
-      <label>Description</label>
-      <input type="text" id="description" placeholder="Optional" />
-    </div>
+          <div class="form-group">
+            <label>Category</label>
 
-    <div class="form-group">
-      <label>Account</label>
-      <select id="account">
-        <option>Cash</option>
-        <option>GCash</option>
-        <option>MariBank</option>
-        <option>Maya</option>
-      </select>
-    </div>
+            <div class="category-chips" id="categoryChips">
+              <button type="button" class="chip active" data-value="Food">🍔 Food</button>
+              <button type="button" class="chip" data-value="Transpo">🚌 Transpo</button>
+              <button type="button" class="chip" data-value="Bills">💡 Bills</button>
+              <button type="button" class="chip" data-value="Personal">👤 Personal</button>
+              <button type="button" class="chip" data-value="Shopping">🛍 Shopping</button>
+              <button type="button" class="chip" data-value="Entertainment">🎬 Entertainment</button>
+              <button type="button" class="chip" data-value="Others">📦 Others</button>
+            </div>
+          </div>
 
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="date" />
-    </div>
+
+          <!-- PAYMENT -->
+          <div class="form-group">
+            <label>Payment</label>
+            <select id="payment">
+              <option>Cash</option>
+              <option>GCash</option>
+              <option>MariBank</option>
+              <option>Maya</option>
+            </select>
+          </div>
+
+          <!-- DATE (now same width) -->
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="date" />
+          </div>
+
 
   </div>
 
-  <button id="addInflowBtn" class="add-expense-btn">
+
+  <!-- BUTTON -->
+  <button id="addExpenseBtn" class="add-expense-btn">
     Save
   </button>
 
@@ -74,13 +100,13 @@ input, select, button, textarea {
     <span>Home</span>
   </a>
 
-  <a href="expense.html" class="nav-item">
-    <img src="svgs/minus-square-svgrepo-com.svg">
+  <a class="nav-item active">
+    <img src="svgs/minus-square-svgrepo-com-filled.svg">
     <span>Expense</span>
   </a>
 
-  <a class="nav-item active">
-    <img src="svgs/add-square-svgrepo-com-filled.svg">
+  <a href="inflow.html" class="nav-item">
+    <img src="svgs/add-square-svgrepo-com.svg">
     <span>Inflow</span>
   </a>
 
@@ -89,8 +115,6 @@ input, select, button, textarea {
     <span>Transfer</span>
   </a>
 </nav>
-
-<div id="toast" class="toast"></div>
 
 <script>
 /* ===== THEME ===== */
@@ -102,21 +126,18 @@ function applyTheme() {
   darkStyles.disabled = !dark;
   themeToggle.textContent = dark ? "☀️" : "🌙";
 }
-
 themeToggle.onclick = () => {
   const dark = localStorage.getItem("theme") !== "dark";
   localStorage.setItem("theme", dark ? "dark" : "light");
   applyTheme();
 };
-
 applyTheme();
 
 /* ===== DATE DEFAULT ===== */
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-date.value = today.toISOString().slice(0, 10);
+document.getElementById("date").value = today.toISOString().slice(0, 10);
 
-/* ===== TOAST ===== */
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -124,18 +145,32 @@ function showToast(message) {
   setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
+/* ================= CATEGORY CHIPS LOGIC ================= */
+
+const chips = document.querySelectorAll(".chip");
+let selectedCategory = "Food"; // default
+
+chips.forEach(chip => {
+  chip.addEventListener("click", () => {
+    chips.forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    selectedCategory = chip.dataset.value;
+  });
+});
+
+
 /* ===== GOOGLE SHEETS SUBMIT ===== */
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
-const addBtn = document.getElementById("addInflowBtn");
+const addBtn = document.getElementById("addExpenseBtn");
 
 addBtn.onclick = async () => {
   const payload = {
-    type: "inflow",
     date: date.value,
     description: description.value,
-    account: account.value,
+    category: selectedCategory,
+    payment: payment.value,
     amount: amount.value
   };
 
@@ -156,17 +191,21 @@ addBtn.onclick = async () => {
     description.value = "";
     amount.value = "";
 
-    showToast("Inflow added ✅");
+    showToast("Expense added ✅");
     if (navigator.vibrate) navigator.vibrate(40);
 
   } catch {
     showToast("Network error ❌");
   }
 
+
   addBtn.disabled = false;
-  addBtn.textContent = "Save";
+  addBtn.textContent = "Add Expense";
 };
 </script>
+
+<div id="toast" class="toast"></div>
+
 
 </body>
 </html>

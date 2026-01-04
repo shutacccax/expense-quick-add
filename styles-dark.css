@@ -1,0 +1,140 @@
+/* ================= BASE ================= */
+body {
+  background: #121212;
+  color: #eee;
+}
+
+/* ================= BALANCE CARD ================= */
+.balance-card {
+  background: #1c2a44;
+}
+
+/* ================= ACCOUNTS ================= */
+
+.balances-loading {
+  color: #aaa;
+}
+
+.cash {
+  background: #2a2a2a;
+  color: #eee;
+}
+
+.gcash {
+  background: #1f2a44;
+  color: #9bbcff;
+}
+
+.maya {
+  background: #1f3a2d;
+  color: #7de0a6;
+}
+
+.maribank {
+  background: #3a2a1f;
+  color: #ffb36b;
+}
+
+
+/* ================= NAVBAR ================= */
+.bottom-nav {
+  background: #121212;
+  border-top: 1px solid #2a2a2a;
+}
+
+.nav-item img {
+  filter: invert(1);
+  opacity: 1;
+}
+
+
+.nav-item,
+.nav-item:link,
+.nav-item:visited {
+  color: #ddd;
+}
+
+.nav-item img {
+  filter: invert(1);
+  opacity: 0.85;
+}
+
+.nav-item.active img {
+  opacity: 1;
+}
+
+/* ================= THEME TOGGLE ================= */
+.theme-toggle {
+  background: #1a1a1a;
+}
+
+/* ================= EYE ICON ================= */
+.eye-btn img {
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+/* ================= FORMS ================= */
+.form-group label {
+  color: #aaa;
+}
+
+.form-group input,
+.form-group select {
+  background: #1e1e1e;
+  color: #eee;
+}
+
+/* Amount input underline */
+.amount-wrapper input {
+  border-bottom-color: #444;
+  color: #eee;
+}
+
+.amount-wrapper input::placeholder {
+  color: #424242;
+}
+
+/* ================= CATEGORY CHIPS (DARK) ================= */
+
+.category-chips .chip {
+  background: #1e1e1e;
+  border-color: #333;
+  color: #ddd;
+}
+
+.category-chips .chip.active {
+  background: #1f2a44;
+  border-color: #9bbcff;
+  color: #9bbcff;
+}
+
+.month-select {
+  background: #1c1c1e;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.month-select option {
+  background: #1c1c1e;
+  color: #fff;
+}
+
+.month-select:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.month-select {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.month-select:focus,
+.month-select:focus-visible {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
