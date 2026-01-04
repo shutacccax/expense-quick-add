@@ -419,28 +419,19 @@ body {
   padding: 16px 0;
 }
 
-input[type="date"] {
-  height: 48px;              /* match other inputs */
-  padding: 0 14px;           /* same as text inputs */
-  font-size: 15px;
-}
-
 .date-row {
   position: relative;
 }
 
-#date {
+.date-hidden {
   position: absolute;
-  inset: 0;
-  opacity: 0;
+  left: -9999px; /* move offscreen */
 }
 
 .date-text {
+  background: none;
+  border: none;
   font-size: 14px;
   opacity: 0.7;
-  cursor: pointer;
-}
-
-#date {
-  pointer-events: none;
+  padding: 0;
 }

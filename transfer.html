@@ -61,8 +61,8 @@ input, select, button {
 
     <div class="form-group">
           <div class="date-row">
-            <span id="dateText" class="date-text">Today</span>
-            <input type="date" id="date" />
+            <span class="date-text">Today</span>
+            <input type="date" id="date">
           </div>
     </div>
 
@@ -148,12 +148,6 @@ dateInput.addEventListener("change", () => {
     dateText.textContent = formatDate(dateInput.value);
   }
 });
-
-// tap text → open picker
-dateText.addEventListener("click", () => {
-  dateInput.showPicker?.() || dateInput.click();
-});
-
 
 /* ===== TOAST ===== */
 function showToast(message) {

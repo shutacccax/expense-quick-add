@@ -56,8 +56,8 @@ input, select, button, textarea {
 
     <div class="form-group">
           <div class="date-row">
-            <span id="dateText" class="date-text">Today</span>
-            <input type="date" id="date" />
+            <span class="date-text">Today</span>
+            <input type="date" id="date">
           </div>
     </div>
 
@@ -142,11 +142,6 @@ dateInput.addEventListener("change", () => {
   } else {
     dateText.textContent = formatDate(dateInput.value);
   }
-});
-
-// tap text → open picker
-dateText.addEventListener("click", () => {
-  dateInput.showPicker?.() || dateInput.click();
 });
 
 

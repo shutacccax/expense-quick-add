@@ -77,10 +77,10 @@ input, select, button, textarea {
           </div>
 
           <!-- DATE (now same width) -->
-          <div class="date-row">
-            <span id="dateText" class="date-text">Today</span>
-            <input type="date" id="date" />
-          </div>
+            <div class="date-row">
+              <button id="dateTrigger" class="date-text">Today</button>
+              <input type="date" id="date" class="date-hidden">
+            </div>
 
 
 
@@ -136,38 +136,15 @@ applyTheme();
 
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
-const dateText = document.getElementById("dateText");
+const dateTrigger = document.getElementById("dateTrigger");
 
-// default to today
-const today = new Date();
-today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-dateInput.value = today.toISOString().slice(0, 10);
-
-// helper
-function formatDate(value) {
-  const d = new Date(value);
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
-}
-
-// initial text
-dateText.textContent = "Today";
-
-// update text when changed
-dateInput.addEventListener("change", () => {
-  if (dateInput.value === today.toISOString().slice(0, 10)) {
-    dateText.textContent = "Today";
+dateTrigger.addEventListener("click", () => {
+  if (dateInput.showPicker) {
+    dateInput.showPicker();   // modern browsers
   } else {
-    dateText.textContent = formatDate(dateInput.value);
+    dateInput.focus();
+    dateInput.click();        // Chrome fallback
   }
-});
-
-// tap text → open picker
-dateText.addEventListener("click", () => {
-  dateInput.showPicker?.() || dateInput.click();
 });
 
 
