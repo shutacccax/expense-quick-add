@@ -425,7 +425,33 @@ body {
   height: 48px;
 }
 
+.form-group input,
+.form-group select {
+  width: 100%;
+  min-width: 0; /* prevents iOS from enforcing wider controls */
+}
+
+
 
 input[type="date"] {
-  line-height: 46px;
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 100%;
+  min-width: 0;
+
+  height: 48px;
+  line-height: normal;
+  padding: 0 14px;   /* matches your other fields */
+  font-size: 16px;   /* stops iOS zoom on focus */
+}
+
+
+
+input[type="date"]::-webkit-date-and-time-value {
+  line-height: 1.2;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
 }
