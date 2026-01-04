@@ -78,8 +78,16 @@ input, select, button, textarea {
 
           <!-- DATE (now same width) -->
             <div class="date-row">
-              <button id="dateTrigger" class="date-text">Today</button>
-              <input type="date" id="date" class="date-hidden">
+              <div class="date-control">
+                <span id="dateLabel" class="date-label">Today</span>
+
+                <button id="changeDateBtn" class="date-icon-btn" aria-label="Change date">
+                  <img src="svgs/calendar-minimalistic-svgrepo-com.svg" alt="">
+                </button>
+
+                <input type="date" id="date" class="date-input-hidden">
+              </div>
+
             </div>
 
 
@@ -136,16 +144,33 @@ applyTheme();
 
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
-const dateTrigger = document.getElementById("dateTrigger");
+const dateLabel = document.getElementById("dateLabel");
+const changeBtn = document.getElementById("changeDateBtn");
 
-dateTrigger.addEventListener("click", () => {
-  if (dateInput.showPicker) {
-    dateInput.showPicker();   // modern browsers
-  } else {
-    dateInput.focus();
-    dateInput.click();        // Chrome fallback
-  }
+const today = new Date();
+today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+const todayISO = today.toISOString().slice(0, 10);
+dateInput.value = todayISO;
+
+function formatDate(value) {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+changeBtn.addEventListener("click", () => {
+  dateInput.showPicker?.() || dateInput.click();
 });
+
+dateInput.addEventListener("change", () => {
+  dateLabel.textContent =
+    dateInput.value === todayISO
+      ? "Today"
+      : formatDate(dateInput.value);
+});
+
 
 
 function showToast(message) {

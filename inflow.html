@@ -55,10 +55,17 @@ input, select, button, textarea {
     </div>
 
     <div class="form-group">
-          <div class="date-row">
-            <span class="date-text">Today</span>
-            <input type="date" id="date">
-          </div>
+            <div class="date-row">
+              <div class="date-control">
+                <span id="dateLabel" class="date-label">Today</span>
+
+                <button id="changeDateBtn" class="date-icon-btn" aria-label="Change date">
+                  <img src="svgs/calendar-minimalistic-svgrepo-com.svg" alt="">
+                </button>
+
+                <input type="date" id="date" class="date-input-hidden">
+              </div>
+            </div>
     </div>
 
   </div>
@@ -115,33 +122,31 @@ applyTheme();
 
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
-const dateText = document.getElementById("dateText");
+const dateLabel = document.getElementById("dateLabel");
+const changeBtn = document.getElementById("changeDateBtn");
 
-// default to today
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-dateInput.value = today.toISOString().slice(0, 10);
+const todayISO = today.toISOString().slice(0, 10);
+dateInput.value = todayISO;
 
-// helper
 function formatDate(value) {
-  const d = new Date(value);
-  return d.toLocaleDateString(undefined, {
+  return new Date(value).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric"
   });
 }
 
-// initial text
-dateText.textContent = "Today";
+changeBtn.addEventListener("click", () => {
+  dateInput.showPicker?.() || dateInput.click();
+});
 
-// update text when changed
 dateInput.addEventListener("change", () => {
-  if (dateInput.value === today.toISOString().slice(0, 10)) {
-    dateText.textContent = "Today";
-  } else {
-    dateText.textContent = formatDate(dateInput.value);
-  }
+  dateLabel.textContent =
+    dateInput.value === todayISO
+      ? "Today"
+      : formatDate(dateInput.value);
 });
 
 

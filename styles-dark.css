@@ -145,3 +145,9 @@ input[type="date"] {
   font-size: 15px;
   letter-spacing: -0.2px;
 }
+
+.date-icon-btn img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1); /* force white */
+}
