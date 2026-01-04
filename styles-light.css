@@ -446,3 +446,8 @@ body {
 .form-group input {
   height: 48px;
 }
+
+
+input[type="date"] {
+  line-height: 46px;
+}
