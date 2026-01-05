@@ -166,11 +166,21 @@ if (!localStorage.getItem("balancesVisible")) {
   localStorage.setItem("balancesVisible", "false");
 }
 
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    balancesVisible = false;
+    updateBalanceVisibility();
+  }
+});
 
 const eyeToggle = document.getElementById("eyeToggle");
 const eyeIcon = document.getElementById("eyeIcon");
 
-let balancesVisible = localStorage.getItem("balancesVisible") === "true";
+let balancesLockedVisible =
+  localStorage.getItem("balancesVisible") === "true";
+
+let balancesPeekVisible = false;
+
 let realTotal = 0;
 let realAccounts = [];
 
@@ -188,9 +198,10 @@ function maskAmount(value) {
 
 function updateBalanceVisibility() {
   const totalEl = document.getElementById("totalBalance");
+  const isVisible = balancesLockedVisible || balancesPeekVisible;
 
   // total balance
-  totalEl.textContent = balancesVisible
+  totalEl.textContent = isVisible
     ? "₱" + realTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })
     : maskAmount(realTotal);
   totalEl.classList.add("ready"); // Show after masking
@@ -198,7 +209,7 @@ function updateBalanceVisibility() {
   // all registered money elements
   realAccounts.forEach(el => {
     const val = Number(el.dataset.real);
-    el.textContent = balancesVisible
+    el.textContent = isVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
     el.classList.add("ready"); // Show after masking
@@ -208,24 +219,63 @@ function updateBalanceVisibility() {
   const donutAmountEl = document.getElementById("donutAmount");
   if (donutAmountEl?.dataset.real) {
     const val = Number(donutAmountEl.dataset.real);
-    donutAmountEl.textContent = balancesVisible
+    donutAmountEl.textContent = isVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
     donutAmountEl.classList.add("ready"); // Show after masking
   }
 
-  eyeIcon.src = balancesVisible
+  eyeIcon.src = balancesLockedVisible
     ? "svgs/eye-svgrepo-com.svg"
     : "svgs/eye-closed-svgrepo-com.svg";
 
-  localStorage.setItem("balancesVisible", balancesVisible);
+  localStorage.setItem("balancesVisible", balancesLockedVisible);
+
+
 }
+
 eyeToggle.onclick = () => {
-  balancesVisible = !balancesVisible;
-  eyeToggle.classList.add("animate");
+  balancesLockedVisible = !balancesLockedVisible;
   updateBalanceVisibility();
-  setTimeout(() => eyeToggle.classList.remove("animate"), 250);
 };
+
+
+const totalBalanceEl = document.getElementById("totalBalance");
+
+let holdTimer = null;
+
+// touch
+totalBalanceEl.addEventListener("touchstart", () => {
+  balancesPeekVisible = true;
+  updateBalanceVisibility();
+});
+
+totalBalanceEl.addEventListener("touchend", () => {
+  balancesPeekVisible = false;
+  updateBalanceVisibility();
+});
+
+totalBalanceEl.addEventListener("touchcancel", () => {
+  balancesPeekVisible = false;
+  updateBalanceVisibility();
+});
+
+// mouse
+totalBalanceEl.addEventListener("mousedown", () => {
+  balancesPeekVisible = true;
+  updateBalanceVisibility();
+});
+
+totalBalanceEl.addEventListener("mouseup", () => {
+  balancesPeekVisible = false;
+  updateBalanceVisibility();
+});
+
+totalBalanceEl.addEventListener("mouseleave", () => {
+  balancesPeekVisible = false;
+  updateBalanceVisibility();
+});
+
 
 /* ================= DONUT HIGHLIGHT ================= */
 function highlightDonut(category) {

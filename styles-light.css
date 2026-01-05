@@ -27,6 +27,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 20px;
 }
 
 .balance-card {
@@ -598,4 +599,10 @@ input[type="date"]::-webkit-datetime-edit {
 /* This class will be added only after masking is applied */
 .ready {
   visibility: visible !important;
+}
+
+.balance-amount {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
