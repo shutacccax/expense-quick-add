@@ -59,8 +59,8 @@ html[data-theme="dark"] .bottom-nav {
 }
 
 /* Active / tap (mobile) – dark mode */
-[data-theme="dark"] .icon-btn:active {
-  background: rgba(255, 255, 255, 0.18);
+[data-theme="dark"] .icon-btn{
+  background: #1A1D23;
 }
 
 
@@ -71,6 +71,12 @@ html[data-theme="dark"] .balance-card {
 }
 
 /* ================= ACCOUNTS ================= */
+
+[data-theme="dark"] .account-amount.skeleton {
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+}
+
 
 html[data-theme="dark"] .balances-loading {
   color: rgba(255,255,255,0.6);

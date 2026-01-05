@@ -74,10 +74,6 @@
   <!-- ACCOUNTS -->
   <div class="section-title">Accounts</div>
 
-  <div id="balancesLoading" class="balances-loading">
-    Loading balances
-  </div>
-
   <div id="accounts" class="accounts"></div>
 
 
@@ -150,6 +146,34 @@ function hideLoader() {
 
 
 let lastCategoryData = [];
+
+
+function renderAccountSkeletons() {
+  const container = document.getElementById("accounts");
+  container.innerHTML = "";
+
+  const accounts = [
+    { name: "Cash", cls: "cash" },
+    { name: "GCash", cls: "gcash" },
+    { name: "Maya", cls: "maya" },
+    { name: "MariBank", cls: "maribank" }
+  ];
+
+  accounts.forEach(acc => {
+    const card = document.createElement("div");
+    card.className = `account-card ${acc.cls}`;
+
+    const amountEl = document.createElement("div");
+    amountEl.className = "account-amount skeleton";
+    amountEl.textContent = "₱∙∙∙∙∙"; // masked placeholder
+
+    card.innerHTML = `<div class="account-name">${acc.name}</div>`;
+    card.appendChild(amountEl);
+
+    container.appendChild(card);
+  });
+}
+
 
 /* ================= VISIBILITY / MASKING ================= */
 
@@ -314,11 +338,6 @@ async function loadBalances() {
 }
 
 function renderBalances(data) {
-  const container = document.getElementById("accounts");
-  const loadingEl = document.getElementById("balancesLoading");
-
-  loadingEl.style.display = "none";
-  container.innerHTML = "";
   realAccounts = [];
   realTotal = 0;
 
@@ -326,31 +345,27 @@ function renderBalances(data) {
     const amount = Number(b.balance);
     realTotal += amount;
 
-    let cls = "";
     const name = b.account.toLowerCase();
+    let cls = "";
 
     if (name.includes("gcash")) cls = "gcash";
     else if (name.includes("cash")) cls = "cash";
     else if (name.includes("maya")) cls = "maya";
     else cls = "maribank";
 
-    const card = document.createElement("div");
-    card.className = `account-card ${cls}`;
+    const card = document.querySelector(`.account-card.${cls}`);
+    if (!card) return;
 
+    const amountEl = card.querySelector(".account-amount");
+    amountEl.dataset.real = amount;
+    amountEl.classList.remove("skeleton");
 
-      const amountEl = document.createElement("div");
-      amountEl.className = "account-amount";
-      amountEl.dataset.real = amount;
-
-      card.innerHTML = `<div class="account-name">${b.account}</div>`;
-      card.appendChild(amountEl);
-
-      container.appendChild(card);
-      realAccounts.push(amountEl);
+    realAccounts.push(amountEl);
   });
 
   updateBalanceVisibility();
 }
+
 
 
 /* ================= DONUT ================= */
@@ -491,6 +506,9 @@ function showApp() {
 }
 
 async function initApp() {
+
+  renderAccountSkeletons();
+
   const hasCache =
     sessionStorage.getItem("dashboard_balances") &&
     sessionStorage.getItem(`dashboard_categories_${currentYear}_${currentMonth}`);
