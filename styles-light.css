@@ -23,7 +23,7 @@ body {
   color: white;
   border-radius: 20px;
   padding: 20px;
-  padding-top:75px;
+  padding-top:90px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -454,4 +454,119 @@ input[type="date"]::-webkit-date-and-time-value {
 
 input[type="date"]::-webkit-datetime-edit {
   padding: 0;
+}
+
+/* ===== HALF DONUT ===== */
+.expense-donut {
+  position: relative;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.donut-svg {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+
+.donut-bg {
+  fill: none;
+  stroke: rgba(0,0,0,0.08);
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+
+.donut-value {
+  fill: none;
+  stroke: #2c70e5;
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s ease;
+}
+
+/* center text */
+.donut-center {
+  position: absolute;
+  bottom: 14px;
+  text-align: center;
+}
+
+.donut-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  opacity: 0.6;
+}
+
+.donut-amount {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.donut-bg {
+  fill: none;
+  stroke: rgba(0,0,0,0.08);
+  stroke-width: 18;   /* thicker */
+  stroke-linecap: butt;
+}
+
+/* Animate donut segments */
+.donut-svg path {
+  transition:
+    stroke-dasharray 0.8s ease,
+    stroke-dashoffset 0.8s ease;
+}
+
+/* colored dot beside category */
+.cat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* layout alignment */
+.cat-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+/* donut highlight behavior */
+.donut-svg path {
+  transition: opacity 0.2s ease;
+}
+
+.donut-svg path.dimmed {
+  opacity: 0.25;
+}
+
+.donut-svg path.active {
+  opacity: 1;
+}
+
+.auth-block {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.auth-block h2 {
+  margin-bottom: 8px;
+}
+
+.auth-block a {
+  margin-top: 16px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #2c70e5;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
 }

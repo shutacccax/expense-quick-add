@@ -112,3 +112,34 @@ body {
 .dark .date-compact {
   background: rgba(255,255,255,0.12);
 }
+
+
+/* ================= DARK MODE — MONTH SELECT ================= */
+.month-select {
+  background: #1e1e1e;          /* dark card background */
+  color: #ffffff;               /* 🔑 fixes black text */
+}
+
+.month-select option {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+/* inline variant */
+.month-select.inline {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+.month-select {
+  border: transparent;
+}
+
+/* ===== DARK MODE ===== */
+.donut-bg {
+  stroke: rgba(255,255,255,0.15);
+}
+
+.donut-amount {
+  color: #fff;
+}

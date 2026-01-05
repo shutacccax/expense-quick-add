@@ -131,6 +131,63 @@ themeToggle.onclick = () => {
 };
 applyTheme();
 
+/* ================= OFFLINE QUEUE ================= */
+const PENDING_KEY = "pendingTransactions";
+
+function getPending() {
+  return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
+}
+
+function setPending(list) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(list));
+}
+
+async function submitTransaction(payload) {
+  // 1️⃣ Always save locally first
+  const pending = getPending();
+
+  pending.push({
+    id: crypto.randomUUID(),
+    payload,
+    timestamp: Date.now()
+  });
+
+  setPending(pending);
+
+  // 2️⃣ Try syncing immediately (non-blocking)
+  trySyncPending();
+}
+
+async function trySyncPending() {
+  if (!navigator.onLine) return;
+
+  let pending = getPending();
+  if (!pending.length) return;
+
+  const remaining = [];
+
+  for (const item of pending) {
+    try {
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(item.payload)
+      });
+
+      const json = await res.json();
+      if (json.status !== "success") {
+        throw new Error("Server rejected");
+      }
+
+    } catch (err) {
+      // keep it if failed
+      remaining.push(item);
+    }
+  }
+
+  setPending(remaining);
+}
+
+
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
 const dateLabel = document.getElementById("dateLabel");
@@ -183,16 +240,10 @@ const scriptURL =
 
 const addBtn = document.getElementById("addExpenseBtn");
 
-addBtn.onclick = async () => {
-  const payload = {
-    date: date.value,
-    description: description.value,
-    category: selectedCategory,
-    payment: payment.value,
-    amount: amount.value
-  };
+addBtn.onclick = () => {
+  if (addBtn.disabled) return;
 
-  if (!payload.date || !payload.amount) {
+  if (!date.value || !amount.value) {
     showToast("Please enter date and amount");
     return;
   }
@@ -200,26 +251,43 @@ addBtn.onclick = async () => {
   addBtn.disabled = true;
   addBtn.textContent = "Adding...";
 
-  try {
-    await fetch(scriptURL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+  submitTransaction({
+    type: "expense",
+    date: date.value,
+    description: description.value,
+    category: selectedCategory,
+    payment: payment.value,
+    amount: amount.value
+  });
 
-    description.value = "";
-    amount.value = "";
-
-    showToast("Expense added ✅");
-    if (navigator.vibrate) navigator.vibrate(40);
-
-  } catch {
-    showToast("Network error ❌");
+  if (navigator.onLine) {
+    showToast("Saved ✓");
+  } else {
+    showToast("Saved offline ⏳");
   }
 
+  // clear fields
+  description.value = "";
+  amount.value = "";
 
-  addBtn.disabled = false;
-  addBtn.textContent = "Add Expense";
+  // reset category to default (Food)
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  document.querySelector('.chip[data-value="Food"]').classList.add("active");
+  selectedCategory = "Food";
+
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  setTimeout(() => {
+    addBtn.disabled = false;
+    addBtn.textContent = "Add Expense";
+  }, 400);
 };
+
+
+window.addEventListener("online", () => {
+  trySyncPending();
+});
+
 </script>
 
 <div id="toast" class="toast"></div>

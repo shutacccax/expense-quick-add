@@ -118,6 +118,58 @@ themeToggle.onclick = () => {
 
 applyTheme();
 
+const PENDING_KEY = "pendingTransactions";
+
+function getPending() {
+  return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
+}
+
+function setPending(list) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(list));
+}
+
+async function submitTransaction(payload) {
+  const pending = getPending();
+
+  pending.push({
+    id: crypto.randomUUID(),
+    payload,
+    timestamp: Date.now()
+  });
+
+  setPending(pending);
+  trySyncPending();
+}
+
+async function trySyncPending() {
+  if (!navigator.onLine) return;
+
+  let pending = getPending();
+  if (!pending.length) return;
+
+  const remaining = [];
+
+  for (const item of pending) {
+    try {
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(item.payload)
+      });
+
+      const json = await res.json();
+      if (json.status !== "success") throw new Error();
+
+    } catch {
+      remaining.push(item);
+    }
+  }
+
+  setPending(remaining);
+}
+
+window.addEventListener("online", trySyncPending);
+
+
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
 const dateLabel = document.getElementById("dateLabel");
@@ -156,46 +208,53 @@ const scriptURL =
 
 const addBtn = document.getElementById("addTransferBtn");
 
-addBtn.onclick = async () => {
-  const payload = {
+addBtn.onclick = () => {
+  if (addBtn.disabled) return;
+
+  if (!amount.value || !from.value || !to.value || !date.value) {
+    showToast("Please complete the form");
+    return;
+  }
+
+  if (from.value === to.value) {
+    showToast("Accounts must be different");
+    return;
+  }
+
+  addBtn.disabled = true;
+
+  submitTransaction({
     type: "transfer",
     date: date.value,
     from: from.value,
     to: to.value,
     amount: amount.value
-  };
+  });
 
-  if (!payload.date || !payload.amount) {
-    showToast("Please enter date and amount");
-    return;
+  if (navigator.onLine) {
+    showToast("Transfer saved ✓");
+  } else {
+    showToast("Transfer saved offline ⏳");
   }
 
-  if (payload.from === payload.to) {
-    showToast("From and To accounts must be different");
-    return;
-  }
+  // clear fields
+  amount.value = "";
+  from.selectedIndex = 0;
+  to.selectedIndex = 0;
 
-  addBtn.disabled = true;
-  addBtn.textContent = "Adding...";
+  if (navigator.vibrate) navigator.vibrate(40);
 
-  try {
-    await fetch(scriptURL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-
-    amount.value = "";
-
-    showToast("Transfer added ✅");
-    if (navigator.vibrate) navigator.vibrate(40);
-
-  } catch {
-    showToast("Network error ❌");
-  }
-
-  addBtn.disabled = false;
-  addBtn.textContent = "Save";
+  setTimeout(() => {
+    addBtn.disabled = false;
+  }, 400);
 };
+
+
+window.addEventListener("online", () => {
+  trySyncPending();
+});
+
+
 </script>
 
 </body>

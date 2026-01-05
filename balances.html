@@ -23,6 +23,8 @@
 
 <div class="app">
 
+  <div class="expense-header">Dashboard</div>
+
   <!-- BALANCE CARD -->
   <div class="balance-card">
     <div>
@@ -45,14 +47,34 @@
   <div id="accounts" class="accounts"></div>
 
 
-  <!-- ACCOUNTS -->
-<div class="expenses-header">
-  <div class="section-title">Expenses</div>
 
-  <select id="monthSelect" class="month-select inline"></select>
+  <!-- ACCOUNTS -->
+  <div class="expenses-header">
+    <div class="section-title">Expenses</div>
+
+    <select id="monthSelect" class="month-select inline"></select>
+  </div>
+
+  <div class="expense-donut">
+  <svg viewBox="0 0 200 110" class="donut-svg">
+    <!-- background arc -->
+    <path
+      d="M 10 100 A 90 90 0 0 1 190 100"
+      class="donut-bg"
+    />
+
+    <!-- category arcs injected here -->
+    <g id="donutSegments"></g>
+  </svg>
+
+  <div class="donut-center">
+    <div class="donut-label">SPENT</div>
+    <div id="donutAmount" class="donut-amount">₱0.00</div>
+  </div>
 </div>
 
-<div id="categoryTotals" class="category-totals"></div>
+
+  <div id="categoryTotals" class="category-totals"></div>
 
 
 
@@ -87,21 +109,47 @@ const body = document.body;
 const themeToggle = document.getElementById("themeToggle");
 const darkStyles = document.getElementById("darkStyles");
 
-const CATEGORY_EMOJIS = {
-  Food: "🍔",
-  Transpo: "🚌",
-  Bills: "💡",
-  Personal: "👤",
-  Shopping: "🛍",
-  Entertainment: "🎬",
-  Others: "📦"
+let lastCategoryData = [];
+
+/* ================= CATEGORY COLORS ================= */
+const CATEGORY_COLORS_LIGHT = {
+  Transpo: "#00ACC1",
+  Food: "#3F6FFF",
+  Entertainment: "#7E57C2",
+  Others: "#9E9E9E",
+  Shopping: "#FF7043",
+  Bills: "#FBC02D",
+  Personal: "#AB47BC"
 };
 
+const CATEGORY_COLORS_DARK = {
+  Transpo: "#3A7F87",
+  Food: "#4B5F9E",
+  Entertainment: "#6A5A8C",
+  Others: "#6B6F74",
+  Shopping: "#8A5A45",
+  Bills: "#8A7A3A",
+  Personal: "#7A567F"
+};
 
+function getCategoryColor(category) {
+  const isDark = localStorage.getItem("theme") === "dark";
+  return isDark
+    ? CATEGORY_COLORS_DARK[category] || "#777"
+    : CATEGORY_COLORS_LIGHT[category] || "#999";
+}
+
+/* ================= THEME APPLY ================= */
 function applyTheme() {
   const dark = localStorage.getItem("theme") === "dark";
   darkStyles.disabled = !dark;
   themeToggle.textContent = dark ? "☀️" : "🌙";
+
+  if (lastCategoryData.length) {
+    updateDonutByCategory(lastCategoryData);
+    renderCategoryList(lastCategoryData);
+    updateBalanceVisibility();
+  }
 }
 
 themeToggle.onclick = () => {
@@ -112,7 +160,7 @@ themeToggle.onclick = () => {
 
 applyTheme();
 
-/* ================= BALANCE VISIBILITY ================= */
+/* ================= VISIBILITY / MASKING ================= */
 const eyeToggle = document.getElementById("eyeToggle");
 const eyeIcon = document.getElementById("eyeIcon");
 
@@ -121,58 +169,63 @@ let realTotal = 0;
 let realAccounts = [];
 
 function maskAmount(value) {
-  const str = Number(value).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-
-  return "₱" + str.replace(/\d/g, "*");
+  return "₱" + String(value.toFixed(2)).replace(/\d/g, "*");
 }
-
 
 function updateBalanceVisibility() {
   const totalEl = document.getElementById("totalBalance");
 
-  if (balancesVisible) {
-    // SHOW REAL VALUES
-    totalEl.textContent =
-      "₱" + realTotal.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+  // total balance
+  totalEl.textContent = balancesVisible
+    ? "₱" + realTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    : maskAmount(realTotal);
 
-    realAccounts.forEach(el => {
-      const val = Number(el.dataset.real);
-      el.textContent =
-        "₱" + val.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-    });
+  // all registered money elements
+  realAccounts.forEach(el => {
+    const val = Number(el.dataset.real);
+    el.textContent = balancesVisible
+      ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+      : maskAmount(val);
+  });
 
-    eyeIcon.src = "svgs/eye-svgrepo-com.svg";
-  } else {
-    // MASK VALUES
-    totalEl.textContent = maskAmount(realTotal);
-
-    realAccounts.forEach(el => {
-      el.textContent = maskAmount(el.dataset.real);
-    });
-
-    eyeIcon.src = "svgs/eye-closed-svgrepo-com.svg";
+  // donut center
+  const donutAmountEl = document.getElementById("donutAmount");
+  if (donutAmountEl?.dataset.real) {
+    const val = Number(donutAmountEl.dataset.real);
+    donutAmountEl.textContent = balancesVisible
+      ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+      : maskAmount(val);
   }
+
+  eyeIcon.src = balancesVisible
+    ? "svgs/eye-svgrepo-com.svg"
+    : "svgs/eye-closed-svgrepo-com.svg";
 
   localStorage.setItem("balancesVisible", balancesVisible);
 }
 
-
-/* Eye animation */
 eyeToggle.onclick = () => {
   balancesVisible = !balancesVisible;
   eyeToggle.classList.add("animate");
   updateBalanceVisibility();
   setTimeout(() => eyeToggle.classList.remove("animate"), 250);
 };
+
+/* ================= DONUT HIGHLIGHT ================= */
+function highlightDonut(category) {
+  document.querySelectorAll("#donutSegments path").forEach(p => {
+    p.classList.add("dimmed");
+    if (p.dataset.category === category) {
+      p.classList.remove("dimmed");
+    }
+  });
+}
+
+function resetDonutHighlight() {
+  document.querySelectorAll("#donutSegments path").forEach(p => {
+    p.classList.remove("dimmed");
+  });
+}
 
 /* ================= LOAD BALANCES ================= */
 const scriptURL =
@@ -184,62 +237,138 @@ async function loadBalances() {
 
   loadingEl.style.display = "block";
   container.innerHTML = "";
+  realAccounts = [];
+  realTotal = 0;
 
-  try {
-    const res = await fetch(scriptURL);
-    const json = await res.json();
+  const res = await fetch(scriptURL);
+  const json = await res.json();
 
-    if (json.status !== "success") {
-      throw new Error(json.message);
-    }
+  json.data.forEach(b => {
+    const amount = Number(b.balance);
+    realTotal += amount;
 
-    realTotal = 0;
-    realAccounts = [];
+  let cls = "";
+  const name = b.account.toLowerCase();
 
-    json.data.forEach(b => {
-      const amount = Number(b.balance);
-      realTotal += amount;
+  if (name.includes("gcash")) cls = "gcash";
+  else if (name.includes("cash")) cls = "cash";
+  else if (name.includes("maya")) cls = "maya";
+  else cls = "maribank";
 
-      let cls = "";
-      const name = b.account.toLowerCase();
-      if (name.includes("gcash")) cls = "gcash";
-      else if (name.includes("cash")) cls = "cash";
-      else if (name.includes("maya")) cls = "maya";
-      else cls = "maribank";
+  const card = document.createElement("div");
+  card.className = `account-card ${cls}`;
 
-      const card = document.createElement("div");
-      card.className = `account-card ${cls}`;
 
-      const amountEl = document.createElement("div");
-      amountEl.className = "account-amount";
-      amountEl.dataset.real = amount;
+    const amountEl = document.createElement("div");
+    amountEl.className = "account-amount";
+    amountEl.dataset.real = amount;
 
-      card.innerHTML = `<div class="account-name">${b.account}</div>`;
-      card.appendChild(amountEl);
+    card.innerHTML = `<div class="account-name">${b.account}</div>`;
+    card.appendChild(amountEl);
 
-      container.appendChild(card);
-      realAccounts.push(amountEl);
-    });
+    container.appendChild(card);
+    realAccounts.push(amountEl);
+  });
 
-    updateBalanceVisibility();
-    loadingEl.style.display = "none";
-
-  } catch (err) {
-    loadingEl.textContent = "Failed to load balances.";
-    console.error("Error loading balances:", err);
-  }
+  loadingEl.style.display = "none";
+  updateBalanceVisibility();
 }
 
+/* ================= DONUT ================= */
+function updateDonutByCategory(data) {
+  const group = document.getElementById("donutSegments");
+  group.innerHTML = "";
 
+  const total = data.reduce((s, d) => s + d.total, 0);
+
+  const donutAmountEl = document.getElementById("donutAmount");
+  donutAmountEl.dataset.real = total;
+
+  let offset = 0;
+
+  data.forEach(item => {
+    const percent = total ? (item.total / total) * 100 : 0;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M 10 100 A 90 90 0 0 1 190 100");
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", getCategoryColor(item.category));
+    path.setAttribute("stroke-width", "18");
+    path.setAttribute("stroke-linecap", "butt");
+    path.setAttribute("pathLength", "100");
+    path.dataset.category = item.category;
+
+    path.setAttribute("stroke-dasharray", `${percent} ${100 - percent}`);
+    path.setAttribute("stroke-dashoffset", -offset);
+
+    offset += percent;
+    group.appendChild(path);
+  });
+
+  updateBalanceVisibility();
+}
+
+/* ================= CATEGORY LIST ================= */
+function renderCategoryList(data) {
+  const container = document.getElementById("categoryTotals");
+  container.innerHTML = "";
+  realAccounts = realAccounts.filter(el => !el.classList.contains("cat-amount"));
+
+  data.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "category-row";
+
+    const color = getCategoryColor(item.category);
+
+    const amountEl = document.createElement("span");
+    amountEl.className = "cat-amount";
+    amountEl.style.color = color;
+    amountEl.dataset.real = item.total;
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "cat-name";
+    nameEl.innerHTML = `<span class="cat-dot" style="background:${color}"></span>${item.category}`;
+
+    row.appendChild(nameEl);
+    row.appendChild(amountEl);
+
+    row.addEventListener("touchstart", () => highlightDonut(item.category));
+    row.addEventListener("mousedown", () => highlightDonut(item.category));
+    row.addEventListener("touchend", resetDonutHighlight);
+    row.addEventListener("mouseup", resetDonutHighlight);
+    row.addEventListener("mouseleave", resetDonutHighlight);
+
+    container.appendChild(row);
+    realAccounts.push(amountEl);
+  });
+
+  updateBalanceVisibility();
+}
+
+/* ================= LOAD CATEGORY TOTALS ================= */
+async function loadCategoryTotals(year, month) {
+  const res = await fetch(`${scriptURL}?action=categoryTotals&year=${year}&month=${month}`);
+  const json = await res.json();
+
+  json.data.sort((a, b) => b.total - a.total);
+  lastCategoryData = json.data;
+
+  updateDonutByCategory(json.data);
+  renderCategoryList(json.data);
+}
+
+/* ================= MONTH DROPDOWN ================= */
 const monthSelect = document.getElementById("monthSelect");
 
 const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonth = now.getMonth() + 1;
 
-// Generate last 12 months
+// build last 12 months
+monthSelect.innerHTML = "";
 for (let i = 0; i < 12; i++) {
   const d = new Date(currentYear, currentMonth - 1 - i, 1);
+
   const value = `${d.getFullYear()}-${d.getMonth() + 1}`;
   const label = d.toLocaleString("default", {
     month: "long",
@@ -249,71 +378,28 @@ for (let i = 0; i < 12; i++) {
   const option = document.createElement("option");
   option.value = value;
   option.textContent = label;
-
   monthSelect.appendChild(option);
 }
 
-// Default = current month
+// default = current month
 monthSelect.value = `${currentYear}-${currentMonth}`;
 
+// reload data on change
 monthSelect.addEventListener("change", () => {
   const [year, month] = monthSelect.value.split("-");
   loadCategoryTotals(Number(year), Number(month));
 });
 
-// Load initial month
+// initial load
 loadCategoryTotals(currentYear, currentMonth);
 
-async function loadCategoryTotals(year, month) {
-  const container = document.getElementById("categoryTotals");
-  container.innerHTML = `<div class="empty">Loading…</div>`;
 
-  const url = `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`;
-
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
-
-    if (json.status !== "success") {
-      throw new Error(json.message);
-    }
-
-    json.data.sort((a, b) => b.total - a.total);
-
-    container.innerHTML = "";
-
-    if (json.data.length === 0) {
-      container.innerHTML = `<div class="empty">No expenses this month</div>`;
-      return;
-    }
-
-    json.data.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "category-row";
-
-      row.innerHTML = `
-        <span class="cat-name">
-          ${CATEGORY_EMOJIS[item.category] || "📁"} ${item.category}
-        </span>
-
-        <span class="cat-amount">₱${item.total.toLocaleString()}</span>
-      `;
-
-      container.appendChild(row);
-    });
-
-  } catch (err) {
-    container.innerHTML = `<div class="empty">Failed to load data</div>`;
-    console.error(err);
-  }
-}
-
-
-
-
+/* ================= INIT ================= */
 loadBalances();
 
+
 </script>
+
 
 </body>
 </html>

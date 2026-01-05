@@ -111,6 +111,58 @@ themeToggle.onclick = () => {
 
 applyTheme();
 
+const PENDING_KEY = "pendingTransactions";
+
+function getPending() {
+  return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
+}
+
+function setPending(list) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(list));
+}
+
+async function submitTransaction(payload) {
+  const pending = getPending();
+
+  pending.push({
+    id: crypto.randomUUID(),
+    payload,
+    timestamp: Date.now()
+  });
+
+  setPending(pending);
+  trySyncPending();
+}
+
+async function trySyncPending() {
+  if (!navigator.onLine) return;
+
+  let pending = getPending();
+  if (!pending.length) return;
+
+  const remaining = [];
+
+  for (const item of pending) {
+    try {
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(item.payload)
+      });
+
+      const json = await res.json();
+      if (json.status !== "success") throw new Error();
+
+    } catch {
+      remaining.push(item);
+    }
+  }
+
+  setPending(remaining);
+}
+
+window.addEventListener("online", trySyncPending);
+
+
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
 const dateLabel = document.getElementById("dateLabel");
@@ -149,42 +201,47 @@ const scriptURL =
 
 const addBtn = document.getElementById("addInflowBtn");
 
-addBtn.onclick = async () => {
-  const payload = {
+addBtn.onclick = () => {
+  if (addBtn.disabled) return;
+
+  if (!amount.value || !account.value || !date.value) {
+    showToast("Please complete the form");
+    return;
+  }
+
+  addBtn.disabled = true;
+
+  submitTransaction({
     type: "inflow",
     date: date.value,
     description: description.value,
     account: account.value,
     amount: amount.value
-  };
+  });
 
-  if (!payload.date || !payload.amount) {
-    showToast("Please enter date and amount");
-    return;
+  if (navigator.onLine) {
+    showToast("Inflow saved ✓");
+  } else {
+    showToast("Inflow saved offline ⏳");
   }
 
-  addBtn.disabled = true;
-  addBtn.textContent = "Adding...";
+  // clear fields
+  description.value = "";
+  amount.value = "";
+  account.selectedIndex = 0;
 
-  try {
-    await fetch(scriptURL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+  if (navigator.vibrate) navigator.vibrate(40);
 
-    description.value = "";
-    amount.value = "";
-
-    showToast("Inflow added ✅");
-    if (navigator.vibrate) navigator.vibrate(40);
-
-  } catch {
-    showToast("Network error ❌");
-  }
-
-  addBtn.disabled = false;
-  addBtn.textContent = "Save";
+  setTimeout(() => {
+    addBtn.disabled = false;
+  }, 400);
 };
+
+window.addEventListener("online", () => {
+  trySyncPending();
+});
+
+
 </script>
 
 </body>
