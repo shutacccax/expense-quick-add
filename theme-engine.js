@@ -18,32 +18,24 @@ function getCategoryColor(category) {
   return `var(--cat-${category.toLowerCase()})`;
 }
 
-function applyTheme() {
-  const isDark = localStorage.getItem("theme") === "dark";
-  
-  // 1. Switch the stylesheet
-  if (darkStyles) darkStyles.disabled = !isDark;
-  
-  // 2. Update the button icon
-  if (themeToggle) themeToggle.textContent = isDark ? "☀️" : "🌙";
+function applyTheme(isDark) {
+  document.documentElement.setAttribute(
+    "data-theme",
+    isDark ? "dark" : "light"
+  );
+  localStorage.setItem("theme", isDark ? "dark" : "light");
 
-  // 3. Update the page-specific UI (balances, masks, etc.)
-  if (typeof updateBalanceVisibility === "function") updateBalanceVisibility();
-  
-  // 4. Update the Dashboard Donut if it exists
-  if (window.lastCategoryData && typeof updateDonutByCategory === "function") {
-    updateDonutByCategory(window.lastCategoryData);
-    renderCategoryList(window.lastCategoryData);
+  if (themeToggle) {
+    themeToggle.textContent = isDark ? "☀️" : "🌙";
   }
 }
 
 if (themeToggle) {
   themeToggle.onclick = () => {
-    const willBeDark = localStorage.getItem("theme") !== "dark";
-    localStorage.setItem("theme", willBeDark ? "dark" : "light");
-    applyTheme();
+    const isDark = document.documentElement.getAttribute("data-theme") !== "dark";
+    applyTheme(isDark);
   };
 }
 
-// Run once on load to sync everything
-applyTheme();
+// sync on load
+applyTheme(localStorage.getItem("theme") === "dark");

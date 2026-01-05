@@ -8,27 +8,33 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 
-<!-- Inter -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html {
+    background: #ffffff; /* light fallback */
+  }
+</style>
 
-<link rel="stylesheet" href="styles-light.css">
-  <link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
 
+  <!-- 🔥 Decide theme BEFORE styles load -->
   <script>
-    // 1. Check theme immediately
     if (localStorage.getItem("theme") === "dark") {
-      // 2. Enable dark CSS
-      document.getElementById("darkStyles").disabled = false;
-      // 3. Add a class to the body so the loader starts dark
-      document.documentElement.classList.add('dark-theme');
+      document.documentElement.setAttribute("data-theme", "dark");
     }
   </script>
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles (DO NOT disable any) -->
+  <link rel="stylesheet" href="styles-light.css">
+  <link rel="stylesheet" href="styles-dark.css">
+
 </head>
 
-<body>
+<body class="page">
+
 
 <button id="themeToggle" class="theme-toggle">🌙</button>
 
@@ -235,6 +241,10 @@ addBtn.onclick = () => {
 
 window.addEventListener("online", () => {
   trySyncPending();
+});
+
+requestAnimationFrame(() => {
+  document.body.classList.add("page-ready");
 });
 
 

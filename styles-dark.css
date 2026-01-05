@@ -1,6 +1,10 @@
-/* ================= BASE ================= */
+/* ================= DARK VARIABLES ================= */
 
-:root {
+html[data-theme="dark"] {
+  --bg: #0f1115;
+  --text: #eaeaea;
+  --card: #1a1d23;
+
   --cat-food: #4B5F9E;
   --cat-transpo: #3A7F87;
   --cat-entertainment: #6A5A8C;
@@ -10,154 +14,161 @@
   --cat-others: #6B6F74;
 }
 
+/* ================= PAGE ================= */
 
-
-body {
-  background: #121212;
-  color: #eee;
+html[data-theme="dark"] {
+  background: var(--bg);
 }
 
-body, nav, .app, .balance-card {
-  transition: background-color 0.3s ease, color 0.3s ease;
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  min-height: 100%;
+}
+
+html[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ================= TRANSITIONS ================= */
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] nav,
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .balance-card,
+html[data-theme="dark"] .account-card,
+html[data-theme="dark"] .form-group input,
+html[data-theme="dark"] .form-group select,
+html[data-theme="dark"] .bottom-nav {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* ================= BALANCE CARD ================= */
-.balance-card {
-  background: #1c2a44;
-}
 
+html[data-theme="dark"] .balance-card {
+  background: #1c2a44; /* darker accent only in dark mode */
+}
 
 /* ================= ACCOUNTS ================= */
 
-.balances-loading {
-  color: #aaa;
+html[data-theme="dark"] .balances-loading {
+  color: rgba(255,255,255,0.6);
 }
 
-.cash {
+html[data-theme="dark"] .cash {
   background: #2a2a2a;
   color: #eee;
 }
 
-.gcash {
+html[data-theme="dark"] .gcash {
   background: #1f2a44;
   color: #9bbcff;
 }
 
-.maya {
+html[data-theme="dark"] .maya {
   background: #1f3a2d;
   color: #7de0a6;
 }
 
-.maribank {
+html[data-theme="dark"] .maribank {
   background: #3a2a1f;
   color: #ffb36b;
 }
 
-
 /* ================= NAVBAR ================= */
-.bottom-nav {
-  background: #121212;
-  border-top: 1px solid #2a2a2a;
+
+html[data-theme="dark"] .bottom-nav {
+  background: var(--bg);
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-.nav-item img {
-  filter: invert(1);
-  opacity: 1;
+html[data-theme="dark"] .nav-item,
+html[data-theme="dark"] .nav-item:link,
+html[data-theme="dark"] .nav-item:visited {
+  color: rgba(255,255,255,0.85);
 }
 
-
-.nav-item,
-.nav-item:link,
-.nav-item:visited {
-  color: #ddd;
-}
-
-.nav-item img {
+html[data-theme="dark"] .nav-item img {
   filter: invert(1);
   opacity: 0.85;
 }
 
-.nav-item.active img {
+html[data-theme="dark"] .nav-item.active img {
   opacity: 1;
 }
 
 /* ================= THEME TOGGLE ================= */
-.theme-toggle {
-  background: #1a1a1a;
+
+html[data-theme="dark"] .theme-toggle {
+  background: var(--card);
+  color: var(--text);
 }
 
 /* ================= EYE ICON ================= */
-.eye-btn img {
+
+html[data-theme="dark"] .eye-btn img {
   filter: invert(1);
   opacity: 0.9;
 }
 
 /* ================= FORMS ================= */
-.form-group label {
-  color: #aaa;
+
+html[data-theme="dark"] .form-group label {
+  color: rgba(255,255,255,0.6);
 }
 
-.form-group input,
-.form-group select {
-  background: #1e1e1e;
-  color: #eee;
+html[data-theme="dark"] .form-group input,
+html[data-theme="dark"] .form-group select {
+  background: var(--card);
+  color: var(--text);
 }
 
-/* Amount input underline */
-.amount-wrapper input {
-  border-bottom-color: #444;
-  color: #eee;
+html[data-theme="dark"] .amount-wrapper input {
+  border-bottom-color: rgba(255,255,255,0.25);
+  color: var(--text);
 }
 
-.amount-wrapper input::placeholder {
-  color: #424242;
+html[data-theme="dark"] .amount-wrapper input::placeholder {
+  color: rgba(255,255,255,0.35);
 }
 
-/* ================= CATEGORY CHIPS (DARK) ================= */
+/* ================= CATEGORY CHIPS ================= */
 
-.category-chips .chip {
-  background: #1e1e1e;
-  border-color: #333;
-  color: #ddd;
+html[data-theme="dark"] .category-chips .chip {
+  background: var(--card);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--text);
 }
 
-.category-chips .chip.active {
+html[data-theme="dark"] .category-chips .chip.active {
   background: #1f2a44;
   border-color: #9bbcff;
   color: #9bbcff;
 }
 
-.dark .date-compact {
-  background: rgba(255,255,255,0.12);
+/* ================= MONTH SELECT ================= */
+
+html[data-theme="dark"] .month-select,
+html[data-theme="dark"] .month-select.inline {
+  background: var(--card);
+  color: var(--text);
+  border: none;
 }
 
-
-/* ================= DARK MODE — MONTH SELECT ================= */
-.month-select {
-  background: #1e1e1e;          /* dark card background */
-  color: #ffffff;               /* 🔑 fixes black text */
+html[data-theme="dark"] .month-select option {
+  background: var(--card);
+  color: var(--text);
 }
 
-.month-select option {
-  background: #1e1e1e;
-  color: #ffffff;
-}
+/* ================= DONUT ================= */
 
-/* inline variant */
-.month-select.inline {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.month-select {
-  border: transparent;
-}
-
-/* ===== DARK MODE ===== */
-.donut-bg {
+html[data-theme="dark"] .donut-bg {
   stroke: rgba(255,255,255,0.15);
 }
 
-.donut-amount {
-  color: #fff;
+html[data-theme="dark"] .donut-amount {
+  color: var(--text);
 }

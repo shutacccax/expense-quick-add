@@ -1,6 +1,12 @@
 /* ================= BASE ================= */
 
 :root {
+  /* Theme colors */
+  --bg: #ffffff;
+  --text: #111111;
+  --card: #f2f4f8;
+
+  /* Category colors */
   --cat-food: #3F6FFF;
   --cat-transpo: #00ACC1;
   --cat-entertainment: #7E57C2;
@@ -10,14 +16,22 @@
   --cat-others: #9E9E9E;
 }
 
+html {
+  background: var(--bg);
+  transition: background-color 0.35s ease;
+}
+
+html, body {
+  min-height: 100%;
+}
 
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.01em;
-  background: #f6f7fb;
-  color: #111;
-  transition: background 0.25s ease, color 0.25s ease;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app {
@@ -26,14 +40,29 @@ body {
   max-width: 420px;
   margin: 0 auto;
   padding-top: 40px;
+  background: transparent;
 }
 
-.page-dashboard .app {
+body, nav, .app, .balance-card {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.page-dashboard .page {
   opacity: 0;
-  transition: opacity 0.35s ease;
 }
 
-.page-dashboard .app.app-ready {
+.page-dashboard .page.page-ready {
   opacity: 1;
 }
 
@@ -43,19 +72,17 @@ body, nav, .app, .balance-card {
 }
 
 /* ================= BALANCE CARD ================= */
+
 .balance-card {
   background: #1e63d6;
   color: white;
   border-radius: 20px;
   padding: 20px;
-  padding-top:90px;
+  padding-top: 90px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
-}
-
-.balance-card {
   position: relative;
   overflow: hidden;
 }
@@ -65,7 +92,7 @@ body, nav, .app, .balance-card {
   position: absolute;
   width: 180px;
   height: 180px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
   border-radius: 50%;
   top: -60px;
   right: -60px;
@@ -76,12 +103,11 @@ body, nav, .app, .balance-card {
   position: absolute;
   width: 140px;
   height: 140px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0,0,0,0.05);
   border-radius: 50%;
   bottom: -50px;
   right: -40px;
 }
-
 
 .balance-label {
   font-size: 12px;
@@ -124,11 +150,15 @@ body, nav, .app, .balance-card {
 .section-title {
   margin: 20px 0 12px;
   font-weight: 600;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .balances-loading {
   font-size: 14px;
-  color: #747a90;
+  color: rgba(0,0,0,0.55);
   padding: 12px 0;
 }
 
@@ -156,6 +186,8 @@ body, nav, .app, .balance-card {
 .account-card {
   border-radius: 16px;
   padding: 16px;
+  background: var(--card);
+  color: var(--text);
 }
 
 .account-name {
@@ -170,7 +202,7 @@ body, nav, .app, .balance-card {
   transition: opacity 0.2s ease;
 }
 
-/* Account colors — LIGHT */
+/* Accent account colors */
 .cash { background: #efefef; color: #222; }
 .gcash { background: #eaf2ff; color: #1e63d6; }
 .maya { background: #eaf7ef; color: #2f8f5b; }
@@ -203,18 +235,17 @@ body, nav, .app, .balance-card {
   left: 0;
   right: 0;
   height: 72px;
-  background: #fff;
-  border-top: 1px solid #eee;
+  background: var(--bg);
+  border-top: 1px solid rgba(0,0,0,0.08);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .nav-item,
 .nav-item:link,
 .nav-item:visited {
-  color: #1c274c;          /* same as filled icon color */
+  color: #1c274c;
   text-decoration: none;
   font-size: 12px;
   display: flex;
@@ -222,7 +253,6 @@ body, nav, .app, .balance-card {
   align-items: center;
   gap: 4px;
 }
-
 
 .nav-item img {
   width: 26px;
@@ -248,13 +278,12 @@ body, nav, .app, .balance-card {
   position: fixed;
   bottom: 90px;
   right: 15px;
-  background: #fff;
+  background: var(--card);
   border-radius: 50%;
   border: none;
   padding: 8px;
   cursor: pointer;
 }
-
 
 /* ===== EXPENSE PAGE ONLY ===== */
 
@@ -311,7 +340,8 @@ body, nav, .app, .balance-card {
   padding: 14px;
   border-radius: 14px;
   border: none;
-  background: #f2f4f8;
+  background: var(--card);
+  color: var(--text);
   font-size: 16px;
   outline: none;
 }
@@ -353,8 +383,8 @@ body, nav, .app, .balance-card {
 }
 
 .chip {
-  border: 1.5px solid #d6dbea;
-  background: #f6f7fb;
+  background: var(--card);
+  border: 1.5px solid rgba(0,0,0,0.12);
   color: #1c274c;
   padding: 8px 12px;
   border-radius: 999px;
@@ -400,6 +430,9 @@ body, nav, .app, .balance-card {
   line-height: 32px;
   padding: 0 10px;
   margin-top: 16px;
+  background: var(--card);
+  color: var(--text);
+  border: none;
 }
 
 
@@ -419,6 +452,7 @@ body, nav, .app, .balance-card {
   padding: 10px 12px;
   border-radius: 10px;
   background: var(--card-bg);
+  color: var(--text);
   border: none;
   margin-bottom: 12px;
   font-size: 14px;
@@ -528,6 +562,7 @@ input[type="date"]::-webkit-datetime-edit {
 .donut-amount {
   font-size: 22px;
   font-weight: 400;
+  color: var(--text);
 }
 
 .donut-bg {
@@ -660,14 +695,15 @@ input[type="date"]::-webkit-datetime-edit {
 .app-loader {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(15,17,21,0.85); /* dark, not transparent */
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.3s ease;
+  z-index: 9999;  
+  opacity: 1;
 }
+
 
 .app-loader.hidden {
   opacity: 0;
