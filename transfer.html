@@ -41,7 +41,7 @@ input, select, button {
 
   <div class="form-group">
     <label>From</label>
-    <select id="from">
+    <select id="fromAccount">
       <option>Cash</option>
       <option>GCash</option>
       <option>MariBank</option>
@@ -51,7 +51,7 @@ input, select, button {
 
   <div class="form-group">
     <label>To</label>
-    <select id="to">
+    <select id="toAccount">
       <option>Cash</option>
       <option>GCash</option>
       <option>MariBank</option>
@@ -118,7 +118,11 @@ themeToggle.onclick = () => {
 
 applyTheme();
 
-const PENDING_KEY = "pendingTransactions";
+const fromEl = document.getElementById("fromAccount");
+const toEl = document.getElementById("toAccount");
+
+
+const PENDING_KEY = "pendingTransfers";
 
 function getPending() {
   return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
@@ -129,11 +133,15 @@ function setPending(list) {
 }
 
 async function submitTransaction(payload) {
-  const pending = getPending();
+  if (!payload || !payload.type) {
+    console.warn("Invalid payload, not queued:", payload);
+    return;
+  }
 
+  const pending = getPending();
   pending.push({
     id: crypto.randomUUID(),
-    payload,
+    payload: structuredClone(payload),
     timestamp: Date.now()
   });
 
@@ -141,58 +149,88 @@ async function submitTransaction(payload) {
   trySyncPending();
 }
 
+
 async function trySyncPending() {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine) return false;
 
   let pending = getPending();
-  if (!pending.length) return;
+  if (!Array.isArray(pending) || pending.length === 0) return true;
 
   const remaining = [];
 
   for (const item of pending) {
     try {
+      // ---- BASIC STRUCTURE CHECK ----
+      if (!item || typeof item !== "object") {
+        console.warn("Dropping invalid item:", item);
+        continue;
+      }
+
+      const payload = item.payload;
+
+      // ---- PAYLOAD EXISTS ----
+      if (!payload || typeof payload !== "object") {
+        console.warn("Dropping empty payload:", item);
+        continue;
+      }
+
+      // ---- TYPE REQUIRED ----
+      if (!payload.type) {
+        console.warn("Dropping payload without type:", payload);
+        continue;
+      }
+
+      // ---- TRANSFER-SPECIFIC VALIDATION ----
+      if (payload.type === "transfer") {
+        if (
+          !payload.fromAccount ||
+          !payload.toAccount ||
+          !payload.amount ||
+          !payload.date
+        ) {
+          console.warn("Dropping invalid transfer payload:", payload);
+          continue;
+        }
+      }
+
+      // ---- SEND TO GOOGLE APPS SCRIPT ----
       const res = await fetch(scriptURL, {
         method: "POST",
-        body: JSON.stringify(item.payload)
+        body: JSON.stringify(payload)
       });
 
-      const json = await res.json();
-      if (json.status !== "success") throw new Error();
+      if (!res.ok) {
+        throw new Error("Network error");
+      }
 
-    } catch {
+      const json = await res.json();
+      if (json.status !== "success") {
+        throw new Error(json.message || "Server rejected payload");
+      }
+
+      // ✅ success → do NOT re-add to remaining
+
+    } catch (err) {
+      console.error("Sync failed, will retry:", err, item);
       remaining.push(item);
     }
   }
 
   setPending(remaining);
+  return remaining.length === 0;
 }
+
 
 window.addEventListener("online", trySyncPending);
 
 
 /* ===== DATE DEFAULT ===== */
 const dateInput = document.getElementById("date");
-const dateLabel = document.getElementById("dateLabel");
 
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 const todayISO = today.toISOString().slice(0, 10);
 dateInput.value = todayISO;
-
-function formatDate(value) {
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
-}
-
-dateInput.addEventListener("change", () => {
-  dateLabel.textContent =
-    dateInput.value === todayISO
-      ? "Today"
-      : formatDate(dateInput.value);
-});
 
 /* ===== TOAST ===== */
 function showToast(message) {
@@ -208,39 +246,52 @@ const scriptURL =
 
 const addBtn = document.getElementById("addTransferBtn");
 
-addBtn.onclick = () => {
+addBtn.onclick = () => { // Removed 'async'
   if (addBtn.disabled) return;
 
-  if (!amount.value || !from.value || !to.value || !date.value) {
+  const amountEl = document.getElementById("amount");
+  const fromEl = document.getElementById("fromAccount");
+  const toEl = document.getElementById("toAccount");
+
+  const amountVal = amountEl.value;
+  const fromVal = fromEl.value;
+  const toVal = toEl.value;
+  const dateVal = dateInput.value;
+
+  if (!amountVal || !fromVal || !toVal || !dateVal) {
     showToast("Please complete the form");
     return;
   }
 
-  if (from.value === to.value) {
+  if (fromVal === toVal) {
     showToast("Accounts must be different");
     return;
   }
 
   addBtn.disabled = true;
 
-  submitTransaction({
+  const payload = {
     type: "transfer",
-    date: date.value,
-    from: from.value,
-    to: to.value,
-    amount: amount.value
-  });
+    date: dateVal,
+    fromAccount: fromVal,
+    toAccount: toVal,
+    amount: amountVal
+  };
 
+  // 1. Submit (this adds to local queue and triggers sync in background)
+  submitTransaction(payload); 
+
+  // 2. Show feedback IMMEDIATELY
   if (navigator.onLine) {
     showToast("Transfer saved ✓");
   } else {
-    showToast("Transfer saved offline ⏳");
+    showToast("Saved offline ⏳");
   }
 
-  // clear fields
-  amount.value = "";
-  from.selectedIndex = 0;
-  to.selectedIndex = 0;
+  // 3. Clear fields IMMEDIATELY
+  amountEl.value = "";
+  fromEl.selectedIndex = 0;
+  toEl.selectedIndex = 0;
 
   if (navigator.vibrate) navigator.vibrate(40);
 
@@ -248,7 +299,6 @@ addBtn.onclick = () => {
     addBtn.disabled = false;
   }, 400);
 };
-
 
 window.addEventListener("online", () => {
   trySyncPending();

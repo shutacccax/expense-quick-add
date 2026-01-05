@@ -132,7 +132,7 @@ themeToggle.onclick = () => {
 applyTheme();
 
 /* ================= OFFLINE QUEUE ================= */
-const PENDING_KEY = "pendingTransactions";
+const PENDING_KEY = "pendingExpenses";
 
 function getPending() {
   return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
