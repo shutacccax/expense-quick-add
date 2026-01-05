@@ -1,4 +1,16 @@
 /* ================= BASE ================= */
+
+:root {
+  --cat-food: #3F6FFF;
+  --cat-transpo: #00ACC1;
+  --cat-entertainment: #7E57C2;
+  --cat-shopping: #FF7043;
+  --cat-bills: #FBC02D;
+  --cat-personal: #AB47BC;
+  --cat-others: #9E9E9E;
+}
+
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;

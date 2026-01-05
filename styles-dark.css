@@ -1,4 +1,17 @@
 /* ================= BASE ================= */
+
+:root {
+  --cat-food: #4B5F9E;
+  --cat-transpo: #3A7F87;
+  --cat-entertainment: #6A5A8C;
+  --cat-shopping: #8A5A45;
+  --cat-bills: #8A7A3A;
+  --cat-personal: #7A567F;
+  --cat-others: #6B6F74;
+}
+
+
+
 body {
   background: #121212;
   color: #eee;
@@ -12,6 +25,7 @@ body, nav, .app, .balance-card {
 .balance-card {
   background: #1c2a44;
 }
+
 
 /* ================= ACCOUNTS ================= */
 

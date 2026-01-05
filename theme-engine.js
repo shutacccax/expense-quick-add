@@ -15,10 +15,7 @@ const CATEGORY_COLORS_DARK = {
 };
 
 function getCategoryColor(category) {
-  const isDark = localStorage.getItem("theme") === "dark";
-  return isDark
-    ? CATEGORY_COLORS_DARK[category] || "#777"
-    : CATEGORY_COLORS_LIGHT[category] || "#999";
+  return `var(--cat-${category.toLowerCase()})`;
 }
 
 function applyTheme() {
