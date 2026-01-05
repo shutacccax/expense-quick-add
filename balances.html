@@ -145,6 +145,7 @@ function hideLoader() {
 }
 
 
+
 let lastCategoryData = [];
 
 
@@ -301,6 +302,10 @@ totalBalanceEl.addEventListener("mouseleave", () => {
 });
 
 
+const donutWrapper = document.querySelector(".expense-donut");
+donutWrapper.classList.add("donut-collapsed");
+
+
 /* ================= DONUT HIGHLIGHT ================= */
 function highlightDonut(category) {
   document.querySelectorAll("#donutSegments path").forEach(p => {
@@ -402,6 +407,25 @@ function updateDonutByCategory(data) {
   updateBalanceVisibility();
 }
 
+function revealDonut() {
+  const donut = document.querySelector(".expense-donut");
+  if (!donut) return;
+
+  // next frame ensures browser has painted
+  requestAnimationFrame(() => {
+    donut.classList.remove("donut-collapsed");
+  });
+}
+
+function collapseDonut() {
+  const donut = document.querySelector(".expense-donut");
+  if (!donut) return;
+
+  donut.classList.add("donut-collapsed");
+}
+
+
+
 /* ================= CATEGORY LIST ================= */
 function renderCategoryList(data) {
   const container = document.getElementById("categoryTotals");
@@ -494,10 +518,16 @@ for (let i = 0; i < 12; i++) {
 monthSelect.value = `${currentYear}-${currentMonth}`;
 
 // reload data on change
-monthSelect.addEventListener("change", () => {
+monthSelect.addEventListener("change", async () => {
   const [year, month] = monthSelect.value.split("-");
-  loadCategoryTotals(Number(year), Number(month));
+
+  collapseDonut(); // 👈 reset animation state
+
+  await loadCategoryTotals(Number(year), Number(month));
+
+  revealDonut(); // 👈 animate new data
 });
+
 
 const pageEl = document.querySelector(".page");
 
@@ -506,7 +536,6 @@ function showApp() {
 }
 
 async function initApp() {
-
   renderAccountSkeletons();
 
   const hasCache =
@@ -516,19 +545,17 @@ async function initApp() {
   updateBalanceVisibility();
 
   if (!hasCache) {
-    // first load → show loader
     await Promise.all([
       loadBalances(),
       loadCategoryTotals(currentYear, currentMonth)
     ]);
-    hideLoader();
   } else {
-    // cached → instant
     loadBalances();
     loadCategoryTotals(currentYear, currentMonth);
-    hideLoader();
   }
 
+  hideLoader();
+  revealDonut(); // ✅ ALWAYS call this
   showApp();
 }
 
