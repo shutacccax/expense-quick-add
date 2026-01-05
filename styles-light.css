@@ -572,14 +572,14 @@ input[type="date"]::-webkit-datetime-edit {
 }
 
 /* Disable system-level touch highlighting and selection */
-.category-row, 
-.donut-svg, 
-.donut-center {
-  -webkit-touch-callout: none; /* Disable long-press context menu */
-  -webkit-user-select: none;   /* Disable text selection */
-  user-select: none;
-  -webkit-tap-highlight-color: transparent; /* Disable the gray box on tap */
-  touch-action: manipulation;  /* Prevents accidental zooming on fast taps */
+.category-row, .expense-donut, .donut-center {
+  -webkit-touch-callout: none !important; /* Prevents the "copy/lookup" menu */
+  -webkit-user-select: none !important;    /* Prevents the text selection */
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important; /* Removes the tap box */
 }
 
 /* Ensure the dot and text still look normal */
