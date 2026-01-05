@@ -236,6 +236,7 @@ function updateBalanceVisibility() {
 
 eyeToggle.onclick = () => {
   balancesLockedVisible = !balancesLockedVisible;
+  balancesPeekVisible = false; // clear any peek
   updateBalanceVisibility();
 };
 
@@ -244,24 +245,35 @@ const totalBalanceEl = document.getElementById("totalBalance");
 
 let holdTimer = null;
 
-// touch
+// TOUCH (iOS)
 totalBalanceEl.addEventListener("touchstart", () => {
-  balancesPeekVisible = true;
-  updateBalanceVisibility();
+  if (balancesLockedVisible) return; // 🔒 important
+
+  holdTimer = setTimeout(() => {
+    balancesPeekVisible = true;
+    updateBalanceVisibility();
+  }, 120);
 });
 
 totalBalanceEl.addEventListener("touchend", () => {
+  clearTimeout(holdTimer);
+
+  if (balancesLockedVisible) return;
+
   balancesPeekVisible = false;
   updateBalanceVisibility();
 });
 
 totalBalanceEl.addEventListener("touchcancel", () => {
+  clearTimeout(holdTimer);
   balancesPeekVisible = false;
   updateBalanceVisibility();
 });
 
-// mouse
+// MOUSE (desktop)
 totalBalanceEl.addEventListener("mousedown", () => {
+  if (balancesLockedVisible) return;
+
   balancesPeekVisible = true;
   updateBalanceVisibility();
 });

@@ -606,3 +606,28 @@ input[type="date"]::-webkit-datetime-edit {
   -webkit-user-select: none;
   user-select: none;
 }
+
+
+.balance-amount.ready {
+  visibility: visible;
+}
+
+.balance-amount,
+.account-amount,
+.cat-amount,
+.donut-amount,
+.eye-btn {
+  -webkit-user-select: none;   /* iOS Safari */
+  -webkit-touch-callout: none; /* disable long-press menu */
+  user-select: none;          /* standard */
+}
+
+.balance-amount,
+.eye-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.balance-amount:active,
+.eye-btn:active {
+  background-color: transparent !important;
+}
