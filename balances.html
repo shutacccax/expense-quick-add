@@ -45,7 +45,19 @@
 
 <div class="app">
 
-  <div class="expense-header">Dashboard</div>
+  <div class="header-row">
+    <div class="expense-header">Dashboard</div>
+
+    <a
+      href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
+      target="_blank"
+      class="icon-btn"
+      aria-label="Open Google Sheets"
+    >
+      <img src="svgs/google-sheets.svg" alt="">
+    </a>
+  </div>
+
 
   <!-- BALANCE CARD -->
   <div class="balance-card">
@@ -90,7 +102,7 @@
   </svg>
 
   <div class="donut-center">
-    <div class="donut-label">SPENT</div>
+    <div class="donut-label">TOTAL SPENT</div>
     <div id="donutAmount" class="donut-amount">₱0.00</div>
   </div>
 </div>
@@ -169,10 +181,7 @@ function maskAmount(value) {
     maximumFractionDigits: 2
   });
 
-  // replace digits only, keep commas & decimal point
-  const masked = formatted.replace(/\d/g, "*");
-
-  return "₱" + masked;
+  return "₱" + "*".repeat(formatted.length);
 }
 
 function updateBalanceVisibility() {
@@ -392,7 +401,6 @@ function renderCategoryList(data) {
 
     const amountEl = document.createElement("span");
     amountEl.className = "cat-amount";
-    amountEl.style.color = color;
     amountEl.dataset.real = item.total;
 
     const nameEl = document.createElement("span");
@@ -422,20 +430,25 @@ async function loadCategoryTotals(year, month) {
 
   if (cached) {
     const data = JSON.parse(cached);
+
+    const sorted = [...data].sort((a, b) => b.total - a.total);
+
     lastCategoryData = data;
-    updateDonutByCategory(data);
-    renderCategoryList(data);
+    updateDonutByCategory(sorted);
+    renderCategoryList(sorted);
     return;
   }
 
   const res = await fetch(`${scriptURL}?action=categoryTotals&year=${year}&month=${month}`);
   const json = await res.json();
 
-  sessionStorage.setItem(cacheKey, JSON.stringify(json.data));
-  lastCategoryData = json.data;
+  const sorted = [...json.data].sort((a, b) => b.total - a.total);
 
-  updateDonutByCategory(json.data);
-  renderCategoryList(json.data);
+  sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
+  lastCategoryData = sorted;
+
+  updateDonutByCategory(sorted);
+  renderCategoryList(sorted);
 }
 
 /* ================= MONTH DROPDOWN ================= */
