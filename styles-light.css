@@ -570,3 +570,19 @@ input[type="date"]::-webkit-datetime-edit {
   text-decoration: none;
   font-weight: 600;
 }
+
+/* Disable system-level touch highlighting and selection */
+.category-row, 
+.donut-svg, 
+.donut-center {
+  -webkit-touch-callout: none; /* Disable long-press context menu */
+  -webkit-user-select: none;   /* Disable text selection */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* Disable the gray box on tap */
+  touch-action: manipulation;  /* Prevents accidental zooming on fast taps */
+}
+
+/* Ensure the dot and text still look normal */
+.cat-name, .cat-amount {
+  pointer-events: none; /* Let the touch pass through to the row */
+}
