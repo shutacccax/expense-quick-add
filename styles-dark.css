@@ -4,6 +4,10 @@ body {
   color: #eee;
 }
 
+body, nav, .app, .balance-card {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* ================= BALANCE CARD ================= */
 .balance-card {
   background: #1c2a44;

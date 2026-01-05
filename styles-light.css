@@ -26,6 +26,9 @@ body {
 }
 
 
+body, nav, .app, .balance-card {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
 /* ================= BALANCE CARD ================= */
 .balance-card {

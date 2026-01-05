@@ -13,8 +13,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="styles-light.css">
-<link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
+  <link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
 
+  <script>
+    // 1. Check theme immediately
+    if (localStorage.getItem("theme") === "dark") {
+      // 2. Enable dark CSS
+      document.getElementById("darkStyles").disabled = false;
+      // 3. Add a class to the body so the loader starts dark
+      document.documentElement.classList.add('dark-theme');
+    }
+  </script>
 </head>
 
 <body class="page-dashboard">
@@ -109,6 +118,8 @@
   </a>
 </nav>
 
+<script src="theme-engine.js"></script>
+
 <script>
   
 const appLoader = document.getElementById("appLoader");
@@ -119,61 +130,7 @@ function hideLoader() {
 }
 
 
-/* ================= THEME ================= */
-const body = document.body;
-const themeToggle = document.getElementById("themeToggle");
-const darkStyles = document.getElementById("darkStyles");
-
 let lastCategoryData = [];
-
-/* ================= CATEGORY COLORS ================= */
-const CATEGORY_COLORS_LIGHT = {
-  Transpo: "#00ACC1",
-  Food: "#3F6FFF",
-  Entertainment: "#7E57C2",
-  Others: "#9E9E9E",
-  Shopping: "#FF7043",
-  Bills: "#FBC02D",
-  Personal: "#AB47BC"
-};
-
-const CATEGORY_COLORS_DARK = {
-  Transpo: "#3A7F87",
-  Food: "#4B5F9E",
-  Entertainment: "#6A5A8C",
-  Others: "#6B6F74",
-  Shopping: "#8A5A45",
-  Bills: "#8A7A3A",
-  Personal: "#7A567F"
-};
-
-function getCategoryColor(category) {
-  const isDark = localStorage.getItem("theme") === "dark";
-  return isDark
-    ? CATEGORY_COLORS_DARK[category] || "#777"
-    : CATEGORY_COLORS_LIGHT[category] || "#999";
-}
-
-/* ================= THEME APPLY ================= */
-function applyTheme() {
-  const dark = localStorage.getItem("theme") === "dark";
-  darkStyles.disabled = !dark;
-  themeToggle.textContent = dark ? "☀️" : "🌙";
-
-  if (lastCategoryData.length) {
-    updateDonutByCategory(lastCategoryData);
-    renderCategoryList(lastCategoryData);
-    updateBalanceVisibility();
-  }
-}
-
-themeToggle.onclick = () => {
-  const dark = localStorage.getItem("theme") !== "dark";
-  localStorage.setItem("theme", dark ? "dark" : "light");
-  applyTheme();
-};
-
-applyTheme();
 
 /* ================= VISIBILITY / MASKING ================= */
 

@@ -14,13 +14,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="styles-light.css">
-<link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
+  <link rel="stylesheet" href="styles-dark.css" id="darkStyles" disabled>
 
-<style>
-input, select, button, textarea {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
-</style>
+  <script>
+    // 1. Check theme immediately
+    if (localStorage.getItem("theme") === "dark") {
+      // 2. Enable dark CSS
+      document.getElementById("darkStyles").disabled = false;
+      // 3. Add a class to the body so the loader starts dark
+      document.documentElement.classList.add('dark-theme');
+    }
+  </script>
+
 </head>
 
 <body>
@@ -92,24 +97,11 @@ input, select, button, textarea {
 
 <div id="toast" class="toast"></div>
 
+
+<script src="theme-engine.js"></script>
+
+
 <script>
-/* ===== THEME ===== */
-const themeToggle = document.getElementById("themeToggle");
-const darkStyles = document.getElementById("darkStyles");
-
-function applyTheme() {
-  const dark = localStorage.getItem("theme") === "dark";
-  darkStyles.disabled = !dark;
-  themeToggle.textContent = dark ? "☀️" : "🌙";
-}
-
-themeToggle.onclick = () => {
-  const dark = localStorage.getItem("theme") !== "dark";
-  localStorage.setItem("theme", dark ? "dark" : "light");
-  applyTheme();
-};
-
-applyTheme();
 
 const PENDING_KEY = "pendingInflows";
 
