@@ -58,13 +58,13 @@ body {
 
 
 .balance-label {
-  font-size: 14px;
-  opacity: 0.9;
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 .balance-amount {
-  font-size: 34px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 400;
   margin-top: 6px;
   letter-spacing: 0.5px;
 }
@@ -139,7 +139,7 @@ body {
 
 .account-amount {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 400;
   margin-top: 6px;
   transition: opacity 0.2s ease;
 }
@@ -233,8 +233,8 @@ body {
 /* ===== EXPENSE PAGE ONLY ===== */
 
 .expense-header {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 600;
   color: #2c70e5;
   margin-bottom: 12px;
 }
@@ -250,7 +250,7 @@ body {
 
 .amount-wrapper span {
   font-size: 42px;
-  font-weight: 700;
+  font-weight: 400;
   color: #2c70e5;
   line-height: 1.5;
 }
@@ -258,7 +258,7 @@ body {
 .amount-wrapper input {
   width: 220px;
   font-size: 42px;
-  font-weight: 700;
+  font-weight: 400;
   border: none;
   border-bottom: 2px solid #cfd6e6;
   outline: none;
@@ -361,7 +361,7 @@ body {
 
 
 .expenses-header .section-title {
-  line-height: 1;        /* normalize text */
+  line-height: 1;
 }
 
 
@@ -410,7 +410,7 @@ body {
 }
 
 .cat-amount {
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .empty {
@@ -501,7 +501,7 @@ input[type="date"]::-webkit-datetime-edit {
 
 .donut-amount {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .donut-bg {
@@ -585,4 +585,17 @@ input[type="date"]::-webkit-datetime-edit {
 /* Ensure the dot and text still look normal */
 .cat-name, .cat-amount {
   pointer-events: none; /* Let the touch pass through to the row */
+}
+
+/* Hide amounts by default until JavaScript processes them */
+.account-amount, 
+#totalBalance, 
+#donutAmount, 
+.cat-amount {
+  visibility: hidden;
+}
+
+/* This class will be added only after masking is applied */
+.ready {
+  visibility: visible !important;
 }

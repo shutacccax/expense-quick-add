@@ -161,6 +161,12 @@ themeToggle.onclick = () => {
 applyTheme();
 
 /* ================= VISIBILITY / MASKING ================= */
+
+if (!localStorage.getItem("balancesVisible")) {
+  localStorage.setItem("balancesVisible", "false");
+}
+
+
 const eyeToggle = document.getElementById("eyeToggle");
 const eyeIcon = document.getElementById("eyeIcon");
 
@@ -169,7 +175,15 @@ let realTotal = 0;
 let realAccounts = [];
 
 function maskAmount(value) {
-  return "₱" + String(value.toFixed(2)).replace(/\d/g, "*");
+  const formatted = value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  // replace digits only, keep commas & decimal point
+  const masked = formatted.replace(/\d/g, "*");
+
+  return "₱" + masked;
 }
 
 function updateBalanceVisibility() {
@@ -179,6 +193,7 @@ function updateBalanceVisibility() {
   totalEl.textContent = balancesVisible
     ? "₱" + realTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })
     : maskAmount(realTotal);
+  totalEl.classList.add("ready"); // Show after masking
 
   // all registered money elements
   realAccounts.forEach(el => {
@@ -186,6 +201,7 @@ function updateBalanceVisibility() {
     el.textContent = balancesVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
+    el.classList.add("ready"); // Show after masking
   });
 
   // donut center
@@ -195,6 +211,7 @@ function updateBalanceVisibility() {
     donutAmountEl.textContent = balancesVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
+    donutAmountEl.classList.add("ready"); // Show after masking
   }
 
   eyeIcon.src = balancesVisible
@@ -203,7 +220,6 @@ function updateBalanceVisibility() {
 
   localStorage.setItem("balancesVisible", balancesVisible);
 }
-
 eyeToggle.onclick = () => {
   balancesVisible = !balancesVisible;
   eyeToggle.classList.add("animate");
@@ -390,12 +406,13 @@ monthSelect.addEventListener("change", () => {
   loadCategoryTotals(Number(year), Number(month));
 });
 
-// initial load
-loadCategoryTotals(currentYear, currentMonth);
-
-
 /* ================= INIT ================= */
+// 1. Run visibility check immediately to mask the hardcoded placeholders
+updateBalanceVisibility();
+
+// 2. Start loading the data
 loadBalances();
+loadCategoryTotals(currentYear, currentMonth);
 
 
 </script>
