@@ -219,6 +219,10 @@ addBtn.onclick = () => {
     amount: amount.value
   });
 
+  Object.keys(sessionStorage)
+  .filter(k => k.startsWith("dashboard_"))
+  .forEach(k => sessionStorage.removeItem(k));
+
   if (navigator.onLine) {
     showToast("Inflow saved ✓");
   } else {

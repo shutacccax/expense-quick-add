@@ -17,7 +17,13 @@
 
 </head>
 
-<body>
+<body class="page-dashboard">
+
+
+<div id="appLoader" class="app-loader">
+  <div class="ios-spinner"></div>
+</div>
+
 
 <button id="themeToggle" class="theme-toggle">🌙</button>
 
@@ -104,6 +110,15 @@
 </nav>
 
 <script>
+  
+const appLoader = document.getElementById("appLoader");
+
+function hideLoader() {
+  appLoader.classList.add("hidden");
+  setTimeout(() => appLoader.remove(), 350);
+}
+
+
 /* ================= THEME ================= */
 const body = document.body;
 const themeToggle = document.getElementById("themeToggle");
@@ -310,47 +325,60 @@ const scriptURL =
 "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
 async function loadBalances() {
-  const loadingEl = document.getElementById("balancesLoading");
-  const container = document.getElementById("accounts");
+  const cached = sessionStorage.getItem("dashboard_balances");
 
-  loadingEl.style.display = "block";
-  container.innerHTML = "";
-  realAccounts = [];
-  realTotal = 0;
+  if (cached) {
+    const data = JSON.parse(cached);
+    renderBalances(data);
+    return;
+  }
 
   const res = await fetch(scriptURL);
   const json = await res.json();
 
-  json.data.forEach(b => {
+  sessionStorage.setItem("dashboard_balances", JSON.stringify(json.data));
+  renderBalances(json.data);
+}
+
+function renderBalances(data) {
+  const container = document.getElementById("accounts");
+  const loadingEl = document.getElementById("balancesLoading");
+
+  loadingEl.style.display = "none";
+  container.innerHTML = "";
+  realAccounts = [];
+  realTotal = 0;
+
+  data.forEach(b => {
     const amount = Number(b.balance);
     realTotal += amount;
 
-  let cls = "";
-  const name = b.account.toLowerCase();
+    let cls = "";
+    const name = b.account.toLowerCase();
 
-  if (name.includes("gcash")) cls = "gcash";
-  else if (name.includes("cash")) cls = "cash";
-  else if (name.includes("maya")) cls = "maya";
-  else cls = "maribank";
+    if (name.includes("gcash")) cls = "gcash";
+    else if (name.includes("cash")) cls = "cash";
+    else if (name.includes("maya")) cls = "maya";
+    else cls = "maribank";
 
-  const card = document.createElement("div");
-  card.className = `account-card ${cls}`;
+    const card = document.createElement("div");
+    card.className = `account-card ${cls}`;
 
 
-    const amountEl = document.createElement("div");
-    amountEl.className = "account-amount";
-    amountEl.dataset.real = amount;
+      const amountEl = document.createElement("div");
+      amountEl.className = "account-amount";
+      amountEl.dataset.real = amount;
 
-    card.innerHTML = `<div class="account-name">${b.account}</div>`;
-    card.appendChild(amountEl);
+      card.innerHTML = `<div class="account-name">${b.account}</div>`;
+      card.appendChild(amountEl);
 
-    container.appendChild(card);
-    realAccounts.push(amountEl);
+      container.appendChild(card);
+      realAccounts.push(amountEl);
   });
 
-  loadingEl.style.display = "none";
   updateBalanceVisibility();
 }
+
 
 /* ================= DONUT ================= */
 function updateDonutByCategory(data) {
@@ -425,10 +453,21 @@ function renderCategoryList(data) {
 
 /* ================= LOAD CATEGORY TOTALS ================= */
 async function loadCategoryTotals(year, month) {
+  const cacheKey = `dashboard_categories_${year}_${month}`;
+  const cached = sessionStorage.getItem(cacheKey);
+
+  if (cached) {
+    const data = JSON.parse(cached);
+    lastCategoryData = data;
+    updateDonutByCategory(data);
+    renderCategoryList(data);
+    return;
+  }
+
   const res = await fetch(`${scriptURL}?action=categoryTotals&year=${year}&month=${month}`);
   const json = await res.json();
 
-  json.data.sort((a, b) => b.total - a.total);
+  sessionStorage.setItem(cacheKey, JSON.stringify(json.data));
   lastCategoryData = json.data;
 
   updateDonutByCategory(json.data);
@@ -468,13 +507,39 @@ monthSelect.addEventListener("change", () => {
   loadCategoryTotals(Number(year), Number(month));
 });
 
-/* ================= INIT ================= */
-// 1. Run visibility check immediately to mask the hardcoded placeholders
-updateBalanceVisibility();
+const appEl = document.querySelector(".app");
 
-// 2. Start loading the data
-loadBalances();
-loadCategoryTotals(currentYear, currentMonth);
+function showApp() {
+  appEl.classList.add("app-ready");
+}
+
+
+async function initApp() {
+  const hasCache =
+    sessionStorage.getItem("dashboard_balances") &&
+    sessionStorage.getItem(`dashboard_categories_${currentYear}_${currentMonth}`);
+
+  updateBalanceVisibility();
+
+  if (!hasCache) {
+    // first load → show loader
+    await Promise.all([
+      loadBalances(),
+      loadCategoryTotals(currentYear, currentMonth)
+    ]);
+    hideLoader();
+  } else {
+    // cached → instant
+    loadBalances();
+    loadCategoryTotals(currentYear, currentMonth);
+    hideLoader();
+  }
+
+  showApp();
+}
+
+initApp();
+
 
 
 </script>

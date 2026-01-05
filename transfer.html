@@ -281,6 +281,10 @@ addBtn.onclick = () => { // Removed 'async'
   // 1. Submit (this adds to local queue and triggers sync in background)
   submitTransaction(payload); 
 
+  Object.keys(sessionStorage)
+  .filter(k => k.startsWith("dashboard_"))
+  .forEach(k => sessionStorage.removeItem(k));
+
   // 2. Show feedback IMMEDIATELY
   if (navigator.onLine) {
     showToast("Transfer saved ✓");
