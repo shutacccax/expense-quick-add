@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+/>
 <title>Balances</title>
 
 <link rel="manifest" href="manifest.json">
@@ -92,7 +95,6 @@
       d="M 10 100 A 90 90 0 0 1 190 100"
       class="donut-bg"
     />
-
     <!-- category arcs injected here -->
     <g id="donutSegments"></g>
   </svg>
@@ -102,6 +104,12 @@
     <div id="donutAmount" class="donut-amount">₱0.00</div>
   </div>
 </div>
+
+<div id="noDataState" class="no-data hidden">
+  <img src="svgs/empty-state.svg" alt="" />
+  <div class="no-data-text">No data available</div>
+</div>
+
 
 
   <div id="categoryTotals" class="category-totals"></div>
@@ -145,6 +153,19 @@ function hideLoader() {
 }
 
 
+function showNoDataState() {
+  document.getElementById("noDataState")?.classList.remove("hidden");
+  document.querySelector(".expense-donut")?.classList.add("hidden");
+  document.getElementById("categoryTotals").classList.add("hidden");
+}
+
+function hideNoDataState() {
+  document.getElementById("noDataState")?.classList.add("hidden");
+  document.querySelector(".expense-donut")?.classList.remove("hidden");
+  document.getElementById("categoryTotals").classList.remove("hidden");
+}
+
+
 
 let lastCategoryData = [];
 
@@ -184,10 +205,12 @@ if (!localStorage.getItem("balancesVisible")) {
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    balancesVisible = false;
+    balancesLockedVisible = false;
+    balancesPeekVisible = false;
     updateBalanceVisibility();
   }
 });
+
 
 const eyeToggle = document.getElementById("eyeToggle");
 const eyeIcon = document.getElementById("eyeIcon");
@@ -198,7 +221,8 @@ let balancesLockedVisible =
 let balancesPeekVisible = false;
 
 let realTotal = 0;
-let realAccounts = [];
+let accountAmountEls = [];
+let categoryAmountEls = [];
 
 function maskAmount(value) {
   const formatted = value.toLocaleString(undefined, {
@@ -220,13 +244,21 @@ function updateBalanceVisibility() {
   totalEl.classList.add("ready"); // Show after masking
 
   // all registered money elements
-  realAccounts.forEach(el => {
+  accountAmountEls.forEach(el => {
     const val = Number(el.dataset.real);
     el.textContent = isVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
     el.classList.add("ready"); // Show after masking
   });
+
+  categoryAmountEls.forEach(el => {
+  const val = Number(el.dataset.real);
+  el.textContent = isVisible
+    ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    : maskAmount(val);
+  el.classList.add("ready");
+});
 
   // donut center
   const donutAmountEl = document.getElementById("donutAmount");
@@ -343,7 +375,7 @@ async function loadBalances() {
 }
 
 function renderBalances(data) {
-  realAccounts = [];
+  accountAmountEls = [];
   realTotal = 0;
 
   data.forEach(b => {
@@ -365,7 +397,7 @@ function renderBalances(data) {
     amountEl.dataset.real = amount;
     amountEl.classList.remove("skeleton");
 
-    realAccounts.push(amountEl);
+    accountAmountEls.push(amountEl);
   });
 
   updateBalanceVisibility();
@@ -428,9 +460,9 @@ function collapseDonut() {
 
 /* ================= CATEGORY LIST ================= */
 function renderCategoryList(data) {
+  categoryAmountEls = [];  
   const container = document.getElementById("categoryTotals");
   container.innerHTML = "";
-  realAccounts = realAccounts.filter(el => !el.classList.contains("cat-amount"));
 
   data.forEach(item => {
     const row = document.createElement("div");
@@ -456,7 +488,7 @@ function renderCategoryList(data) {
     row.addEventListener("mouseleave", resetDonutHighlight);
 
     container.appendChild(row);
-    realAccounts.push(amountEl);
+    categoryAmountEls.push(amountEl);
   });
 
   updateBalanceVisibility();
@@ -470,9 +502,14 @@ async function loadCategoryTotals(year, month) {
   if (cached) {
     const data = JSON.parse(cached);
 
-    const sorted = [...data].sort((a, b) => b.total - a.total);
+    if (!data.length) {
+      showNoDataState();
+      return;
+    }
 
-    lastCategoryData = data;
+    hideNoDataState();
+
+    const sorted = [...data].sort((a, b) => b.total - a.total);
     updateDonutByCategory(sorted);
     renderCategoryList(sorted);
     return;
@@ -481,13 +518,21 @@ async function loadCategoryTotals(year, month) {
   const res = await fetch(`${scriptURL}?action=categoryTotals&year=${year}&month=${month}`);
   const json = await res.json();
 
-  const sorted = [...json.data].sort((a, b) => b.total - a.total);
+  const data = json.data || [];
 
+  if (!data.length) {
+    sessionStorage.setItem(cacheKey, JSON.stringify([]));
+    showNoDataState();
+    return;
+  }
+
+  hideNoDataState();
+
+  const sorted = [...data].sort((a, b) => b.total - a.total);
   sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
-  lastCategoryData = sorted;
-
   updateDonutByCategory(sorted);
   renderCategoryList(sorted);
+
 }
 
 /* ================= MONTH DROPDOWN ================= */
@@ -517,17 +562,36 @@ for (let i = 0; i < 12; i++) {
 // default = current month
 monthSelect.value = `${currentYear}-${currentMonth}`;
 
+
+/* ================= APP RESUME (iOS / PWA) ================= */
+
+let resumeTimer = null;
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      loadBalances();
+      loadCategoryTotals(currentYear, currentMonth);
+    }, 150);
+  }
+});
+
+
 // reload data on change
 monthSelect.addEventListener("change", async () => {
   const [year, month] = monthSelect.value.split("-");
 
-  collapseDonut(); // 👈 reset animation state
+  // clear old category UI to avoid stale flashes
+  categoryAmountEls = [];
+  document.getElementById("categoryTotals").innerHTML = "";
+
+  collapseDonut(); // reset animation state
 
   await loadCategoryTotals(Number(year), Number(month));
 
-  revealDonut(); // 👈 animate new data
+  revealDonut(); // animate new data
 });
-
 
 const pageEl = document.querySelector(".page");
 
@@ -536,28 +600,24 @@ function showApp() {
 }
 
 async function initApp() {
-  renderAccountSkeletons();
+  try {
+    renderAccountSkeletons();
+    updateBalanceVisibility();
 
-  const hasCache =
-    sessionStorage.getItem("dashboard_balances") &&
-    sessionStorage.getItem(`dashboard_categories_${currentYear}_${currentMonth}`);
-
-  updateBalanceVisibility();
-
-  if (!hasCache) {
-    await Promise.all([
+    await Promise.allSettled([
       loadBalances(),
       loadCategoryTotals(currentYear, currentMonth)
     ]);
-  } else {
-    loadBalances();
-    loadCategoryTotals(currentYear, currentMonth);
-  }
 
-  hideLoader();
-  revealDonut(); // ✅ ALWAYS call this
-  showApp();
+  } catch (err) {
+    console.error("Init error:", err);
+  } finally {
+    hideLoader();     // ✅ ALWAYS runs
+    revealDonut();    // ✅ ALWAYS runs
+    showApp();        // ✅ ALWAYS runs
+  }
 }
+
 
 initApp();
 

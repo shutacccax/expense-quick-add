@@ -197,3 +197,7 @@ html[data-theme="dark"] .donut-amount {
   color: var(--text);
 }
 
+html[data-theme="dark"] .no-data img {
+  opacity: 0.3;
+  filter: invert(1);
+}
