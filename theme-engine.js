@@ -29,15 +29,25 @@ function getCategoryColor(category) {
 }
 
 function applyTheme(isDark) {
-  document.documentElement.setAttribute(
-    "data-theme",
-    isDark ? "dark" : "light"
-  );
-  localStorage.setItem("theme", isDark ? "dark" : "light");
+  const html = document.documentElement;
 
-  if (themeToggle) {
-    themeToggle.textContent = isDark ? "☀️" : "🌙";
-  }
+  // 🔥 1. Tell CSS we're switching themes
+  html.classList.add("theme-switching");
+
+  // 🔥 2. Apply theme on next frame (prevents mid-scroll seam)
+  requestAnimationFrame(() => {
+    html.setAttribute("data-theme", isDark ? "dark" : "light");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    if (themeToggle) {
+      themeToggle.textContent = isDark ? "☀️" : "🌙";
+    }
+  });
+
+  // 🔥 3. Re-enable transitions after animations finish
+  setTimeout(() => {
+    html.classList.remove("theme-switching");
+  }, 400); // must match your longest CSS transition
 }
 
 if (themeToggle) {

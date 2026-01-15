@@ -20,10 +20,23 @@ html[data-theme="dark"] {
 
 /* ================= PAGE ================= */
 
-html[data-theme="dark"],
-body[data-theme="dark"] {
-  min-height: 100%;
+/* Fixed visual layer */
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
 
+  background: var(--bg);
+  opacity: 0;
+
+  transition: opacity 0.35s ease;
+}
+
+/* Dark mode gradient */
+html[data-theme="dark"]::before {
+  opacity: 1;
   background:
     radial-gradient(
       120% 85% at 50% -10%,
@@ -40,14 +53,11 @@ body[data-theme="dark"] {
       rgba(11, 15, 20, 0) 75%
     ),
     #0b0f14;
-
-  background-attachment: fixed; /* 🔥 THIS */
-  background-repeat: no-repeat;
-  background-size: cover;
-
-  color: var(--text);
 }
 
+html[data-theme="dark"] .page {
+  background: transparent;
+}
 
 
 html[data-theme="dark"],
@@ -267,52 +277,137 @@ html[data-theme="dark"] .eye-btn img {
 }
 
 /* ================= FORMS ================= */
-
-html[data-theme="dark"] .form-group label {
-  color: rgba(255,255,255,0.6);
+html[data-theme="dark"] .form-group label, html[data-theme="dark"] .amount-label {
+  color: rgba(210, 220, 255, 0.65); /* soft luminous label */
 }
+
 
 html[data-theme="dark"] .form-group input,
 html[data-theme="dark"] .form-group select {
-  background: var(--card);
+  background: rgba(20, 28, 44, 0.55); /* translucent glass */
   color: var(--text);
+
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+
+  border: 1px solid rgba(120, 160, 255, 0.14);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 html[data-theme="dark"] .amount-wrapper input {
-  border-bottom-color: rgba(255,255,255,0.25);
-  color: var(--text);
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+
+  text-align: center;
+  font-size: 48px;
+  font-weight: 500;
+
+  color: rgba(255, 255, 255, 0.9);
+  caret-color: rgba(155, 188, 255, 0.85);
 }
 
-html[data-theme="dark"] .amount-wrapper input::placeholder {
-  color: rgba(255,255,255,0.35);
+html[data-theme="dark"] .amount-wrapper span {
+  font-size: 42px;
+  opacity: 0.7;
 }
+
+
+html[data-theme="dark"] .amount-wrapper input::placeholder {
+  color: rgba(180, 195, 235, 0.4);
+}
+
+/* ================= FROSTED ACTIVE STATES ================= */
+
+
+/* Focus (keyboard / tap) */
+html[data-theme="dark"] .form-group input:focus,
+html[data-theme="dark"] .form-group select:focus {
+  outline: none;
+
+  background: rgba(24, 34, 54, 0.58); /* barely clearer glass */
+
+  border-color: rgba(155, 188, 255, 0.25);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(155, 188, 255, 0.18), /* 🔥 thin focus ring */
+    0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Active (tap / click) */
+html[data-theme="dark"] .form-group input:active,
+html[data-theme="dark"] .form-group select:active {
+  background: rgba(20, 28, 44, 0.65);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.35);
+}
+
+
+/* Disabled */
+html[data-theme="dark"] .form-group input:disabled,
+html[data-theme="dark"] .form-group select:disabled {
+  opacity: 0.55;
+}
+
 
 /* ================= CATEGORY CHIPS ================= */
 
 html[data-theme="dark"] .category-chips .chip {
-  background: var(--card);
-  border-color: rgba(255,255,255,0.15);
-  color: var(--text);
+  background: rgba(20, 28, 44, 0.45); /* light glass */
+  color: rgba(220, 230, 255, 0.85);
+
+  border: 1px solid rgba(155, 188, 255, 0.12);
+
+  backdrop-filter: blur(8px) saturate(135%);
+  -webkit-backdrop-filter: blur(8px) saturate(135%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 10px rgba(0, 0, 0, 0.35);
 }
 
+/* Active chip — etched highlight, NOT thick */
 html[data-theme="dark"] .category-chips .chip.active {
-  background: #1f2a44;
-  border-color: #9bbcff;
+  background: rgba(32, 44, 72, 0.55);
   color: #9bbcff;
+
+  border-color: rgba(155, 188, 255, 0.45);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(155, 188, 255, 0.18); /* thin etched ring */
 }
 
 /* ================= MONTH SELECT ================= */
-
 html[data-theme="dark"] .month-select,
 html[data-theme="dark"] .month-select.inline {
-  background: var(--card);
+  background: rgba(20, 28, 44, 0.55); /* glass surface */
   color: var(--text);
-  border: none;
+  border: 1px solid rgba(120, 160, 255, 0.14);
+
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
+/* Dropdown list */
 html[data-theme="dark"] .month-select option {
-  background: var(--card);
+  background: rgba(14, 18, 30, 0.95); /* opaque for readability */
   color: var(--text);
+}
+
+html[data-theme="dark"] .month-select:focus {
+  box-shadow:
+    0 0 0 2px rgba(155, 188, 255, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* ================= DONUT ================= */
@@ -359,11 +454,29 @@ html[data-theme="dark"] .no-data img {
 [data-theme="dark"] .add-expense-btn {
   background: linear-gradient(
     135deg,
-    #1E6FD9,
-    #2556A8
+    #3B8DFF,
+    #2A6FDB
   );
-}
 
+  color: #ffffff;
+
+  border: none;
+  border-radius: 16px;
+
+  box-shadow:
+    /* soft outer glow */
+    0 0 0 1px rgba(90, 140, 255, 0.05),
+    0 12px 30px rgba(60, 120, 255, 0.25),
+    0 4px 12px rgba(60, 120, 255, 0.15),
+
+    /* subtle inner highlight */
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
 
 
 

@@ -56,7 +56,7 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.01em;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   transition: background-color 0.25s ease, color 0.25s ease;
 }
@@ -77,7 +77,7 @@ body, nav, .app, .balance-card {
 
 
 .page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
   transition:
@@ -85,6 +85,19 @@ body, nav, .app, .balance-card {
     color 0.35s ease,
     opacity 0.35s ease;
 }
+
+.theme-switching .page {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+  /* ❌ opacity intentionally removed */
+}
+
+.theme-switching * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 
 .page-dashboard .page {
   opacity: 0;
@@ -612,13 +625,66 @@ body, nav, .app, .balance-card {
 
 
 /* Amount field */
+/* Chrome, Edge, Safari */
+.amount-wrapper input::-webkit-outer-spin-button,
+.amount-wrapper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.amount-wrapper input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
 .amount-wrapper {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
   gap: 6px;
-  margin-bottom: 24px;
-  max-width: 360px;
+
+  margin: 56px auto 72px;
 }
+
+.amount-wrapper input {
+  text-align: center;
+  font-size: 48px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  outline: none;
+
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.amount-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #747a90;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input {
+  font-family: inherit;
+}
+
+
+.form-section,
+.expense-form {
+  margin-top: 12px;
+}
+
+.form-section {
+  opacity: 0.92;
+  transition: opacity 0.25s ease;
+}
+
+.amount-wrapper:has(input:focus) ~ .form-section {
+  opacity: 1;
+}
+
 
 .amount-wrapper span {
   font-size: 42px;
@@ -630,13 +696,15 @@ body, nav, .app, .balance-card {
 .amount-wrapper input {
   width: 220px;
   font-size: 42px;
-  font-weight: 400;
+  font-weight: 600;
   border: none;
-  border-bottom: 1px solid #cfd6e6;
   outline: none;
   background: transparent;
   padding: 4px 0;
+  color: #111827;            /* dark text for light mode */
+  caret-color: #111827;
 }
+
 
 /* =========================
    AMOUNT FIELD INTERACTION
@@ -649,25 +717,6 @@ body, nav, .app, .balance-card {
     color 0.18s ease,
     border-color 0.18s ease,
     opacity 0.18s ease;
-}
-
-/* Focused state */
-.amount-wrapper:focus-within span {
-  color: #2c70e5;
-}
-
-.amount-wrapper:focus-within input {
-  border-bottom-color: #2c70e5;
-}
-
-/* Subtle emphasis when typing */
-.amount-wrapper input:not(:placeholder-shown) {
-  border-bottom-color: #2c70e5;
-}
-
-/* Disabled Save-ready hint (optional visual cue) */
-.amount-wrapper input:valid {
-  border-bottom-color: #2c70e5;
 }
 
 
@@ -695,6 +744,28 @@ body, nav, .app, .balance-card {
   font-size: 14px;
   outline: none;
 }
+
+
+/* LIGHT MODE focus reset */
+/* HARD reset browser focus styles (light mode) */
+.form-group input:focus,
+.form-group select:focus,
+.form-group input:focus-visible,
+.form-group select:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+
+  background: var(--card);
+  border-color: rgba(0, 0, 0, 0.15);
+
+  box-shadow: none; /* 🔥 critical */
+}
+
 
 /* Button */
 .add-expense-btn {
