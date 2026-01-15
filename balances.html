@@ -665,8 +665,13 @@ function renderCategoryList(data) {
     row.addEventListener("pointerup", (e) => {
       e.preventDefault();
 
-      activeCategory =
-        activeCategory === item.category ? null : item.category;
+    if (activeCategory === item.category) {
+      activeCategory = null;
+    } else {
+      activeCategory = null;          // 🔥 CLEAR FIRST
+      activeCategory = item.category; // 🔥 SET NEW
+    }
+
 
       updateDonutByCategory(data);
       renderCategoryList(data);
