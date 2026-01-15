@@ -280,6 +280,7 @@ addBtn.onclick = () => { // Removed 'async'
   addBtn.disabled = true;
 
   const payload = {
+    txId: crypto.randomUUID(), // ✅ ADD THIS
     type: "transfer",
     date: dateVal,
     fromAccount: fromVal,

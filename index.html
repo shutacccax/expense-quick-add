@@ -151,27 +151,31 @@ function setPending(list) {
 }
 
 async function submitTransaction(payload) {
-  // 1️⃣ Always save locally first
   const pending = getPending();
 
+  const txId = crypto.randomUUID();
+
   pending.push({
-    id: crypto.randomUUID(),
-    payload,
+    id: txId,
+    payload: {
+      ...payload,
+      txId
+    },
     timestamp: Date.now()
   });
 
   setPending(pending);
-
-  // 2️⃣ Try syncing immediately (non-blocking)
   trySyncPending();
 }
 
+let syncing = false;
+
 async function trySyncPending() {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine || syncing) return;
+
+  syncing = true;
 
   let pending = getPending();
-  if (!pending.length) return;
-
   const remaining = [];
 
   for (const item of pending) {
@@ -182,17 +186,15 @@ async function trySyncPending() {
       });
 
       const json = await res.json();
-      if (json.status !== "success") {
-        throw new Error("Server rejected");
-      }
+      if (json.status !== "success") throw new Error();
 
-    } catch (err) {
-      // keep it if failed
+    } catch {
       remaining.push(item);
     }
   }
 
   setPending(remaining);
+  syncing = false;
 }
 
 

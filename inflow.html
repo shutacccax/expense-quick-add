@@ -225,12 +225,14 @@ addBtn.onclick = () => {
   addBtn.disabled = true;
 
   submitTransaction({
+    txId: crypto.randomUUID(),
     type: "inflow",
     date: date.value,
     description: description.value,
     account: account.value,
     amount: amount.value
   });
+
 
   Object.keys(sessionStorage)
   .filter(k => k.startsWith("dashboard_"))

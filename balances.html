@@ -1,508 +1,544 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-/>
-<title>Balances</title>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Balances</title>
 
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-180.png">
 
-<style>
-  html {
-    background: #ffffff; /* light fallback */
-  }
-</style>
-
-
-<!-- 🔥 Decide theme BEFORE styles load -->
-<script>
-  if (localStorage.getItem("theme") === "dark") {
-    document.documentElement.setAttribute("data-theme", "dark");
-  }
-</script>
-
-<!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Styles (DO NOT disable any) -->
-<link rel="stylesheet" href="styles-light.css">
-<link rel="stylesheet" href="styles-dark.css">
-
-</head>
-
-<body class="page">
+  <style>
+    html {
+      background: #ffffff; /* light fallback */
+    }
+  </style>
 
 
-<div id="appLoader" class="app-loader">
-  <div class="ios-spinner"></div>
-</div>
+  <!-- 🔥 Decide theme BEFORE styles load -->
+  <script>
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles (DO NOT disable any) -->
+  <link rel="stylesheet" href="styles-light.css">
+  <link rel="stylesheet" href="styles-dark.css">
+
+  </head>
+
+  <body class="page">
 
 
-<button id="themeToggle" class="theme-toggle">🌙</button>
-
-<div class="app">
-
-  <div class="header-row">
-    <div class="expense-header">Dashboard</div>
-
-    <a
-      href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
-      target="_blank"
-      class="icon-btn"
-      aria-label="Open Google Sheets"
-    >
-      <img src="svgs/google-sheets.svg" alt="">
-    </a>
+  <div id="appLoader" class="app-loader">
+    <div class="ios-spinner"></div>
   </div>
 
 
-  <!-- BALANCE CARD -->
-  <div class="balance-card">
-    <div>
-      <div class="balance-label">Current Balance</div>
-      <div id="totalBalance" class="balance-amount">₱0.00</div>
+  <button id="themeToggle" class="theme-toggle">🌙</button>
+
+  <div class="app">
+
+    <div class="header-row">
+      <div class="expense-header">Dashboard</div>
+
+      <a
+        href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
+        target="_blank"
+        class="icon-btn"
+        aria-label="Open Google Sheets"
+      >
+        <img src="svgs/google-sheets.svg" alt="">
+      </a>
     </div>
 
-    <button id="eyeToggle" class="eye-btn">
-      <img id="eyeIcon" src="svgs/eye-svgrepo-com.svg">
-    </button>
+
+    <!-- BALANCE CARD -->
+    <div class="balance-card">
+      <div>
+        <div class="balance-label">Current Balance</div>
+        <div id="totalBalance" class="balance-amount">₱0.00</div>
+      </div>
+
+      <button id="eyeToggle" class="eye-btn">
+        <img id="eyeIcon" src="svgs/eye-svgrepo-com.svg">
+      </button>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="section-title">Accounts</div>
+
+    <div id="accounts" class="accounts"></div>
+
+
+
+    <!-- ACCOUNTS -->
+    <div class="expenses-header">
+      <div class="section-title">Expenses</div>
+
+      <select id="monthSelect" class="month-select inline"></select>
+    </div>
+
+    <div class="expense-donut">
+    <svg viewBox="0 0 200 110" class="donut-svg">
+      <!-- background arc -->
+      <path
+        d="M 10 100 A 90 90 0 0 1 190 100"
+        class="donut-bg"
+      />
+      <!-- category arcs injected here -->
+      <g id="donutSegments"></g>
+    </svg>
+
+    <div class="donut-center">
+      <div class="donut-label">TOTAL SPENT</div>
+      <div id="donutAmount" class="donut-amount">₱0.00</div>
+    </div>
   </div>
 
-  <!-- ACCOUNTS -->
-  <div class="section-title">Accounts</div>
-
-  <div id="accounts" class="accounts"></div>
-
-
-
-  <!-- ACCOUNTS -->
-  <div class="expenses-header">
-    <div class="section-title">Expenses</div>
-
-    <select id="monthSelect" class="month-select inline"></select>
+  <div id="noDataState" class="no-data hidden">
+    <img src="svgs/empty-state.svg" alt="" />
+    <div class="no-data-text">No data available</div>
   </div>
 
-  <div class="expense-donut">
-  <svg viewBox="0 0 200 110" class="donut-svg">
-    <!-- background arc -->
-    <path
-      d="M 10 100 A 90 90 0 0 1 190 100"
-      class="donut-bg"
-    />
-    <!-- category arcs injected here -->
-    <g id="donutSegments"></g>
-  </svg>
 
-  <div class="donut-center">
-    <div class="donut-label">TOTAL SPENT</div>
-    <div id="donutAmount" class="donut-amount">₱0.00</div>
+
+    <div id="categoryTotals" class="category-totals"></div>
+
+
+
   </div>
-</div>
 
-<div id="noDataState" class="no-data hidden">
-  <img src="svgs/empty-state.svg" alt="" />
-  <div class="no-data-text">No data available</div>
-</div>
+  <!-- NAVBAR -->
+  <nav class="bottom-nav">
+    <a class="nav-item active">
+      <img src="svgs/home-svgrepo-com-filled.svg">
+      <span>Home</span>
+    </a>
 
+    <a href="index.html" class="nav-item">
+      <img src="svgs/minus-square-svgrepo-com.svg">
+      <span>Expense</span>
+    </a>
 
+    <a href="inflow.html" class="nav-item">
+      <img src="svgs/add-square-svgrepo-com.svg">
+      <span>Inflow</span>
+    </a>
 
-  <div id="categoryTotals" class="category-totals"></div>
+    <a href="transfer.html" class="nav-item">
+      <img src="svgs/refresh-square-svgrepo-com.svg">
+      <span>Transfer</span>
+    </a>
+  </nav>
 
+  <script src="theme-engine.js"></script>
 
+  <script>
 
-</div>
+  let appInitialized = false;
 
-<!-- NAVBAR -->
-<nav class="bottom-nav">
-  <a class="nav-item active">
-    <img src="svgs/home-svgrepo-com-filled.svg">
-    <span>Home</span>
-  </a>
+    
+  const appLoader = document.getElementById("appLoader");
 
-  <a href="index.html" class="nav-item">
-    <img src="svgs/minus-square-svgrepo-com.svg">
-    <span>Expense</span>
-  </a>
-
-  <a href="inflow.html" class="nav-item">
-    <img src="svgs/add-square-svgrepo-com.svg">
-    <span>Inflow</span>
-  </a>
-
-  <a href="transfer.html" class="nav-item">
-    <img src="svgs/refresh-square-svgrepo-com.svg">
-    <span>Transfer</span>
-  </a>
-</nav>
-
-<script src="theme-engine.js"></script>
-
-<script>
-  
-const appLoader = document.getElementById("appLoader");
-
-function hideLoader() {
-  appLoader.classList.add("hidden");
-  setTimeout(() => appLoader.remove(), 350);
-}
-
-
-function showNoDataState() {
-  document.getElementById("noDataState")?.classList.remove("hidden");
-  document.querySelector(".expense-donut")?.classList.add("hidden");
-  document.getElementById("categoryTotals").classList.add("hidden");
-}
-
-function hideNoDataState() {
-  document.getElementById("noDataState")?.classList.add("hidden");
-  document.querySelector(".expense-donut")?.classList.remove("hidden");
-  document.getElementById("categoryTotals").classList.remove("hidden");
-}
-
-
-
-let lastCategoryData = [];
-
-
-function renderAccountSkeletons() {
-  const container = document.getElementById("accounts");
-  container.innerHTML = "";
-
-  const accounts = [
-    { name: "Cash", cls: "cash" },
-    { name: "GCash", cls: "gcash" },
-    { name: "Maya", cls: "maya" },
-    { name: "MariBank", cls: "maribank" }
-  ];
-
-  accounts.forEach(acc => {
-    const card = document.createElement("div");
-    card.className = `account-card ${acc.cls}`;
-
-    const amountEl = document.createElement("div");
-    amountEl.className = "account-amount skeleton";
-    amountEl.textContent = "₱∙∙∙∙∙"; // masked placeholder
-
-    card.innerHTML = `<div class="account-name">${acc.name}</div>`;
-    card.appendChild(amountEl);
-
-    container.appendChild(card);
-  });
-}
-
-
-/* ================= VISIBILITY / MASKING ================= */
-
-if (!localStorage.getItem("balancesVisible")) {
-  localStorage.setItem("balancesVisible", "false");
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    balancesLockedVisible = false;
-    balancesPeekVisible = false;
-    updateBalanceVisibility();
+  function hideLoader() {
+    appLoader.classList.add("hidden");
+    setTimeout(() => appLoader.remove(), 350);
   }
-});
 
 
-const eyeToggle = document.getElementById("eyeToggle");
-const eyeIcon = document.getElementById("eyeIcon");
+  function fetchWithTimeout(url, options = {}, timeout = 8000) {
+    return Promise.race([
+      fetch(url, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Request timeout")), timeout)
+      )
+    ]);
+  }
 
-let balancesLockedVisible =
-  localStorage.getItem("balancesVisible") === "true";
 
-let balancesPeekVisible = false;
 
-let realTotal = 0;
-let accountAmountEls = [];
-let categoryAmountEls = [];
+  function showNoDataState() {
+    document.getElementById("noDataState")?.classList.remove("hidden");
+    document.querySelector(".expense-donut")?.classList.add("hidden");
+    document.getElementById("categoryTotals").classList.add("hidden");
+  }
 
-function maskAmount(value) {
-  const formatted = value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+  function hideNoDataState() {
+    document.getElementById("noDataState")?.classList.add("hidden");
+    document.querySelector(".expense-donut")?.classList.remove("hidden");
+    document.getElementById("categoryTotals").classList.remove("hidden");
+  }
+
+
+
+  let lastCategoryData = [];
+
+
+  function renderAccountSkeletons() {
+    const container = document.getElementById("accounts");
+    container.innerHTML = "";
+
+    const accounts = [
+      { name: "Cash", cls: "cash" },
+      { name: "GCash", cls: "gcash" },
+      { name: "Maya", cls: "maya" },
+      { name: "MariBank", cls: "maribank" }
+    ];
+
+    accounts.forEach(acc => {
+      const card = document.createElement("div");
+      card.className = `account-card ${acc.cls}`;
+
+      const amountEl = document.createElement("div");
+      amountEl.className = "account-amount skeleton";
+      amountEl.textContent = "₱∙∙∙∙∙"; // masked placeholder
+
+      card.innerHTML = `<div class="account-name">${acc.name}</div>`;
+      card.appendChild(amountEl);
+
+      container.appendChild(card);
+    });
+  }
+
+
+  /* ================= VISIBILITY / MASKING ================= */
+
+  if (!localStorage.getItem("balancesVisible")) {
+    localStorage.setItem("balancesVisible", "false");
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      balancesLockedVisible = false;
+      balancesPeekVisible = false;
+      updateBalanceVisibility();
+    }
   });
 
-  return "₱" + "*".repeat(formatted.length);
-}
 
-function updateBalanceVisibility() {
-  const totalEl = document.getElementById("totalBalance");
-  const isVisible = balancesLockedVisible || balancesPeekVisible;
+  const eyeToggle = document.getElementById("eyeToggle");
+  const eyeIcon = document.getElementById("eyeIcon");
 
-  // total balance
-  totalEl.textContent = isVisible
-    ? "₱" + realTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })
-    : maskAmount(realTotal);
-  totalEl.classList.add("ready"); // Show after masking
+  let balancesLockedVisible =
+    localStorage.getItem("balancesVisible") === "true";
 
-  // all registered money elements
-  accountAmountEls.forEach(el => {
+  let balancesPeekVisible = false;
+
+  let realTotal = 0;
+  let accountAmountEls = [];
+  let categoryAmountEls = [];
+
+  function maskAmount(value) {
+    const formatted = value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    return "₱" + "*".repeat(formatted.length);
+  }
+
+  function updateBalanceVisibility() {
+    const totalEl = document.getElementById("totalBalance");
+    const isVisible = balancesLockedVisible || balancesPeekVisible;
+
+    // total balance
+    totalEl.textContent = isVisible
+      ? "₱" + realTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })
+      : maskAmount(realTotal);
+    totalEl.classList.add("ready"); // Show after masking
+
+    // all registered money elements
+    accountAmountEls.forEach(el => {
+      const val = Number(el.dataset.real);
+      el.textContent = isVisible
+        ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+        : maskAmount(val);
+      el.classList.add("ready"); // Show after masking
+    });
+
+    categoryAmountEls.forEach(el => {
     const val = Number(el.dataset.real);
     el.textContent = isVisible
       ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
       : maskAmount(val);
-    el.classList.add("ready"); // Show after masking
+    el.classList.add("ready");
   });
 
-  categoryAmountEls.forEach(el => {
-  const val = Number(el.dataset.real);
-  el.textContent = isVisible
-    ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
-    : maskAmount(val);
-  el.classList.add("ready");
-});
+    // donut center
+    const donutAmountEl = document.getElementById("donutAmount");
+    if (donutAmountEl?.dataset.real) {
+      const val = Number(donutAmountEl.dataset.real);
+      donutAmountEl.textContent = isVisible
+        ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
+        : maskAmount(val);
+      donutAmountEl.classList.add("ready"); // Show after masking
+    }
 
-  // donut center
-  const donutAmountEl = document.getElementById("donutAmount");
-  if (donutAmountEl?.dataset.real) {
-    const val = Number(donutAmountEl.dataset.real);
-    donutAmountEl.textContent = isVisible
-      ? "₱" + val.toLocaleString(undefined, { minimumFractionDigits: 2 })
-      : maskAmount(val);
-    donutAmountEl.classList.add("ready"); // Show after masking
+    eyeIcon.src = balancesLockedVisible
+      ? "svgs/eye-svgrepo-com.svg"
+      : "svgs/eye-closed-svgrepo-com.svg";
+
+    localStorage.setItem("balancesVisible", balancesLockedVisible);
+
+
   }
 
-  eyeIcon.src = balancesLockedVisible
-    ? "svgs/eye-svgrepo-com.svg"
-    : "svgs/eye-closed-svgrepo-com.svg";
-
-  localStorage.setItem("balancesVisible", balancesLockedVisible);
-
-
-}
-
-eyeToggle.onclick = () => {
-  balancesLockedVisible = !balancesLockedVisible;
-  balancesPeekVisible = false; // clear any peek
-  updateBalanceVisibility();
-};
+  eyeToggle.onclick = () => {
+    balancesLockedVisible = !balancesLockedVisible;
+    balancesPeekVisible = false; // clear any peek
+    updateBalanceVisibility();
+  };
 
 
-const totalBalanceEl = document.getElementById("totalBalance");
+  const totalBalanceEl = document.getElementById("totalBalance");
 
-let holdTimer = null;
+  let holdTimer = null;
 
-// TOUCH (iOS)
-totalBalanceEl.addEventListener("touchstart", () => {
-  if (balancesLockedVisible) return; // 🔒 important
+  // TOUCH (iOS)
+  totalBalanceEl.addEventListener("touchstart", () => {
+    if (balancesLockedVisible) return; // 🔒 important
 
-  holdTimer = setTimeout(() => {
+    holdTimer = setTimeout(() => {
+      balancesPeekVisible = true;
+      updateBalanceVisibility();
+    }, 120);
+  });
+
+  totalBalanceEl.addEventListener("touchend", () => {
+    clearTimeout(holdTimer);
+
+    if (balancesLockedVisible) return;
+
+    balancesPeekVisible = false;
+    updateBalanceVisibility();
+  });
+
+  totalBalanceEl.addEventListener("touchcancel", () => {
+    clearTimeout(holdTimer);
+    balancesPeekVisible = false;
+    updateBalanceVisibility();
+  });
+
+  // MOUSE (desktop)
+  totalBalanceEl.addEventListener("mousedown", () => {
+    if (balancesLockedVisible) return;
+
     balancesPeekVisible = true;
     updateBalanceVisibility();
-  }, 120);
-});
-
-totalBalanceEl.addEventListener("touchend", () => {
-  clearTimeout(holdTimer);
-
-  if (balancesLockedVisible) return;
-
-  balancesPeekVisible = false;
-  updateBalanceVisibility();
-});
-
-totalBalanceEl.addEventListener("touchcancel", () => {
-  clearTimeout(holdTimer);
-  balancesPeekVisible = false;
-  updateBalanceVisibility();
-});
-
-// MOUSE (desktop)
-totalBalanceEl.addEventListener("mousedown", () => {
-  if (balancesLockedVisible) return;
-
-  balancesPeekVisible = true;
-  updateBalanceVisibility();
-});
-
-totalBalanceEl.addEventListener("mouseup", () => {
-  balancesPeekVisible = false;
-  updateBalanceVisibility();
-});
-
-totalBalanceEl.addEventListener("mouseleave", () => {
-  balancesPeekVisible = false;
-  updateBalanceVisibility();
-});
-
-
-const donutWrapper = document.querySelector(".expense-donut");
-donutWrapper.classList.add("donut-collapsed");
-
-
-/* ================= DONUT HIGHLIGHT ================= */
-function highlightDonut(category) {
-  document.querySelectorAll("#donutSegments path").forEach(p => {
-    p.classList.add("dimmed");
-    if (p.dataset.category === category) {
-      p.classList.remove("dimmed");
-    }
   });
-}
 
-function resetDonutHighlight() {
-  document.querySelectorAll("#donutSegments path").forEach(p => {
-    p.classList.remove("dimmed");
+  totalBalanceEl.addEventListener("mouseup", () => {
+    balancesPeekVisible = false;
+    updateBalanceVisibility();
   });
-}
 
-/* ================= LOAD BALANCES ================= */
-const scriptURL =
-"https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
+  totalBalanceEl.addEventListener("mouseleave", () => {
+    balancesPeekVisible = false;
+    updateBalanceVisibility();
+  });
 
-async function loadBalances() {
-  const cached = sessionStorage.getItem("dashboard_balances");
 
-  if (cached) {
-    const data = JSON.parse(cached);
-    renderBalances(data);
-    return;
+  const donutWrapper = document.querySelector(".expense-donut");
+  donutWrapper.classList.add("donut-collapsed");
+
+
+  /* ================= DONUT HIGHLIGHT ================= */
+  function highlightDonut(category) {
+    document.querySelectorAll("#donutSegments path").forEach(p => {
+      p.classList.add("dimmed");
+      if (p.dataset.category === category) {
+        p.classList.remove("dimmed");
+      }
+    });
   }
 
-  const res = await fetch(scriptURL);
-  const json = await res.json();
+  function resetDonutHighlight() {
+    document.querySelectorAll("#donutSegments path").forEach(p => {
+      p.classList.remove("dimmed");
+    });
+  }
 
-  sessionStorage.setItem("dashboard_balances", JSON.stringify(json.data));
-  renderBalances(json.data);
-}
+  /* ================= LOAD BALANCES ================= */
+  const scriptURL =
+  "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
-function renderBalances(data) {
-  accountAmountEls = [];
-  realTotal = 0;
+  async function loadBalances() {
+    const cached = sessionStorage.getItem("dashboard_balances");
 
-  data.forEach(b => {
-    const amount = Number(b.balance);
-    realTotal += amount;
+    if (cached) {
+      const data = JSON.parse(cached);
+      renderBalances(data);
+      return;
+    }
 
-    const name = b.account.toLowerCase();
-    let cls = "";
+    const res = await fetchWithTimeout(scriptURL);
+    const json = await res.json();
 
-    if (name.includes("gcash")) cls = "gcash";
-    else if (name.includes("cash")) cls = "cash";
-    else if (name.includes("maya")) cls = "maya";
-    else cls = "maribank";
+    sessionStorage.setItem("dashboard_balances", JSON.stringify(json.data));
+    renderBalances(json.data);
+  }
 
-    const card = document.querySelector(`.account-card.${cls}`);
-    if (!card) return;
+  function renderBalances(data) {
+    accountAmountEls = [];
+    realTotal = 0;
 
-    const amountEl = card.querySelector(".account-amount");
-    amountEl.dataset.real = amount;
-    amountEl.classList.remove("skeleton");
+    data.forEach(b => {
+      const amount = Number(b.balance);
+      realTotal += Math.round(amount * 100) / 100;
 
-    accountAmountEls.push(amountEl);
-  });
+      const name = b.account.toLowerCase();
+      let cls = "";
 
-  updateBalanceVisibility();
-}
+      if (name.includes("gcash")) cls = "gcash";
+      else if (name.includes("cash")) cls = "cash";
+      else if (name.includes("maya")) cls = "maya";
+      else cls = "maribank";
 
+      const card = document.querySelector(`.account-card.${cls}`);
+      if (!card) return;
 
+      const amountEl = card.querySelector(".account-amount");
+      amountEl.dataset.real = amount;
+      amountEl.classList.remove("skeleton");
 
-/* ================= DONUT ================= */
-function updateDonutByCategory(data) {
-  const group = document.getElementById("donutSegments");
-  group.innerHTML = "";
+      accountAmountEls.push(amountEl);
+    });
 
-  const total = data.reduce((s, d) => s + d.total, 0);
-
-  const donutAmountEl = document.getElementById("donutAmount");
-  donutAmountEl.dataset.real = total;
-
-  let offset = 0;
-
-  data.forEach(item => {
-    const percent = total ? (item.total / total) * 100 : 0;
-
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", "M 10 100 A 90 90 0 0 1 190 100");
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", getCategoryColor(item.category));
-    path.setAttribute("stroke-width", "18");
-    path.setAttribute("stroke-linecap", "butt");
-    path.setAttribute("pathLength", "100");
-    path.dataset.category = item.category;
-
-    path.setAttribute("stroke-dasharray", `${percent} ${100 - percent}`);
-    path.setAttribute("stroke-dashoffset", -offset);
-
-    offset += percent;
-    group.appendChild(path);
-  });
-
-  updateBalanceVisibility();
-}
-
-function revealDonut() {
-  const donut = document.querySelector(".expense-donut");
-  if (!donut) return;
-
-  // next frame ensures browser has painted
-  requestAnimationFrame(() => {
-    donut.classList.remove("donut-collapsed");
-  });
-}
-
-function collapseDonut() {
-  const donut = document.querySelector(".expense-donut");
-  if (!donut) return;
-
-  donut.classList.add("donut-collapsed");
-}
+    updateBalanceVisibility();
+  }
 
 
 
-/* ================= CATEGORY LIST ================= */
-function renderCategoryList(data) {
-  categoryAmountEls = [];  
-  const container = document.getElementById("categoryTotals");
-  container.innerHTML = "";
+  /* ================= DONUT ================= */
+  function updateDonutByCategory(data) {
+    const group = document.getElementById("donutSegments");
+    group.innerHTML = "";
 
-  data.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "category-row";
+    const total = data.reduce((s, d) => s + d.total, 0);
 
-    const color = getCategoryColor(item.category);
+    const donutAmountEl = document.getElementById("donutAmount");
+    donutAmountEl.dataset.real = total;
 
-    const amountEl = document.createElement("span");
-    amountEl.className = "cat-amount";
-    amountEl.dataset.real = item.total;
+    let offset = 0;
 
-    const nameEl = document.createElement("span");
-    nameEl.className = "cat-name";
-    nameEl.innerHTML = `<span class="cat-dot" style="background:${color}"></span>${item.category}`;
+    data.forEach(item => {
+      const percent = total ? (item.total / total) * 100 : 0;
 
-    row.appendChild(nameEl);
-    row.appendChild(amountEl);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M 10 100 A 90 90 0 0 1 190 100");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", getCategoryColor(item.category));
+      path.setAttribute("stroke-width", "18");
+      path.setAttribute("stroke-linecap", "butt");
+      path.setAttribute("pathLength", "100");
+      path.dataset.category = item.category;
 
-    row.addEventListener("touchstart", () => highlightDonut(item.category));
-    row.addEventListener("mousedown", () => highlightDonut(item.category));
-    row.addEventListener("touchend", resetDonutHighlight);
-    row.addEventListener("mouseup", resetDonutHighlight);
-    row.addEventListener("mouseleave", resetDonutHighlight);
+      path.setAttribute("stroke-dasharray", `${percent} ${100 - percent}`);
+      path.setAttribute("stroke-dashoffset", -offset);
 
-    container.appendChild(row);
-    categoryAmountEls.push(amountEl);
-  });
+      offset += percent;
+      group.appendChild(path);
+    });
 
-  updateBalanceVisibility();
-}
+    updateBalanceVisibility();
+  }
 
-/* ================= LOAD CATEGORY TOTALS ================= */
-async function loadCategoryTotals(year, month) {
-  const cacheKey = `dashboard_categories_${year}_${month}`;
-  const cached = sessionStorage.getItem(cacheKey);
+  function revealDonut() {
+    const donut = document.querySelector(".expense-donut");
+    if (!donut) return;
 
-  if (cached) {
-    const data = JSON.parse(cached);
+    // next frame ensures browser has painted
+    requestAnimationFrame(() => {
+      donut.classList.remove("donut-collapsed");
+    });
+  }
+
+  function collapseDonut() {
+    const donut = document.querySelector(".expense-donut");
+    if (!donut) return;
+
+    donut.classList.add("donut-collapsed");
+  }
+
+
+
+  /* ================= CATEGORY LIST ================= */
+  function renderCategoryList(data) {
+    categoryAmountEls = [];  
+    const container = document.getElementById("categoryTotals");
+    container.innerHTML = "";
+
+    data.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "category-row";
+
+      const color = getCategoryColor(item.category);
+
+      const amountEl = document.createElement("span");
+      amountEl.className = "cat-amount";
+      amountEl.dataset.real = item.total;
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "cat-name";
+      nameEl.innerHTML = `<span class="cat-dot" style="background:${color}"></span>${item.category}`;
+
+      row.appendChild(nameEl);
+      row.appendChild(amountEl);
+
+      row.addEventListener("touchstart", () => highlightDonut(item.category));
+      row.addEventListener("mousedown", () => highlightDonut(item.category));
+      row.addEventListener("touchend", resetDonutHighlight);
+      row.addEventListener("mouseup", resetDonutHighlight);
+      row.addEventListener("mouseleave", resetDonutHighlight);
+
+      container.appendChild(row);
+      categoryAmountEls.push(amountEl);
+    });
+
+    updateBalanceVisibility();
+  }
+
+  /* ================= LOAD CATEGORY TOTALS ================= */
+  async function loadCategoryTotals(year, month) {
+    const cacheKey = `dashboard_categories_${year}_${month}`;
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached) {
+      const data = JSON.parse(cached);
+
+      if (!data.length) {
+        showNoDataState();
+        return;
+      }
+
+      hideNoDataState();
+
+      const sorted = [...data].sort((a, b) => b.total - a.total);
+      updateDonutByCategory(sorted);
+      renderCategoryList(sorted);
+      return;
+    }
+
+    const res = await fetchWithTimeout(
+      `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`
+    );
+    
+    const json = await res.json();
+
+    const data = json.data || [];
 
     if (!data.length) {
+      sessionStorage.setItem(cacheKey, JSON.stringify([]));
       showNoDataState();
       return;
     }
@@ -510,121 +546,102 @@ async function loadCategoryTotals(year, month) {
     hideNoDataState();
 
     const sorted = [...data].sort((a, b) => b.total - a.total);
+    sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
     updateDonutByCategory(sorted);
     renderCategoryList(sorted);
-    return;
+
   }
 
-  const res = await fetch(`${scriptURL}?action=categoryTotals&year=${year}&month=${month}`);
-  const json = await res.json();
+  /* ================= MONTH DROPDOWN ================= */
+  const monthSelect = document.getElementById("monthSelect");
 
-  const data = json.data || [];
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
 
-  if (!data.length) {
-    sessionStorage.setItem(cacheKey, JSON.stringify([]));
-    showNoDataState();
-    return;
+  // build last 12 months
+  monthSelect.innerHTML = "";
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(currentYear, currentMonth - 1 - i, 1);
+
+    const value = `${d.getFullYear()}-${d.getMonth() + 1}`;
+    const label = d.toLocaleString("default", {
+      month: "long",
+      year: "numeric"
+    });
+
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    monthSelect.appendChild(option);
   }
 
-  hideNoDataState();
+  // default = current month
+  monthSelect.value = `${currentYear}-${currentMonth}`;
 
-  const sorted = [...data].sort((a, b) => b.total - a.total);
-  sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
-  updateDonutByCategory(sorted);
-  renderCategoryList(sorted);
 
-}
+  /* ================= APP RESUME (iOS / PWA) ================= */
 
-/* ================= MONTH DROPDOWN ================= */
-const monthSelect = document.getElementById("monthSelect");
+  let resumeTimer = null;
 
-const now = new Date();
-const currentYear = now.getFullYear();
-const currentMonth = now.getMonth() + 1;
-
-// build last 12 months
-monthSelect.innerHTML = "";
-for (let i = 0; i < 12; i++) {
-  const d = new Date(currentYear, currentMonth - 1 - i, 1);
-
-  const value = `${d.getFullYear()}-${d.getMonth() + 1}`;
-  const label = d.toLocaleString("default", {
-    month: "long",
-    year: "numeric"
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && appInitialized) {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        loadBalances();
+        loadCategoryTotals(currentYear, currentMonth);
+      }, 150);
+    }
   });
 
-  const option = document.createElement("option");
-  option.value = value;
-  option.textContent = label;
-  monthSelect.appendChild(option);
-}
+  // reload data on change
+  monthSelect.addEventListener("change", async () => {
+    const [year, month] = monthSelect.value.split("-");
 
-// default = current month
-monthSelect.value = `${currentYear}-${currentMonth}`;
+    // clear old category UI to avoid stale flashes
+    categoryAmountEls = [];
+    document.getElementById("categoryTotals").innerHTML = "";
 
+    collapseDonut(); // reset animation state
 
-/* ================= APP RESUME (iOS / PWA) ================= */
+    await loadCategoryTotals(Number(year), Number(month));
 
-let resumeTimer = null;
+    revealDonut(); // animate new data
+  });
 
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    clearTimeout(resumeTimer);
-    resumeTimer = setTimeout(() => {
-      loadBalances();
-      loadCategoryTotals(currentYear, currentMonth);
-    }, 150);
+  const pageEl = document.querySelector(".page");
+
+  function showApp() {
+    pageEl.classList.add("page-ready");
   }
-});
 
+  async function initApp() {
+    try {
+      renderAccountSkeletons();
+      updateBalanceVisibility();
 
-// reload data on change
-monthSelect.addEventListener("change", async () => {
-  const [year, month] = monthSelect.value.split("-");
+      await Promise.allSettled([
+        loadBalances(),
+        loadCategoryTotals(currentYear, currentMonth)
+      ]);
 
-  // clear old category UI to avoid stale flashes
-  categoryAmountEls = [];
-  document.getElementById("categoryTotals").innerHTML = "";
-
-  collapseDonut(); // reset animation state
-
-  await loadCategoryTotals(Number(year), Number(month));
-
-  revealDonut(); // animate new data
-});
-
-const pageEl = document.querySelector(".page");
-
-function showApp() {
-  pageEl.classList.add("page-ready");
-}
-
-async function initApp() {
-  try {
-    renderAccountSkeletons();
-    updateBalanceVisibility();
-
-    await Promise.allSettled([
-      loadBalances(),
-      loadCategoryTotals(currentYear, currentMonth)
-    ]);
-
-  } catch (err) {
-    console.error("Init error:", err);
-  } finally {
-    hideLoader();     // ✅ ALWAYS runs
-    revealDonut();    // ✅ ALWAYS runs
-    showApp();        // ✅ ALWAYS runs
+    } catch (err) {
+      console.error("Init error:", err);
+    } finally {
+      appInitialized = true;
+      hideLoader();     // ✅ ALWAYS runs
+      revealDonut();    // ✅ ALWAYS runs
+      showApp();        // ✅ ALWAYS runs
+    }
   }
-}
 
 
-initApp();
+  initApp();
 
 
 
-</script>
+  </script>
 
 
-</body>
-</html>
+  </body>
+  </html>
