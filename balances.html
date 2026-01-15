@@ -145,6 +145,9 @@
 
   <script>
 
+  const CACHE_NAME = "expense-pwa-v1";
+
+
   let appInitialized = false;
 
     
@@ -532,7 +535,7 @@
     const res = await fetchWithTimeout(
       `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`
     );
-    
+
     const json = await res.json();
 
     const data = json.data || [];
