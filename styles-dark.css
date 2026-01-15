@@ -1,17 +1,21 @@
 /* ================= DARK VARIABLES ================= */
 
 html[data-theme="dark"] {
-  --bg: #0f1115;
+  --bg: #0b0f14;
   --text: #eaeaea;
-  --card: #1a1d23;
+  --card: #121826;;
 
-  --cat-food: #4B5F9E;
-  --cat-transpo: #3A7F87;
-  --cat-entertainment: #6A5A8C;
-  --cat-shopping: #8A5A45;
-  --cat-bills: #8A7A3A;
-  --cat-personal: #7A567F;
-  --cat-others: #6B6F74;
+
+  /* Category colors — dark mode */
+  --cat-transpo: #1976d3;        
+  --cat-food: #1d89e4;      
+  --cat-entertainment: #2196f3; 
+  --cat-shopping: #42a5f6;     
+  --cat-bills: #64b5f6;     
+  --cat-personal: #90caf8;   
+  --cat-others: #bbdefa;      
+
+
 
   --divider: rgba(255, 255, 255, 0.08);
 
@@ -33,6 +37,48 @@ html[data-theme="dark"] body {
   background: var(--bg);
   color: var(--text);
 }
+
+[data-theme="dark"] .balance-page {
+  background: #0b0f14;
+  position: relative;
+  overflow-x: hidden;
+}
+
+
+
+[data-theme="dark"] .balance-page .app::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    /* 🔵 TOP glow */
+    radial-gradient(
+      120% 85% at 50% -10%,
+      rgba(120, 180, 255, 0.28),
+      rgba(120, 180, 255, 0.18) 22%,
+      rgba(120, 180, 255, 0.08) 40%,
+      rgba(11, 15, 20, 0) 65%
+    ),
+
+    /* 🔵 BOTTOM glow */
+    radial-gradient(
+      90% 70% at 70% 100%,
+      rgba(45, 157, 255, 0.20),
+      rgba(45, 157, 255, 0.10) 35%,
+      rgba(45, 157, 255, 0.02) 55%,
+      rgba(11, 15, 20, 0) 75%
+    );
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+[data-theme="dark"] .balance-page .app {
+  position: relative;
+  z-index: 1;
+}
+
 
 /* ================= TRANSITIONS ================= */
 
@@ -59,18 +105,91 @@ html[data-theme="dark"] .bottom-nav {
 }
 
 /* Active / tap (mobile) – dark mode */
-[data-theme="dark"] .icon-btn{
-  background: #1A1D23;
+[data-theme="dark"] .icon-btn {
+  background: rgba(70, 120, 200, 0.18); /* blue glass */
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+
+  border: 1px solid rgba(120, 170, 255, 0.22);
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  opacity: 0.9;
 }
 
 
 /* ================= BALANCE CARD ================= */
 
-html[data-theme="dark"] .balance-card {
-  background: #1c2a44; /* darker accent only in dark mode */
+[data-theme="dark"] .balance-card {
+  background: linear-gradient(
+    135deg,
+    #0f92ff,
+    #1b4fa3
+  );
+
+  color: white;
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 6px 12px rgba(0, 0, 0, 0.35);
 }
 
+[data-theme="dark"] .balance-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 18px 40px rgba(0,0,0,0.5),
+    0 6px 12px rgba(0,0,0,0.35);
+}
+
+
+[data-theme="dark"] .balance-card::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+
+[data-theme="dark"] .balance-card::after {
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0) 65%
+  );
+}
+
+
+
+
 /* ================= ACCOUNTS ================= */
+
+[data-theme="dark"] .account-card {
+  background: rgba(40, 60, 95, 0.2); /* blue glass */
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+
+  color: #e6ecff;
+
+  border: 1px solid rgba(120, 160, 255, 0.10);
+
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .account-name {
+  color: rgba(255,255,255,0.65);
+}
+
+[data-theme="dark"] .account-amount {
+  color: white;
+}
+
+[data-theme="dark"] .account-card::before {
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+}
 
 [data-theme="dark"] .account-amount.skeleton {
   color: rgba(255, 255, 255, 0.45);
@@ -82,53 +201,76 @@ html[data-theme="dark"] .balances-loading {
   color: rgba(255,255,255,0.6);
 }
 
-html[data-theme="dark"] .cash {
-  background: #2a2a2a;
-  color: #eee;
+[data-theme="dark"] .account-card::before {
+  width: 10px;
+  height: 10px;
 }
 
-html[data-theme="dark"] .gcash {
-  background: #1f2a44;
-  color: #9bbcff;
+[data-theme="dark"] .cash::before {
+  box-shadow:
+    0 0 14px rgba(156, 163, 175, 0.6),
+    0 0 32px rgba(156, 163, 175, 0.45);
 }
 
-html[data-theme="dark"] .maya {
-  background: #1f3a2d;
-  color: #7de0a6;
+[data-theme="dark"] .gcash::before {
+  box-shadow:
+    0 0 16px rgba(37, 99, 235, 0.75),
+    0 0 36px rgba(37, 99, 235, 0.55);
 }
 
-html[data-theme="dark"] .maribank {
-  background: #3a2a1f;
-  color: #ffb36b;
+[data-theme="dark"] .maya::before {
+  box-shadow:
+    0 0 16px rgba(22, 163, 74, 0.75),
+    0 0 36px rgba(22, 163, 74, 0.55);
 }
+
+[data-theme="dark"] .maribank::before {
+  box-shadow:
+    0 0 16px rgba(249, 115, 22, 0.75),
+    0 0 36px rgba(249, 115, 22, 0.55);
+}
+
 
 /* ================= NAVBAR ================= */
 
-html[data-theme="dark"] .bottom-nav {
-  background: var(--bg);
-  border-top: 1px solid rgba(255,255,255,0.08);
+[data-theme="dark"] .bottom-nav {
+  background: rgba(18, 24, 38, 0.65); /* blue-biased dark */
+  border: 1px solid rgba(120, 170, 255, 0.12);
+
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(120, 170, 255, 0.08);
 }
+
 
 html[data-theme="dark"] .nav-item,
 html[data-theme="dark"] .nav-item:link,
 html[data-theme="dark"] .nav-item:visited {
-  color: rgba(255,255,255,0.85);
+  color: #8a9da8;
+}
+
+[data-theme="dark"] .nav-item.active {
+  color: rgba(67, 167, 253, 0.55);
 }
 
 html[data-theme="dark"] .nav-item img {
-  filter: invert(1);
-  opacity: 0.85;
+  opacity: 0.7;
 }
 
 html[data-theme="dark"] .nav-item.active img {
-  opacity: 1;
+  opacity: 0.7;
 }
 
 /* ================= THEME TOGGLE ================= */
 
-html[data-theme="dark"] .theme-toggle {
-  background: var(--card);
-  color: var(--text);
+[data-theme="dark"] .theme-toggle {
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* ================= EYE ICON ================= */
@@ -189,8 +331,13 @@ html[data-theme="dark"] .month-select option {
 
 /* ================= DONUT ================= */
 
-html[data-theme="dark"] .donut-bg {
-  stroke: rgba(255,255,255,0.15);
+/* dark mode */
+[data-theme="dark"] .donut-glow.glow-light {
+  display: none;
+}
+
+[data-theme="dark"] .donut-glow.glow-dark {
+  display: block;
 }
 
 html[data-theme="dark"] .donut-amount {
@@ -200,4 +347,52 @@ html[data-theme="dark"] .donut-amount {
 html[data-theme="dark"] .no-data img {
   opacity: 0.3;
   filter: invert(1);
+}
+
+[data-theme="dark"] .expense-donut::after {
+  background: radial-gradient(
+    circle at 70% 75%,              /* same direction */
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 25%,
+    rgba(0, 0, 0, 0.2) 40%,
+    rgba(0, 0, 0, 0.1) 55%,
+    rgba(0, 0, 0, 0) 70%
+  );
+
+  filter: blur(4px);
+}
+
+[data-theme="dark"] .donut-pill {
+  color: #9bcfff;
+  background: rgba(155, 188, 255, 0.15);
+}
+
+
+/* ================= BUTTON ================= */
+
+[data-theme="dark"] .add-expense-btn {
+  background: linear-gradient(
+    135deg,
+    #1E6FD9,
+    #2556A8
+  );
+}
+
+
+
+
+/* Dark mode */
+[data-theme="dark"] .toast {
+  background: rgba(20, 24, 35, 0.9);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .toast-title {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .toast-message {
+  color: #9ca3af;
 }

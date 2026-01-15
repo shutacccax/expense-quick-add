@@ -116,15 +116,12 @@
   </a>
 </nav>
 
-<div id="toast" class="toast"></div>
-
 
 <script src="theme-engine.js"></script>
 
 
 <script>
 
-const CACHE_NAME = "expense-pwa-v1";
 
 
 const PENDING_KEY = "pendingInflows";
@@ -204,12 +201,32 @@ dateInput.addEventListener("change", () => {
 });
 
 /* ===== TOAST ===== */
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
+function showToast(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  toast.innerHTML = `
+    <div class="toast-icon">
+      ${type === "success" ? "✓" : "!"}
+    </div>
+    <div class="toast-text">
+      <div class="toast-title">
+        ${type === "success" ? "Saved" : "Warning"}
+      </div>
+      <div class="toast-message">${message}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "toast-out 0.25s ease forwards";
+    setTimeout(() => toast.remove(), 250);
+  }, 2500);
 }
+
 
 /* ===== GOOGLE SHEETS SUBMIT ===== */
 const scriptURL =
@@ -221,7 +238,8 @@ addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
   if (!amount.value || !account.value || !date.value) {
-    showToast("Please complete the form");
+    showToast("Please complete the form", "warning");
+
     return;
   }
 
@@ -242,9 +260,11 @@ addBtn.onclick = () => {
   .forEach(k => sessionStorage.removeItem(k));
 
   if (navigator.onLine) {
-    showToast("Inflow saved ✓");
+    showToast("Inflow saved ✓", "success");
+
   } else {
-    showToast("Inflow saved offline ⏳");
+    showToast("Saved offline ⏳", "warning");
+
   }
 
   // clear fields
@@ -269,6 +289,8 @@ requestAnimationFrame(() => {
 
 
 </script>
+
+<div id="toastContainer" class="toast-container"></div>
 
 </body>
 </html>

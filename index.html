@@ -139,9 +139,6 @@
 
 <script>
 
-const CACHE_NAME = "expense-pwa-v1";
-
-
 /* ================= OFFLINE QUEUE ================= */
 const PENDING_KEY = "pendingExpenses";
 
@@ -226,12 +223,32 @@ dateInput.addEventListener("change", () => {
 });
 
 
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
+function showToast(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  toast.innerHTML = `
+    <div class="toast-icon">
+      ${type === "success" ? "✓" : "!"}
+    </div>
+    <div class="toast-text">
+      <div class="toast-title">
+        ${type === "success" ? "Saved" : "Warning"}
+      </div>
+      <div class="toast-message">${message}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "toast-out 0.25s ease forwards";
+    setTimeout(() => toast.remove(), 250);
+  }, 2500);
 }
+
 
 /* ================= CATEGORY CHIPS LOGIC ================= */
 
@@ -257,7 +274,7 @@ addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
   if (!date.value || !amount.value) {
-    showToast("Please enter date and amount");
+    showToast("Please enter date and amount", "warning");
     return;
   }
 
@@ -278,9 +295,10 @@ addBtn.onclick = () => {
   .forEach(k => sessionStorage.removeItem(k));
 
   if (navigator.onLine) {
-    showToast("Saved ✓");
+    showToast("Expense added", "success");
   } else {
-    showToast("Saved offline ⏳");
+    showToast("Saved offline. Will sync later.", "warning");
+
   }
 
   // clear fields
@@ -313,7 +331,8 @@ requestAnimationFrame(() => {
 
 </script>
 
-<div id="toast" class="toast"></div>
+<div id="toastContainer" class="toast-container"></div>
+
 
 
 </body>

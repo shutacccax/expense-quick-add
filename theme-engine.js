@@ -5,13 +5,23 @@ const darkStyles = document.getElementById("darkStyles");
 
 // Shared Colors for Donut & Lists
 const CATEGORY_COLORS_LIGHT = {
-  Transpo: "#00ACC1", Food: "#3F6FFF", Entertainment: "#7E57C2",
-  Others: "#9E9E9E", Shopping: "#FF7043", Bills: "#FBC02D", Personal: "#AB47BC"
+  Transpo: "#8E99A4",        // cool gray
+  Food: "#7F8C8D",           // balanced gray
+  Entertainment: "#9B8F97",  // warm gray
+  Shopping: "#9A8C84",       // brown-gray
+  Others: "#8F8F8F",          // true neutral
+  Bills: "#8A8F7A",           // olive-gray
+  Personal: "#928A9E"         // violet-gray
 };
 
 const CATEGORY_COLORS_DARK = {
-  Transpo: "#3A7F87", Food: "#4B5F9E", Entertainment: "#6A5A8C",
-  Others: "#6B6F74", Shopping: "#8A5A45", Bills: "#8A7A3A", Personal: "#7A567F"
+  Transpo: "#8E99A4",        // cool gray
+  Food: "#7F8C8D",           // balanced gray
+  Entertainment: "#9B8F97",  // warm gray
+  Shopping: "#9A8C84",       // brown-gray
+  Others: "#8F8F8F",          // true neutral
+  Bills: "#8A8F7A",           // olive-gray
+  Personal: "#928A9E"         // violet-gray
 };
 
 function getCategoryColor(category) {

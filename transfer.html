@@ -122,12 +122,11 @@
   </a>
 </nav>
 
-<div id="toast" class="toast"></div>
 
 <script src="theme-engine.js"></script>
-<script>
+<script>  
 
-const CACHE_NAME = "expense-pwa-v1";
+
 
 const fromEl = document.getElementById("fromAccount");
 const toEl = document.getElementById("toAccount");
@@ -244,11 +243,30 @@ const todayISO = today.toISOString().slice(0, 10);
 dateInput.value = todayISO;
 
 /* ===== TOAST ===== */
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
+function showToast(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+
+  toast.innerHTML = `
+    <div class="toast-icon">
+      ${type === "success" ? "✓" : "!"}
+    </div>
+    <div class="toast-text">
+      <div class="toast-title">
+        ${type === "success" ? "Saved" : "Warning"}
+      </div>
+      <div class="toast-message">${message}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "toast-out 0.25s ease forwards";
+    setTimeout(() => toast.remove(), 250);
+  }, 2500);
 }
 
 /* ===== GOOGLE SHEETS SUBMIT ===== */
@@ -269,15 +287,15 @@ addBtn.onclick = () => { // Removed 'async'
   const toVal = toEl.value;
   const dateVal = dateInput.value;
 
-  if (!amountVal || !fromVal || !toVal || !dateVal) {
-    showToast("Please complete the form");
-    return;
-  }
+if (!amountVal || !fromVal || !toVal || !dateVal) {
+  showToast("Please complete the form", "warning");
+  return;
+}
 
-  if (fromVal === toVal) {
-    showToast("Accounts must be different");
-    return;
-  }
+if (fromVal === toVal) {
+  showToast("Accounts must be different", "warning");
+  return;
+}
 
   addBtn.disabled = true;
 
@@ -298,11 +316,12 @@ addBtn.onclick = () => { // Removed 'async'
   .forEach(k => sessionStorage.removeItem(k));
 
   // 2. Show feedback IMMEDIATELY
-  if (navigator.onLine) {
-    showToast("Transfer saved ✓");
-  } else {
-    showToast("Saved offline ⏳");
-  }
+// 2. Show feedback IMMEDIATELY
+if (navigator.onLine) {
+  showToast("Transfer saved ✓", "success");
+} else {
+  showToast("Saved offline ⏳", "warning");
+}
 
   // 3. Clear fields IMMEDIATELY
   amountEl.value = "";
@@ -326,6 +345,8 @@ requestAnimationFrame(() => {
 
 
 </script>
+
+<div id="toastContainer" class="toast-container"></div>
 
 </body>
 </html>
