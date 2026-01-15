@@ -954,6 +954,11 @@ input {
   border-bottom: 1px solid var(--divider);
 }
 
+.category-row {
+  touch-action: manipulation;
+}
+
+
 .cat-name {
   opacity: 0.9;
 }

@@ -647,14 +647,24 @@ function renderCategoryList(data) {
     row.appendChild(amountEl);
 
     // 🔵 TEMPORARY highlight (hover / touch)
-    row.addEventListener("touchstart", () => highlightDonut(item.category));
-    row.addEventListener("mousedown", () => highlightDonut(item.category));
-    row.addEventListener("touchend", resetDonutHighlight);
-    row.addEventListener("mouseup", resetDonutHighlight);
-    row.addEventListener("mouseleave", resetDonutHighlight);
+    row.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); // 🚫 stops synthetic click
+      highlightDonut(item.category);
+    });
+
+    row.addEventListener("pointerup", () => {
+      resetDonutHighlight();
+    });
+
+    row.addEventListener("pointerleave", () => {
+      resetDonutHighlight();
+    });
+
 
     // ⭐ ADD THIS: persistent click highlight
-    row.addEventListener("click", () => {
+    row.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+
       activeCategory =
         activeCategory === item.category ? null : item.category;
 
