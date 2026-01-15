@@ -587,10 +587,20 @@ function updateDonutByCategory(data) {
       -offset
     );
 
-    circle.classList.toggle(
-      "active",
-      activeCategory === item.category
-    );
+    if (activeCategory === null) {
+      // 🔥 nothing selected → show everything normally
+      circle.classList.remove("active");
+      circle.classList.remove("dimmed");
+    } else if (activeCategory === item.category) {
+      // selected slice
+      circle.classList.add("active");
+      circle.classList.remove("dimmed");
+    } else {
+      // non-selected slices
+      circle.classList.remove("active");
+      circle.classList.add("dimmed");
+    }
+
 
     offset += length;
     group.appendChild(circle);
@@ -646,36 +656,26 @@ function renderCategoryList(data) {
     row.appendChild(nameEl);
     row.appendChild(amountEl);
 
-    // 🔵 TEMPORARY highlight (hover / touch)
+    // 🟦 TEMP highlight on press
+    // 🟦 temporary highlight
+    // Highlight while pressing
     row.addEventListener("pointerdown", (e) => {
-      e.preventDefault(); // 🚫 stops synthetic click
+      e.preventDefault();
       highlightDonut(item.category);
     });
 
-    row.addEventListener("pointerup", () => {
+    // Restore all slices on release
+    row.addEventListener("pointerup", (e) => {
+      e.preventDefault();
       resetDonutHighlight();
     });
 
+    // Safety: if finger leaves
     row.addEventListener("pointerleave", () => {
       resetDonutHighlight();
     });
 
 
-    // ⭐ ADD THIS: persistent click highlight
-    row.addEventListener("pointerup", (e) => {
-      e.preventDefault();
-
-    if (activeCategory === item.category) {
-      activeCategory = null;
-    } else {
-      activeCategory = null;          // 🔥 CLEAR FIRST
-      activeCategory = item.category; // 🔥 SET NEW
-    }
-
-
-      updateDonutByCategory(data);
-      renderCategoryList(data);
-    });
 
     container.appendChild(row);
     categoryAmountEls.push(amountEl);
@@ -701,6 +701,7 @@ function renderCategoryList(data) {
       hideNoDataState();
 
       const sorted = [...data].sort((a, b) => b.total - a.total);
+      lastCategoryData = sorted;
       updateDonutByCategory(sorted);
       renderCategoryList(sorted);
       return;
