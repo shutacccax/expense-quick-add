@@ -3,56 +3,28 @@
 html[data-theme="dark"] {
   --bg: #0b0f14;
   --text: #eaeaea;
-  --card: #121826;;
+  --card: #121826;
 
-
-  /* Category colors — dark mode */
-  --cat-transpo: #1976d3;        
-  --cat-food: #1d89e4;      
-  --cat-entertainment: #2196f3; 
-  --cat-shopping: #42a5f6;     
-  --cat-bills: #64b5f6;     
-  --cat-personal: #90caf8;   
-  --cat-others: #bbdefa;      
-
-
+  /* Category colors */
+  --cat-transpo: #1976d3;
+  --cat-food: #1d89e4;
+  --cat-entertainment: #2196f3;
+  --cat-shopping: #42a5f6;
+  --cat-bills: #64b5f6;
+  --cat-personal: #90caf8;
+  --cat-others: #bbdefa;
 
   --divider: rgba(255, 255, 255, 0.08);
-
   --header-text: rgba(255, 255, 255, 0.88);
 }
 
 /* ================= PAGE ================= */
 
-html[data-theme="dark"] {
-  background: var(--bg);
-}
-
 html[data-theme="dark"],
-html[data-theme="dark"] body {
+body[data-theme="dark"] {
   min-height: 100%;
-}
-
-html[data-theme="dark"] body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-[data-theme="dark"] .balance-page {
-  background: #0b0f14;
-  position: relative;
-  overflow-x: hidden;
-}
-
-
-
-[data-theme="dark"] .balance-page .app::after {
-  content: "";
-  position: absolute;
-  inset: 0;
 
   background:
-    /* 🔵 TOP glow */
     radial-gradient(
       120% 85% at 50% -10%,
       rgba(120, 180, 255, 0.28),
@@ -60,23 +32,37 @@ html[data-theme="dark"] body {
       rgba(120, 180, 255, 0.08) 40%,
       rgba(11, 15, 20, 0) 65%
     ),
-
-    /* 🔵 BOTTOM glow */
     radial-gradient(
       90% 70% at 70% 100%,
       rgba(45, 157, 255, 0.20),
       rgba(45, 157, 255, 0.10) 35%,
       rgba(45, 157, 255, 0.02) 55%,
       rgba(11, 15, 20, 0) 75%
-    );
+    ),
+    #0b0f14;
 
-  pointer-events: none;
-  z-index: -1;
+  background-attachment: fixed; /* 🔥 THIS */
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  color: var(--text);
 }
 
-[data-theme="dark"] .balance-page .app {
+
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  min-height: 100%;
+}
+
+html[data-theme="dark"] body {
+  color: var(--text);
+}
+
+[data-theme="dark"] .balance-page {
+  background: transparent; /* 🔥 not solid */
   position: relative;
-  z-index: 1;
+  overflow-x: hidden;
 }
 
 
