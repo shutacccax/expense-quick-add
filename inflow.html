@@ -237,9 +237,16 @@ const addBtn = document.getElementById("addInflowBtn");
 addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
-  if (!amount.value || !account.value || !date.value) {
-    showToast("Please complete the form", "warning");
+  const amountVal = parseFloat(amount.value);
 
+  if (
+    !amount.value ||
+    isNaN(amountVal) ||
+    amountVal <= 0 ||
+    !account.value ||
+    !date.value
+  ) {
+    showToast("Amount must be greater than 0", "warning");
     return;
   }
 

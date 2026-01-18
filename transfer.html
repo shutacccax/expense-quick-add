@@ -86,6 +86,18 @@
   </div>
 
   <div class="form-group">
+    <div class="amount-label">Transfer Fee</div>
+    <input
+      type="number"
+      id="fee"
+      inputmode="decimal"
+      placeholder="0.00"
+    />
+  </div>
+
+
+
+  <div class="form-group">
     <label>Date</label>
     <input type="date" id="date">
   </div>
@@ -171,7 +183,6 @@ async function trySyncPending() {
 
   for (const item of pending) {
     try {
-      // ---- BASIC STRUCTURE CHECK ----
       if (!item || typeof item !== "object") {
         console.warn("Dropping invalid item:", item);
         continue;
@@ -179,19 +190,16 @@ async function trySyncPending() {
 
       const payload = item.payload;
 
-      // ---- PAYLOAD EXISTS ----
       if (!payload || typeof payload !== "object") {
         console.warn("Dropping empty payload:", item);
         continue;
       }
 
-      // ---- TYPE REQUIRED ----
       if (!payload.type) {
         console.warn("Dropping payload without type:", payload);
         continue;
       }
 
-      // ---- TRANSFER-SPECIFIC VALIDATION ----
       if (payload.type === "transfer") {
         if (
           !payload.fromAccount ||
@@ -204,22 +212,33 @@ async function trySyncPending() {
         }
       }
 
-      // ---- SEND TO GOOGLE APPS SCRIPT ----
+      // 🛑 DEPENDENCY CHECK
+// ---- DEPENDENCY CHECK ----
+      if (payload.dependsOn) {
+        const dependencyFailedOrPending = remaining.some(
+          r => r.payload?.txId === payload.dependsOn
+        );
+
+        if (dependencyFailedOrPending) {
+          remaining.push(item);
+          continue;
+        }
+      }
+
+      // 🚀 SEND
       const res = await fetch(scriptURL, {
         method: "POST",
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        throw new Error("Network error");
-      }
+      if (!res.ok) throw new Error("Network error");
 
       const json = await res.json();
       if (json.status !== "success") {
         throw new Error(json.message || "Server rejected payload");
       }
 
-      // ✅ success → do NOT re-add to remaining
+      // ✅ success → item removed
 
     } catch (err) {
       console.error("Sync failed, will retry:", err, item);
@@ -276,56 +295,80 @@ const scriptURL =
 
 const addBtn = document.getElementById("addTransferBtn");
 
-addBtn.onclick = () => { // Removed 'async'
+addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
   const amountEl = document.getElementById("amount");
   const fromEl = document.getElementById("fromAccount");
   const toEl = document.getElementById("toAccount");
+  const feeEl = document.getElementById("fee");
 
   const amountVal = amountEl.value;
   const fromVal = fromEl.value;
   const toVal = toEl.value;
   const dateVal = dateInput.value;
+  const feeVal = parseFloat(feeEl.value || 0);
 
-if (!amountVal || !fromVal || !toVal || !dateVal) {
-  showToast("Please complete the form", "warning");
-  return;
-}
+  if (feeVal < 0) {
+    showToast("Fee cannot be negative", "warning");
+    return;
+  }
 
-if (fromVal === toVal) {
-  showToast("Accounts must be different", "warning");
-  return;
-}
+  if (!amountVal || !fromVal || !toVal || !dateVal) {
+    showToast("Please complete the form", "warning");
+    return;
+  }
+
+  if (fromVal === toVal) {
+    showToast("Accounts must be different", "warning");
+    return;
+  }
+
+  const transferTxId = crypto.randomUUID();
+  const feeTxId = crypto.randomUUID();
+
+
 
   addBtn.disabled = true;
 
-  const payload = {
-    txId: crypto.randomUUID(), // ✅ ADD THIS
+  // TRANSFER
+  submitTransaction({
+    txId: transferTxId,
     type: "transfer",
     date: dateVal,
     fromAccount: fromVal,
     toAccount: toVal,
     amount: amountVal
-  };
+  });
 
-  // 1. Submit (this adds to local queue and triggers sync in background)
-  submitTransaction(payload); 
+  // FEE (expense)
+  if (feeVal > 0) {
+    submitTransaction({
+      txId: feeTxId,
+      type: "expense",
+      date: dateVal,
+      description: "Transfer fee",
+      category: "Others",
+      payment: fromVal,
+      amount: feeVal,
+      dependsOn: transferTxId
+    });
+  }
+
 
   Object.keys(sessionStorage)
-  .filter(k => k.startsWith("dashboard_"))
-  .forEach(k => sessionStorage.removeItem(k));
+    .filter(k => k.startsWith("dashboard_"))
+    .forEach(k => sessionStorage.removeItem(k));
 
-  // 2. Show feedback IMMEDIATELY
-// 2. Show feedback IMMEDIATELY
-if (navigator.onLine) {
-  showToast("Transfer saved ✓", "success");
-} else {
-  showToast("Saved offline ⏳", "warning");
-}
+  if (navigator.onLine) {
+    showToast("Transfer saved ✓", "success");
+  } else {
+    showToast("Saved offline ⏳", "warning");
+  }
 
-  // 3. Clear fields IMMEDIATELY
+  // Clear fields
   amountEl.value = "";
+  feeEl.value = "";
   fromEl.selectedIndex = 0;
   toEl.selectedIndex = 0;
 
@@ -335,6 +378,7 @@ if (navigator.onLine) {
     addBtn.disabled = false;
   }, 400);
 };
+
 
 window.addEventListener("online", () => {
   trySyncPending();
