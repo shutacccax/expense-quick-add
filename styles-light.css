@@ -1285,3 +1285,227 @@ input[type="date"]::-webkit-datetime-edit {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+
+.expenses-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.expenses-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--divider);
+  font-size: 0.9rem;
+}
+
+.expenses-list span {
+  opacity: 0.85;
+}
+
+.expenses-list strong {
+  font-weight: 600;
+}
+
+/* ===== RECENT EXPENSE CARD (inherits account-card) ===== */
+
+.recent-expenses {
+  margin-top: 30px !important;
+}
+
+
+.recent-card {
+  padding: 14px 16px;
+}
+
+.recent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+/* LEFT SIDE */
+.recent-left {
+  flex: 1;
+  min-width: 0; /* REQUIRED for ellipsis */
+}
+
+.recent-desc {
+  font-size: 14px;
+  font-weight: 400;
+  color: inherit;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
+.recent-meta {
+  font-size: 12px;
+  margin-top: 2px;
+  color: #6b7280;
+}
+
+/* ===== LEFT ICON BOX ===== */
+
+.recent-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.recent-icon img {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+
+/* RIGHT SIDE */
+.recent-right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.recent-amount {
+  font-weight: 300;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.recent-date {
+  font-size: 11px;
+  margin-top: 2px;
+  color: #6b7280;
+}
+
+.recent-card::before {
+  display: none;
+}
+
+.recent-card {
+  margin-bottom: 0;
+}
+
+#recentExpenses {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+.recent-row {
+  width: 100%;
+}
+
+
+.recent-meta {
+  font-size: 12px;
+  margin-top: 2px;
+  color: #6b7280;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #9ca3af; /* default gray */
+}
+
+.recent-card.cash .recent-dot {
+  background: #9ca3af;
+}
+
+.recent-card.gcash .recent-dot {
+  background: #2563eb;
+}
+
+.recent-card.maya .recent-dot {
+  background: #16a34a;
+}
+
+.recent-card.maribank .recent-dot {
+  background: #f97316;
+}
+
+.recent-card.expense .recent-icon {
+  background: rgba(239, 68, 68, 0.12); /* soft red */
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.recent-card.inflow .recent-icon {
+  background: rgba(34, 197, 94, 0.12);   /* soft green */
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.recent-card.transfer .recent-icon {
+  background: rgba(59, 130, 246, 0.12);  /* soft blue */
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* Sync button */
+.sync-btn {
+  font-size: 18px;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+
+  color: inherit;
+  opacity: 0.75;
+
+  transform: translateY(3px); /* vertical alignment */
+}
+
+.sync-btn:hover {
+  opacity: 1;
+}
+
+.sync-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sync-btn.syncing {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translateY(3px) rotate(0deg); }
+  to   { transform: translateY(3px) rotate(360deg); }
+}

@@ -279,26 +279,42 @@ async function trySyncPending() {
 
   syncing = true;
 
-  let pending = getPending();
-  const remaining = [];
+  try {
+    let pending = getPending();
+    if (!Array.isArray(pending) || pending.length === 0) return;
 
-  for (const item of pending) {
-    try {
-      const res = await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(item.payload)
-      });
+    const remaining = [];
+    let didSync = false;
 
-      const json = await res.json();
-      if (json.status !== "success") throw new Error();
+    for (const item of pending) {
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(item.payload)
+        });
 
-    } catch {
-      remaining.push(item);
+        const json = await res.json();
+        if (json.status !== "success") throw new Error();
+
+        didSync = true;
+
+      } catch {
+        remaining.push(item);
+      }
     }
-  }
 
-  setPending(remaining);
-  syncing = false;
+    setPending(remaining);
+
+    // 🔥 refresh UI ONCE
+    if (didSync) {
+      localStorage.removeItem("recent_transactions_cache");
+      loadRecentTransactions(true);
+      loadBalances(true);
+    }
+
+  } finally {
+    syncing = false; // 🔒 always released
+  }
 }
 
 

@@ -214,31 +214,57 @@ async function submitTransaction(payload) {
   trySyncPending();
 }
 
+let syncing = false;
+
 async function trySyncPending() {
-  if (!navigator.onLine) return;
+  if (!navigator.onLine || syncing) return;
 
-  let pending = getPending();
-  if (!pending.length) return;
+  syncing = true;
 
-  const remaining = [];
+  try {
+    let pending = getPending();
+    if (!Array.isArray(pending) || pending.length === 0) return;
 
-  for (const item of pending) {
-    try {
-      const res = await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(item.payload)
-      });
+    const remaining = [];
+    let didSync = false;
 
-      const json = await res.json();
-      if (json.status !== "success") throw new Error();
+    for (const item of pending) {
+      try {
+        const payload = item?.payload;
+        if (!payload) continue;
 
-    } catch {
-      remaining.push(item);
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Network error");
+
+        const json = await res.json();
+        if (json.status !== "success") {
+          throw new Error(json.message || "Server rejected payload");
+        }
+
+        didSync = true;
+
+      } catch {
+        remaining.push(item);
+      }
     }
-  }
 
-  setPending(remaining);
+    setPending(remaining);
+
+    if (didSync) {
+      localStorage.removeItem("recent_transactions_cache");
+      loadRecentTransactions(true);
+      loadBalances(true);
+    }
+
+  } finally {
+    syncing = false;
+  }
 }
+
 
 window.addEventListener("online", trySyncPending);
 

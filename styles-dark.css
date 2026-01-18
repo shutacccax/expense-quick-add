@@ -426,8 +426,7 @@ html[data-theme="dark"] .donut-amount {
 }
 
 html[data-theme="dark"] .no-data img {
-  opacity: 0.3;
-  filter: invert(1);
+  opacity: 0.6;
 }
 
 [data-theme="dark"] .expense-donut::after {
@@ -494,4 +493,43 @@ html[data-theme="dark"] .no-data img {
 
 [data-theme="dark"] .toast-message {
   color: #9ca3af;
+}
+
+
+
+/* Dark mode text tuning */
+[data-theme="dark"] .recent-meta,
+[data-theme="dark"] .recent-date {
+  color: rgba(255,255,255,0.65);
+}
+
+[data-theme="dark"] .recent-amount {
+  color: white;
+}
+
+
+
+[data-theme="dark"] .recent-card.gcash .recent-dot {
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.8);
+}
+
+[data-theme="dark"] .recent-card.maya .recent-dot {
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.8);
+}
+
+[data-theme="dark"] .recent-card.maribank .recent-dot {
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.8);
+}
+
+[data-theme="dark"] .recent-card.expense .recent-icon {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+[data-theme="dark"] .recent-card.inflow .recent-icon {
+  background: rgba(34, 197, 94, 0.18);
+}
+
+[data-theme="dark"] .recent-card.transfer .recent-icon {
+  background: rgba(59, 130, 246, 0.18);
 }

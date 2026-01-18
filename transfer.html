@@ -266,81 +266,59 @@ function getAvailableBalance(account) {
   return getAccountBalance(account);
 }
 
+let syncing = false;
 
 async function trySyncPending() {
-  if (!navigator.onLine) return false;
+  if (!navigator.onLine || syncing) return;
 
-  let pending = getPending();
-  if (!Array.isArray(pending) || pending.length === 0) return true;
+  syncing = true;
 
-  const remaining = [];
+  try {
+    const pending = getPending();
+    if (!Array.isArray(pending) || pending.length === 0) return;
 
-  for (const item of pending) {
-    try {
-      if (!item || typeof item !== "object") {
-        console.warn("Dropping invalid item:", item);
-        continue;
-      }
+    const remaining = [];
+    let didSync = false;
 
-      const payload = item.payload;
+    for (const item of pending) {
+      try {
+        const payload = item?.payload;
+        if (!payload) throw new Error("Invalid payload");
 
-      if (!payload || typeof payload !== "object") {
-        console.warn("Dropping empty payload:", item);
-        continue;
-      }
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
 
-      if (!payload.type) {
-        console.warn("Dropping payload without type:", payload);
-        continue;
-      }
+        if (!res.ok) throw new Error("Network error");
 
-      if (payload.type === "transfer") {
-        if (
-          !payload.fromAccount ||
-          !payload.toAccount ||
-          !payload.amount ||
-          !payload.date
-        ) {
-          console.warn("Dropping invalid transfer payload:", payload);
-          continue;
+        const json = await res.json();
+        if (json.status !== "success") {
+          throw new Error(json.message || "Server rejected payload");
         }
+
+        didSync = true;
+
+      } catch (err) {
+        console.warn("Sync failed, will retry:", err);
+        remaining.push(item);
       }
-
-      // 🛑 DEPENDENCY CHECK
-      if (payload.dependsOn) {
-        const dependencyFailedOrPending = remaining.some(
-          r => r.payload?.txId === payload.dependsOn
-        );
-
-        if (dependencyFailedOrPending) {
-          remaining.push(item);
-          continue;
-        }
-      }
-
-      // 🚀 SEND
-      const res = await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) throw new Error("Network error");
-
-      const json = await res.json();
-      if (json.status !== "success") {
-        throw new Error(json.message || "Server rejected payload");
-      }
-
-      // ✅ success → item removed
-
-    } catch (err) {
-      console.error("Sync failed, will retry:", err, item);
-      remaining.push(item);
     }
-  }
 
-  setPending(remaining);
-  return remaining.length === 0;
+    setPending(remaining);
+
+    if (didSync) {
+        // 🔥 mark global data change
+        localStorage.setItem("data_dirty", "1");
+
+        // 🔥 clear client caches
+        localStorage.removeItem("recent_transactions_cache");
+      }
+
+
+  } finally {
+    syncing = false;
+  }
 }
 
 
@@ -447,30 +425,18 @@ addBtn.onclick = () => {
 
   addBtn.disabled = true;
 
-  // TRANSFER
   submitTransaction({
     txId: transferTxId,
     type: "transfer",
     date: dateVal,
     fromAccount: fromVal,
     toAccount: toVal,
-    amount: amountNum
-
+    amount: amountNum,
+    fee: feeNum // 👈 INCLUDED HERE
   });
 
-    // FEE (expense)
-  if (feeNum > 0) {
-    submitTransaction({
-      txId: feeTxId,
-      type: "expense",
-      date: dateVal,
-      description: "Transfer fee",
-      category: "Others",
-      payment: fromVal,
-      amount: feeNum,
-      dependsOn: transferTxId
-    });
-  }
+
+  localStorage.setItem("data_dirty", "1");
 
 
   // ✅ OPTIMISTIC LOCAL UPDATE

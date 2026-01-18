@@ -193,6 +193,50 @@
 <div id="categoryTotals" class="category-totals"></div>
 
 
+<section class="card recent-expenses">
+  <div class="recent-header">
+    <div class="section-title">Recent Transactions</div>
+
+    <button
+      id="syncBtn"
+      class="sync-btn"
+      aria-label="Sync"
+      title="Sync"
+    >
+      ⟳
+    </button>
+  </div>
+
+
+  <ul id="recentExpenses" class="expenses-list skeleton">
+
+    <!-- Skeleton state (matches account-card look) -->
+    <li class="account-card recent-card">
+      <div class="account-amount skeleton">•••••</div>
+    </li>
+
+    <li class="account-card recent-card">
+      <div class="account-amount skeleton">•••••</div>
+    </li>
+
+    <li class="account-card recent-card">
+      <div class="account-amount skeleton">•••••</div>
+    </li>
+
+    <li class="account-card recent-card">
+      <div class="account-amount skeleton">•••••</div>
+    </li>
+
+    <li class="account-card recent-card">
+      <div class="account-amount skeleton">•••••</div>
+    </li>
+
+  </ul>
+</section>
+
+
+
+
   <!-- NAVBAR -->
   <nav class="bottom-nav">
     <a class="nav-item active">
@@ -486,6 +530,7 @@ function resetDonutHighlight() {
 }
 
 
+
   /* ================= LOAD BALANCES ================= */
   const scriptURL =
   "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
@@ -551,6 +596,145 @@ function resetDonutHighlight() {
 
     updateBalanceVisibility();
   }
+
+/* ================= RECENT EXPENSES ================= */
+
+const RECENT_TX_API =
+  `${scriptURL}?action=recentTransactions`;
+
+const RECENT_TX_CACHE_KEY = "recent_transactions_cache";
+const RECENT_TX_CACHE_TTL = 60 * 1000;
+
+async function loadRecentTransactions(force = false) {
+  const list = document.getElementById("recentExpenses");
+  if (!list) return;
+
+  if (!force) {
+    const cached = getCachedRecentTransactions();
+    if (cached) {
+      renderRecentTransactions(cached);
+      return;
+    }
+  }
+
+  try {
+    const res = await fetchWithTimeout(RECENT_TX_API);
+    const json = await res.json();
+
+    if (json.status !== "success") {
+      throw new Error("API error");
+    }
+
+    cacheRecentTransactions(json.data);
+    renderRecentTransactions(json.data);
+
+  } catch (err) {
+    console.error("[Recent TX] failed", err);
+    list.classList.remove("skeleton");
+    list.innerHTML = `<li class="account-card recent-card">Failed to load</li>`;
+  }
+}
+
+function cacheRecentTransactions(data) {
+  localStorage.setItem(
+    RECENT_TX_CACHE_KEY,
+    JSON.stringify({ ts: Date.now(), data })
+  );
+}
+
+function getCachedRecentTransactions() {
+  const raw = localStorage.getItem(RECENT_TX_CACHE_KEY);
+  if (!raw) return null;
+
+  const { ts, data } = JSON.parse(raw);
+  if (Date.now() - ts > RECENT_TX_CACHE_TTL) return null;
+
+  return data;
+}
+
+function paymentToClass(value) {
+  if (!value) return "";
+  const v = value.toLowerCase();
+
+  if (v.includes("gcash")) return "gcash";
+  if (v.includes("maya")) return "maya";
+  if (v.includes("mari")) return "maribank";
+  if (v.includes("cash")) return "cash";
+
+  return "";
+}
+
+function renderRecentTransactions(items) {
+  const list = document.getElementById("recentExpenses");
+  list.classList.remove("skeleton");
+
+  if (!items || !items.length) {
+    list.innerHTML = `
+      <li class="account-card recent-card">
+        <div class="recent-desc">No recent transactions</div>
+      </li>
+    `;
+    return;
+  }
+
+  list.innerHTML = items.map(tx => {
+    const type = tx.type; // expense | inflow | transfer
+    const icon = `svgs/${type}.svg`;
+
+    let metaText = "";
+    let paymentClass = "";
+
+    if (type === "expense") {
+      metaText = tx.payment;
+      paymentClass = paymentToClass(tx.payment);
+    }
+
+    if (type === "inflow") {
+      metaText = tx.account;
+      paymentClass = paymentToClass(tx.account);
+    }
+
+    if (type === "transfer") {
+      metaText = `${tx.from} → ${tx.to}`;
+      paymentClass = paymentToClass(tx.from);
+    }
+
+    return `
+      <li class="account-card recent-card ${type} ${paymentClass}">
+        <div class="recent-row">
+
+          <!-- ICON -->
+          <div class="recent-icon">
+            <img src="${icon}" alt="${type}">
+          </div>
+
+          <!-- MAIN -->
+          <div class="recent-left">
+            <div class="recent-desc" title="${tx.description}">
+              ${tx.description}
+            </div>
+
+            <div class="recent-meta">
+              <span class="recent-dot"></span>
+              ${metaText}
+            </div>
+          </div>
+
+          <!-- RIGHT -->
+          <div class="recent-right">
+            <div class="recent-amount">
+              ₱${Number(tx.amount).toLocaleString(undefined, {
+                minimumFractionDigits: 2
+              })}
+            </div>
+            <div class="recent-date">${tx.date}</div>
+          </div>
+
+        </div>
+      </li>
+    `;
+  }).join("");
+}
 
 
 
@@ -773,14 +957,21 @@ function renderCategoryList(data) {
   let resumeTimer = null;
 
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && appInitialized) {
-      clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(() => {
-        loadBalances();
-        loadCategoryTotals(currentYear, currentMonth);
-      }, 150);
-    }
+    if (document.hidden || !appInitialized) return;
+
+    if (!localStorage.getItem("data_dirty")) return;
+
+    // 🔔 acknowledge update
+    localStorage.removeItem("data_dirty");
+
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      loadBalances(true);
+      loadCategoryTotals(currentYear, currentMonth);
+      loadRecentTransactions(true);
+    }, 150);
   });
+
 
   // reload data on change
   monthSelect.addEventListener("change", async () => {
@@ -813,7 +1004,8 @@ function renderCategoryList(data) {
 
       await Promise.allSettled([
         loadBalances(),
-        loadCategoryTotals(currentYear, currentMonth)
+        loadCategoryTotals(currentYear, currentMonth),
+        loadRecentTransactions(true)
       ]);
 
     } catch (err) {
@@ -830,6 +1022,37 @@ function renderCategoryList(data) {
 
 
   initApp();
+
+
+/* ================= SIMPLE REFRESH SYNC ================= */
+
+const syncBtn = document.getElementById("syncBtn");
+let refreshing = false;
+
+async function refreshRecentTransactions() {
+  if (refreshing) return;
+  refreshing = true;
+
+  syncBtn.classList.add("syncing");
+  syncBtn.disabled = true;
+
+  try {
+    // 1️⃣ Clear ONLY recent transactions cache
+    localStorage.removeItem("recent_transactions_cache");
+
+    // 2️⃣ Force reload from server (cache-busted)
+    await loadRecentTransactions(true);
+
+  } catch (err) {
+    console.error("[RECENT REFRESH FAILED]", err);
+  } finally {
+    refreshing = false;
+    syncBtn.classList.remove("syncing");
+    syncBtn.disabled = false;
+  }
+}
+
+syncBtn.addEventListener("click", refreshRecentTransactions);
 
 
 
