@@ -648,7 +648,10 @@ body, nav, .app, .balance-card {
 }
 
 .amount-wrapper input {
+  width: 100%;
+  max-width: 360px;
   text-align: center;
+
   font-size: 48px;
   font-weight: 500;
   background: transparent;

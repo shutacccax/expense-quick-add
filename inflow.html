@@ -59,7 +59,7 @@
 
   <!-- AMOUNT -->
 <div class="amount-wrapper">
-  <input type="number" id="amount" inputmode="decimal" placeholder="0.00" />
+  <input type="text" id="amount" inputmode="decimal" placeholder="0.00" />
   <div class="amount-label">Amount</div>
 </div>
 
@@ -121,6 +121,73 @@
 
 
 <script>
+
+function formatNumberWithCommas(value) {
+  if (!value) return "";
+
+  const clean = value.replace(/,/g, "");
+  if (isNaN(clean)) return value;
+
+  const parts = clean.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  return parts.join(".");
+}
+
+const amountInput = document.getElementById("amount");
+
+amountInput.addEventListener("input", (e) => {
+  const input = e.target;
+
+  // caret position
+  const caretPos = input.selectionStart;
+
+  // count digits before caret
+  const digitsBeforeCaret = input.value
+    .slice(0, caretPos)
+    .replace(/[^0-9]/g, "").length;
+
+  // raw numeric value
+  const raw = input.value.replace(/,/g, "");
+  if (isNaN(raw)) return;
+
+  // format
+  const formatted = formatNumberWithCommas(raw);
+  input.value = formatted;
+
+  // restore caret after same number of digits
+  let pos = 0;
+  let digitsSeen = 0;
+
+  while (pos < formatted.length) {
+    if (/\d/.test(formatted[pos])) {
+      digitsSeen++;
+      if (digitsSeen === digitsBeforeCaret) {
+        pos++;
+        break;
+      }
+    }
+    pos++;
+  }
+
+  input.setSelectionRange(pos, pos);
+});
+
+
+amountInput.addEventListener("blur", () => {
+  const raw = amountInput.value.replace(/,/g, "");
+  const num = Number(raw);
+
+  if (isNaN(num)) return;
+
+  // Only keep decimals if the user actually typed them
+  const hasDecimal = raw.includes(".");
+
+  amountInput.value = num.toLocaleString(undefined, {
+    minimumFractionDigits: hasDecimal ? 2 : 0,
+    maximumFractionDigits: 2
+  });
+});
 
 
 
@@ -237,7 +304,7 @@ const addBtn = document.getElementById("addInflowBtn");
 addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
-  const amountVal = parseFloat(amount.value);
+  const amountVal = Number(amount.value.replace(/,/g, ""));
 
   if (
     !amount.value ||
@@ -258,26 +325,19 @@ addBtn.onclick = () => {
     date: date.value,
     description: description.value,
     account: account.value,
-    amount: amount.value
+    amount: amountVal   // ✅ number
   });
-
-
-  Object.keys(sessionStorage)
-  .filter(k => k.startsWith("dashboard_"))
-  .forEach(k => sessionStorage.removeItem(k));
-
-  if (navigator.onLine) {
-    showToast("Inflow saved ✓", "success");
-
-  } else {
-    showToast("Saved offline ⏳", "warning");
-
-  }
 
   // clear fields
   description.value = "";
   amount.value = "";
   account.selectedIndex = 0;
+
+  if (navigator.onLine) {
+    showToast("Inflow saved ✓", "success");
+  } else {
+    showToast("Saved offline ⏳", "warning");
+  }
 
   if (navigator.vibrate) navigator.vibrate(40);
 

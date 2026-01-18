@@ -58,7 +58,7 @@
 
   <!-- AMOUNT -->
 <div class="amount-wrapper">
-  <input type="number" id="amount" inputmode="decimal" placeholder="0.00" />
+  <input type="text" id="amount" inputmode="decimal" placeholder="0.00" />
   <div class="amount-label">Amount</div>
 </div>
 
@@ -138,6 +138,110 @@
 <script src="theme-engine.js"></script>
 
 <script>
+
+  function formatNumberWithCommas(value) {
+    if (!value) return "";
+
+    const clean = value.replace(/,/g, "");
+    if (isNaN(clean)) return value;
+
+    const parts = clean.split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    return parts.join(".");
+  }
+
+const amountInput = document.getElementById("amount");
+
+amountInput.addEventListener("input", (e) => {
+  const input = e.target;
+
+  // caret position in current value
+  const caretPos = input.selectionStart;
+
+  // count digits before caret
+  const digitsBeforeCaret = input.value
+    .slice(0, caretPos)
+    .replace(/[^0-9]/g, "").length;
+
+  // raw numeric value
+  const raw = input.value.replace(/,/g, "");
+  if (isNaN(raw)) return;
+
+  // format value
+  const formatted = formatNumberWithCommas(raw);
+  input.value = formatted;
+
+  // restore caret after same number of digits
+  let pos = 0;
+  let digitsSeen = 0;
+
+  while (pos < formatted.length) {
+    if (/\d/.test(formatted[pos])) {
+      digitsSeen++;
+      if (digitsSeen === digitsBeforeCaret) {
+        pos++;
+        break;
+      }
+    }
+    pos++;
+  }
+
+  input.setSelectionRange(pos, pos);
+});
+
+
+amountInput.addEventListener("blur", () => {
+  const raw = amountInput.value.replace(/,/g, "");
+  const num = Number(raw);
+
+  if (isNaN(num)) return;
+
+  // Only keep decimals if the user actually typed them
+  const hasDecimal = raw.includes(".");
+
+  amountInput.value = num.toLocaleString(undefined, {
+    minimumFractionDigits: hasDecimal ? 2 : 0,
+    maximumFractionDigits: 2
+  });
+});
+
+
+  function getAccountBalance(accountName) {
+  const raw = localStorage.getItem("account_balances");
+  if (!raw) return 0;
+
+  const balances = JSON.parse(raw);
+
+  const entry = balances.find(b =>
+    String(b.account).toLowerCase() === accountName.toLowerCase()
+  );
+
+  if (!entry) return 0;
+
+  return Number(String(entry.balance).replace(/,/g, "")) || 0;
+}
+
+function getAvailableBalance(account) {
+  return getAccountBalance(account);
+}
+
+
+function applyLocalExpense(account, amount) {
+  const raw = localStorage.getItem("account_balances");
+  if (!raw) return;
+
+  const balances = JSON.parse(raw);
+
+  balances.forEach(b => {
+    if (b.account === account) {
+      b.balance -= amount;
+    }
+  });
+
+  localStorage.setItem("account_balances", JSON.stringify(balances));
+}
+
 
 /* ================= OFFLINE QUEUE ================= */
 const PENDING_KEY = "pendingExpenses";
@@ -278,6 +382,24 @@ addBtn.onclick = () => {
     return;
   }
 
+  const amountNum = Number(amount.value.replace(/,/g, ""));
+
+  if (isNaN(amountNum) || amountNum <= 0) {
+    showToast("Enter a valid amount", "warning");
+    return;
+  }
+
+  const account = payment.value;
+  const available = getAvailableBalance(account);
+
+  if (amountNum > available) {
+    showToast(
+        `Not enough funds (₱${available.toFixed(2)})`,
+        "warning"
+      );
+    return;
+  }
+
   addBtn.disabled = true;
   addBtn.textContent = "Adding...";
 
@@ -287,27 +409,32 @@ addBtn.onclick = () => {
     description: description.value,
     category: selectedCategory,
     payment: payment.value,
-    amount: amount.value
+    amount: Number(amount.value.replace(/,/g, ""))
   });
 
+  // ✅ optimistic local update
+  applyLocalExpense(payment.value, amountNum);
+
   Object.keys(sessionStorage)
-  .filter(k => k.startsWith("dashboard_"))
-  .forEach(k => sessionStorage.removeItem(k));
+    .filter(k => k.startsWith("dashboard_"))
+    .forEach(k => sessionStorage.removeItem(k));
 
   if (navigator.onLine) {
     showToast("Expense added", "success");
   } else {
-    showToast("Saved offline. Will sync later.", "warning");
-
+    showToast("Saved offline", "warning");
   }
 
   // clear fields
   description.value = "";
   amount.value = "";
 
-  // reset category to default (Food)
+  // reset category
   document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-  document.querySelector('.chip[data-value="Food"]').classList.add("active");
+  document
+    .querySelector('.chip[data-value="Food"]')
+    .classList.add("active");
+
   selectedCategory = "Food";
 
   if (navigator.vibrate) navigator.vibrate(40);

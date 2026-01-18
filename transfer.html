@@ -58,7 +58,7 @@
 
   <!-- AMOUNT -->
 <div class="amount-wrapper">
-  <input type="number" id="amount" inputmode="decimal" placeholder="0.00" />
+  <input type="text" id="amount" inputmode="decimal" placeholder="0.00" />
   <div class="amount-label">Amount</div>
 </div>
 
@@ -87,12 +87,7 @@
 
   <div class="form-group">
     <div class="amount-label">Transfer Fee</div>
-    <input
-      type="number"
-      id="fee"
-      inputmode="decimal"
-      placeholder="0.00"
-    />
+    <input type="text" id="fee" inputmode="decimal" placeholder="0.00" />
   </div>
 
 
@@ -139,6 +134,71 @@
 <script src="theme-engine.js"></script>
 <script>  
 
+function formatNumberWithCommas(value) {
+  if (!value) return "";
+
+  const clean = value.replace(/,/g, "");
+  if (isNaN(clean)) return value;
+
+  const parts = clean.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  return parts.join(".");
+}
+
+const amountInput = document.getElementById("amount");
+const feeInput = document.getElementById("fee");
+
+function attachMoneyFormatter(input) {
+  input.addEventListener("input", (e) => {
+    const el = e.target;
+    const caretPos = el.selectionStart;
+
+    const digitsBefore = el.value
+      .slice(0, caretPos)
+      .replace(/[^0-9]/g, "").length;
+
+    const raw = el.value.replace(/,/g, "");
+    if (isNaN(raw)) return;
+
+    const formatted = formatNumberWithCommas(raw);
+    el.value = formatted;
+
+    let pos = 0;
+    let digitsSeen = 0;
+
+    while (pos < formatted.length) {
+      if (/\d/.test(formatted[pos])) {
+        digitsSeen++;
+        if (digitsSeen === digitsBefore) {
+          pos++;
+          break;
+        }
+      }
+      pos++;
+    }
+
+    el.setSelectionRange(pos, pos);
+  });
+
+  input.addEventListener("blur", () => {
+    const raw = input.value.replace(/,/g, "");
+    const num = Number(raw);
+
+    if (isNaN(num)) return;
+
+    // Did the user actually type a decimal?
+    const hasDecimal = raw.includes(".");
+
+    input.value = num.toLocaleString(undefined, {
+      minimumFractionDigits: hasDecimal ? 0 : 0,
+      maximumFractionDigits: 2
+    });
+  });
+}
+
+attachMoneyFormatter(amountInput);
+attachMoneyFormatter(feeInput);
 
 
 const fromEl = document.getElementById("fromAccount");
@@ -146,6 +206,23 @@ const toEl = document.getElementById("toAccount");
 
 
 const PENDING_KEY = "pendingTransfers";
+
+
+
+function applyLocalTransfer(from, to, amount) {
+  const raw = localStorage.getItem("account_balances");
+  if (!raw) return;
+
+  const balances = JSON.parse(raw);
+
+  balances.forEach(b => {
+    if (from && b.account === from) b.balance -= amount;
+    if (to && b.account === to) b.balance += amount;
+  });
+
+  localStorage.setItem("account_balances", JSON.stringify(balances));
+}
+
 
 function getPending() {
   return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]");
@@ -170,6 +247,23 @@ async function submitTransaction(payload) {
 
   setPending(pending);
   trySyncPending();
+}
+
+function getAccountBalance(accountName) {
+  const raw = localStorage.getItem("account_balances");
+  if (!raw) return 0;
+
+  const balances = JSON.parse(raw);
+
+  const match = balances.find(
+    b => b.account.toLowerCase() === accountName.toLowerCase()
+  );
+
+  return match ? Number(match.balance) : 0;
+}
+
+function getAvailableBalance(account) {
+  return getAccountBalance(account);
 }
 
 
@@ -213,7 +307,6 @@ async function trySyncPending() {
       }
 
       // 🛑 DEPENDENCY CHECK
-// ---- DEPENDENCY CHECK ----
       if (payload.dependsOn) {
         const dependencyFailedOrPending = remaining.some(
           r => r.payload?.txId === payload.dependsOn
@@ -303,24 +396,47 @@ addBtn.onclick = () => {
   const toEl = document.getElementById("toAccount");
   const feeEl = document.getElementById("fee");
 
-  const amountVal = amountEl.value;
   const fromVal = fromEl.value;
   const toVal = toEl.value;
   const dateVal = dateInput.value;
-  const feeVal = parseFloat(feeEl.value || 0);
 
-  if (feeVal < 0) {
-    showToast("Fee cannot be negative", "warning");
-    return;
-  }
 
-  if (!amountVal || !fromVal || !toVal || !dateVal) {
+  // required fields first
+  if (!amountEl.value || !fromVal || !toVal || !dateVal) {
     showToast("Please complete the form", "warning");
     return;
   }
 
+  // parse numbers (comma-safe)
+  const amountNum = Number(amountEl.value.replace(/,/g, ""));
+  const feeNum = Number(feeEl.value.replace(/,/g, "")) || 0;
+
+  // validate amount
+  if (isNaN(amountNum) || amountNum <= 0) {
+    showToast("Please complete the form", "warning");
+    return;
+  }
+
+  // validate fee
+  if (feeNum < 0) {
+    showToast("Fee cannot be negative", "warning");
+    return;
+  }
+
+  // accounts must differ
   if (fromVal === toVal) {
     showToast("Accounts must be different", "warning");
+    return;
+  }
+
+  // balance check (amount + fee)
+  const available = getAvailableBalance(fromVal);
+
+  if (amountNum + feeNum > available) {
+    showToast(
+      `Not enough funds (₱${available.toFixed(2)})`,
+      "warning"
+    );
     return;
   }
 
@@ -338,11 +454,12 @@ addBtn.onclick = () => {
     date: dateVal,
     fromAccount: fromVal,
     toAccount: toVal,
-    amount: amountVal
+    amount: amountNum
+
   });
 
-  // FEE (expense)
-  if (feeVal > 0) {
+    // FEE (expense)
+  if (feeNum > 0) {
     submitTransaction({
       txId: feeTxId,
       type: "expense",
@@ -350,10 +467,19 @@ addBtn.onclick = () => {
       description: "Transfer fee",
       category: "Others",
       payment: fromVal,
-      amount: feeVal,
+      amount: feeNum,
       dependsOn: transferTxId
     });
   }
+
+
+  // ✅ OPTIMISTIC LOCAL UPDATE
+  applyLocalTransfer(fromVal, toVal, amountNum);
+
+  if (feeNum > 0) {
+    applyLocalTransfer(fromVal, null, feeNum);
+  }
+
 
 
   Object.keys(sessionStorage)

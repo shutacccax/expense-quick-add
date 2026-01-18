@@ -507,6 +507,16 @@ function resetDonutHighlight() {
         JSON.stringify(json.data)
       );
 
+      localStorage.setItem(
+        "account_balances",
+        JSON.stringify(
+          json.data.map(b => ({
+            account: b.account,
+            balance: Number(String(b.balance).replace(/,/g, ""))
+          }))
+        )
+      );
+
       renderBalances(json.data);
     } catch (e) {
       console.warn("Using cached balances (offline)");
@@ -518,7 +528,7 @@ function resetDonutHighlight() {
     realTotal = 0;
 
     data.forEach(b => {
-      const amount = Number(b.balance);
+      const amount = Number(String(b.balance).replace(/,/g, ""));
       realTotal += Math.round(amount * 100) / 100;
 
       const name = b.account.toLowerCase();
