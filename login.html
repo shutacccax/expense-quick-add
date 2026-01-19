@@ -58,7 +58,7 @@
     if (!firebase.apps.length) {
         firebase.initializeApp({
         apiKey: "AIzaSyBn2kufYDw1It3d-yuf351ApSv54w_57Gk",
-        authDomain: "spendr-417990306228.asia-southeast1.run.app",
+        authDomain: "spendr-39376.firebaseapp.com",
         projectId: "spendr-39376"
         });
     }
@@ -66,46 +66,31 @@
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    document.getElementById("googleLogin").onclick = async () => {
-    try {
-        await auth.setPersistence(
-        firebase.auth.Auth.Persistence.LOCAL
-        );
+    // Handle redirect result FIRST
+    auth.getRedirectResult().catch(console.error);
 
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        if (isMobile) {
-        await auth.signInWithRedirect(provider);
-        } else {
-        await auth.signInWithPopup(provider);
-        }
-
-    } catch (err) {
-        console.error(err);
-    }
-    };
-
-    let redirectHandled = false;
-
+    // Hide UI until auth resolves
     document.body.style.visibility = "hidden";
 
-    // 🔑 Must run first
-    auth.getRedirectResult()
-    .then(() => {
-        redirectHandled = true;
-    })
-    .catch(console.error);
-
-    // 🔑 Wait until redirect is handled
     auth.onAuthStateChanged(user => {
-    if (!redirectHandled) return;
-
     if (user) {
         window.location.replace("/balances.html");
     } else {
         document.body.style.visibility = "visible";
     }
     });
+
+    document.getElementById("googleLogin").onclick = async () => {
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        auth.signInWithRedirect(provider);
+    } else {
+        auth.signInWithPopup(provider);
+    }
+    };
 
     </script>
 
