@@ -40,9 +40,9 @@
 
 
 
-  <div id="appLoader" class="app-loader">
+  <!-- <div id="appLoader" class="app-loader">
     <div class="ios-spinner"></div>
-  </div>
+  </div> -->
 
 
   <button id="themeToggle" class="theme-toggle">🌙</button>
@@ -64,133 +64,175 @@
 
 
     <!-- BALANCE CARD -->
-    <div class="balance-card">
-      <div>
-        <div class="balance-label">Current Balance</div>
-        <div id="totalBalance" class="balance-amount">₱0.00</div>
+    <!-- BALANCE CARD WRAPPER -->
+    <div class="balance-card-wrapper">
+
+      <!-- SOLID SKELETON (visible by default) -->
+      <div id="balanceSkeleton" class="balance-card skeleton-block"></div>
+
+      <!-- REAL CARD -->
+      <div id="balanceCard" class="balance-card hidden">
+        <div class="balance-content">
+          <div class="balance-label">Current Balance</div>
+          <div id="totalBalance" class="balance-amount">₱0.00</div>
+        </div>
+
+        <button id="eyeToggle" class="eye-btn">
+          <img
+            id="eyeIcon"
+            src="svgs/eye-closed-svgrepo-com.svg"
+            alt="Toggle visibility"
+          >
+        </button>
       </div>
 
-      <button id="eyeToggle" class="eye-btn">
-        <img id="eyeIcon" src="svgs/eye-svgrepo-com.svg">
-      </button>
     </div>
+
+
+
 
     <!-- ACCOUNTS -->
     <div class="section-title">Accounts</div>
 
-    <div id="accounts" class="accounts"></div>
+    <div id="accounts" class="accounts loading">
+      <div class="account-skeleton"></div>
+      <div class="account-skeleton"></div>
+      <div class="account-skeleton"></div>
+    </div>
 
 
-
-    <!-- ACCOUNTS -->
+    <!-- SUMMARY -->
     <div class="expenses-header">
       <div class="section-title">Summary</div>
 
       <select id="monthSelect" class="month-select inline"></select>
     </div>
 
-    <div class="expense-donut">
+    <!-- SUMMARY SKELETON (visible by default) -->
+<div id="summarySkeleton" class="summary-skeleton">
+  <div class="donut-skeleton">
+  <svg viewBox="0 0 200 200" class="donut-svg">
+    <circle
+      cx="100"
+      cy="100"
+      r="80"
+      class="donut-skeleton-ring"
+    />
+  </svg>
+</div>
+
+
+  <div class="skeleton skeleton-line"></div>
+  <div class="skeleton skeleton-line"></div>
+  <div class="skeleton skeleton-line"></div>
+  <div class="skeleton skeleton-line"></div>
+</div>
+
+<!-- SUMMARY CONTENT (hidden until data is ready) -->
+<div id="summaryContent" class="hidden summary-loading">
+
+  <div class="expense-donut">
     <svg viewBox="0 0 200 200" class="donut-svg">
-  <defs>
-    <!-- Donut ring clip -->
-    <mask id="donutRingMask">
-      <!-- hide everything -->
-      <rect width="100%" height="100%" fill="black"/>
+      <defs>
+        <!-- Donut ring clip -->
+        <mask id="donutRingMask">
+          <!-- hide everything -->
+          <rect width="100%" height="100%" fill="black"/>
 
-      <!-- outer edge of stroke -->
-      <circle cx="100" cy="100" r="87" fill="white"/>
+          <!-- outer edge of stroke -->
+          <circle cx="100" cy="100" r="87" fill="white"/>
 
-      <!-- inner edge of stroke -->
-      <circle cx="100" cy="100" r="73" fill="black"/>
-    </mask>
-
-
-
-    <!-- White highlight gradient -->
-    <radialGradient
-      id="donutGlowLight"
-      gradientUnits="userSpaceOnUse"
-      cx="145"
-      cy="155"
-      r="130"
-    >
-      <stop offset="0%" stop-color="white" stop-opacity="0.6" />
-      <stop offset="40%" stop-color="white" stop-opacity="0.35" />
-      <stop offset="65%" stop-color="white" stop-opacity="0.15" />
-      <stop offset="100%" stop-color="white" stop-opacity="0" />
-    </radialGradient>
-
-    <!-- Dark mode depth -->
-    <radialGradient
-      id="donutGlowDark"
-      gradientUnits="userSpaceOnUse"
-      cx="145"
-      cy="155"
-      r="130"
-    >
-      <stop offset="0%" stop-color="black" stop-opacity="0.6" />
-      <stop offset="40%" stop-color="black" stop-opacity="0.35" />
-      <stop offset="65%" stop-color="black" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="black" stop-opacity="0" />
-    </radialGradient>
-
-  </defs>
-
-  <!-- background ring -->
-  <circle cx="100" cy="100" r="80" class="donut-bg" />
-
-  <!-- segments -->
-  <g id="donutSegments"></g>
-
-  <!-- glow overlay (light mode default) -->
-<!-- light mode glow -->
-<circle
-  cx="100"
-  cy="100"
-  r="90"
-  fill="url(#donutGlowLight)"
-  mask="url(#donutRingMask)"
-  pointer-events="none"
-  class="donut-glow glow-light"
-/>
-
-<!-- dark mode glow -->
-<circle
-  cx="100"
-  cy="100"
-  r="90"
-  fill="url(#donutGlowDark)"
-  mask="url(#donutRingMask)"
-  pointer-events="none"
-  class="donut-glow glow-dark"
-/>
-
-</svg>
+          <!-- inner edge of stroke -->
+          <circle cx="100" cy="100" r="73" fill="black"/>
+        </mask>
 
 
-    
-  <div class="donut-center">
-    <div class="donut-pill">
-      <span id="donutMonth">January 2026</span>
+
+        <!-- White highlight gradient -->
+        <radialGradient
+          id="donutGlowLight"
+          gradientUnits="userSpaceOnUse"
+          cx="145"
+          cy="155"
+          r="130"
+        >
+          <stop offset="0%" stop-color="white" stop-opacity="0.6" />
+          <stop offset="40%" stop-color="white" stop-opacity="0.35" />
+          <stop offset="65%" stop-color="white" stop-opacity="0.15" />
+          <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </radialGradient>
+
+        <!-- Dark mode depth -->
+        <radialGradient
+          id="donutGlowDark"
+          gradientUnits="userSpaceOnUse"
+          cx="145"
+          cy="155"
+          r="130"
+        >
+          <stop offset="0%" stop-color="black" stop-opacity="0.6" />
+          <stop offset="40%" stop-color="black" stop-opacity="0.35" />
+          <stop offset="65%" stop-color="black" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="black" stop-opacity="0" />
+        </radialGradient>
+
+      </defs>
+
+      <!-- background ring -->
+      <circle cx="100" cy="100" r="80" class="donut-bg" />
+
+      <!-- segments -->
+      <g id="donutSegments"></g>
+
+      <!-- glow overlay (light mode default) -->
+    <!-- light mode glow -->
+    <circle
+      cx="100"
+      cy="100"
+      r="90"
+      fill="url(#donutGlowLight)"
+      mask="url(#donutRingMask)"
+      pointer-events="none"
+      class="donut-glow glow-light"
+    />
+
+    <!-- dark mode glow -->
+    <circle
+      cx="100"
+      cy="100"
+      r="90"
+      fill="url(#donutGlowDark)"
+      mask="url(#donutRingMask)"
+      pointer-events="none"
+      class="donut-glow glow-dark"
+    />
+
+    </svg>
+
+    <div class="donut-center">
+      <div class="donut-pill">
+        <span id="donutMonth">January 2026</span>
+      </div>
+
+      <div class="donut-amount">
+        <span class="currency"></span>
+        <span id="donutAmount">0.00</span>
+      </div>
+
+      <div class="donut-label">Total spent</div>
     </div>
 
-    <div class="donut-amount">
-      <span class="currency"></span>
-      <span id="donutAmount">0.00</span>
-    </div>
-
-
-    <div class="donut-label">Total spent</div>
   </div>
 
+  <div id="noDataState" class="no-data hidden">
+    <img src="svgs/empty-state.svg" alt="" />
+    <div class="no-data-text">No data available</div>
+  </div>
+
+  <div id="categoryTotals" class="category-totals"></div>
+
 </div>
 
-<div id="noDataState" class="no-data hidden">
-  <img src="svgs/empty-state.svg" alt="" />
-  <div class="no-data-text">No data available</div>
-</div>
-
-<div id="categoryTotals" class="category-totals"></div>
 
 
 <section class="card recent-expenses">
@@ -208,30 +250,13 @@
   </div>
 
 
-  <ul id="recentExpenses" class="expenses-list skeleton">
-
-    <!-- Skeleton state (matches account-card look) -->
-    <li class="account-card recent-card">
-      <div class="account-amount skeleton">•••••</div>
-    </li>
-
-    <li class="account-card recent-card">
-      <div class="account-amount skeleton">•••••</div>
-    </li>
-
-    <li class="account-card recent-card">
-      <div class="account-amount skeleton">•••••</div>
-    </li>
-
-    <li class="account-card recent-card">
-      <div class="account-amount skeleton">•••••</div>
-    </li>
-
-    <li class="account-card recent-card">
-      <div class="account-amount skeleton">•••••</div>
-    </li>
-
+  <ul id="recentExpenses" class="expenses-list">
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
   </ul>
+
 </section>
 
 
@@ -263,6 +288,13 @@
   <script src="theme-engine.js"></script>
 
   <script>
+
+    const dashboardLoadState = {
+  balances: false,
+  categories: false,
+  recent: false
+};
+
 
 const toggle = document.querySelector(".theme-toggle");
 
@@ -299,12 +331,29 @@ window.addEventListener("scroll", () => {
   let activeCategory = null;
 
     
-  const appLoader = document.getElementById("appLoader");
+  // const appLoader = document.getElementById("appLoader");
 
-  function hideLoader() {
-    appLoader.classList.add("hidden");
-    setTimeout(() => appLoader.remove(), 350);
-  }
+  // // 🔁 first-load logic
+  // const isFirstLoad = !localStorage.getItem("hasLoadedBefore");
+
+  // if (isFirstLoad) {
+  //   appLoader.classList.remove("hidden"); // show loader
+  //   localStorage.setItem("hasLoadedBefore", "1");
+  // } else {
+  //   appLoader.classList.add("hidden"); // skip loader entirely
+  // }
+
+  // function hideLoader() {
+  //   if (!appLoader) return;
+
+  //   appLoader.classList.add("hidden");
+
+  //   setTimeout(() => {
+  //     if (appLoader.parentNode) {
+  //       appLoader.remove();
+  //     }
+  //   }, 350);
+  // }
 
 
   function fetchWithTimeout(url, options = {}, timeout = 8000) {
@@ -340,27 +389,49 @@ window.addEventListener("scroll", () => {
     document.getElementById("categoryTotals").classList.remove("hidden");
   }
 
+  function showSummaryContent() {
+    const skel = document.getElementById("summarySkeleton");
+    if (skel) skel.remove();
+
+    const summary = document.getElementById("summaryContent");
+    summary?.classList.remove("hidden");
+    summary?.classList.remove("summary-loading");
+  }
+
+function maybeRevealLoaders() {
+  const ready =
+    dashboardLoadState.balances &&
+    dashboardLoadState.categories &&
+    dashboardLoadState.recent;
+
+  if (!ready) return;
+
+  // 🟦 BALANCE
+  document.getElementById("balanceSkeleton")?.remove();
+  document.getElementById("balanceCard")?.classList.remove("hidden");
+
+  // 🟦 ACCOUNTS
+  const accounts = document.getElementById("accounts");
+  accounts.classList.remove("loading");
+
+  // 🟦 SUMMARY
+  showSummaryContent();
+
+  // 🟦 RECENT
+  document
+    .querySelectorAll(".recent-skeleton")
+    .forEach(el => el.remove());
+
+  // 🟦 DONUT ANIMATION
+  requestAnimationFrame(() => {
+    revealDonut();
+  });
+}
+
+
 
 
   let lastCategoryData = [];
-
-
-function renderAccountSkeletons() {
-  const container = document.getElementById("accounts");
-  container.innerHTML = "";
-
-  for (let i = 0; i < 4; i++) {
-    const card = document.createElement("div");
-    card.className = "account-card";
-
-    card.innerHTML = `
-      <div class="account-name">•••••</div>
-      <div class="account-amount skeleton">₱•••••</div>
-    `;
-
-    container.appendChild(card);
-  }
-}
 
 
 
@@ -527,6 +598,49 @@ function resetDonutHighlight() {
   const scriptURL =
   "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
 
+  /* ================= ACCOUNT SELECTION MODEL ================= */
+
+const SELECTED_ACCOUNTS_KEY = "selected_accounts";
+
+function initSelectedAccounts(accounts) {
+  const stored = localStorage.getItem(SELECTED_ACCOUNTS_KEY);
+  if (stored) return JSON.parse(stored);
+
+  // Default: exclude BPI (savings)
+  const selected = accounts
+    .filter(a => a.account.toLowerCase() !== "bpi")
+    .map(a => a.account);
+
+  localStorage.setItem(
+    SELECTED_ACCOUNTS_KEY,
+    JSON.stringify(selected)
+  );
+
+  return selected;
+}
+
+function toggleAccountSelection(accountName) {
+  const selected = JSON.parse(
+    localStorage.getItem(SELECTED_ACCOUNTS_KEY) || "[]"
+  );
+
+  const idx = selected.indexOf(accountName);
+  if (idx >= 0) selected.splice(idx, 1);
+  else selected.push(accountName);
+
+  localStorage.setItem(
+    SELECTED_ACCOUNTS_KEY,
+    JSON.stringify(selected)
+  );
+
+  // Re-render balances using cached dashboard data
+  const cached = sessionStorage.getItem("dashboard_balances");
+  if (cached) {
+    renderBalances(JSON.parse(cached));
+  }
+}
+
+
   async function loadBalances(force = false) {
     if (!force) {
       const cached = sessionStorage.getItem("dashboard_balances");
@@ -560,22 +674,29 @@ function resetDonutHighlight() {
     }
   }
 
+let balancesRenderedOnce = false;
+
 function renderBalances(data) {
   const container = document.getElementById("accounts");
-  container.innerHTML = "";
+
+  // 🔹 Remove account skeletons (once)
+  if (!balancesRenderedOnce) {
+    container.classList.remove("loading");
+    container.innerHTML = "";
+  }
 
   accountAmountEls = [];
   realTotal = 0;
 
+  // 🔹 init / load selected accounts
+  const selectedAccounts = initSelectedAccounts(data);
+
   data.forEach(b => {
     const amount = Number(String(b.balance).replace(/,/g, ""));
-    realTotal += Math.round(amount * 100) / 100;
-
     const name = b.account;
     const key = name.toLowerCase();
 
-    let cls = "maribank"; // default
-
+    let cls = "maribank";
     if (key.includes("gcash")) cls = "gcash";
     else if (key.includes("cash")) cls = "cash";
     else if (key.includes("maya")) cls = "maya";
@@ -592,15 +713,30 @@ function renderBalances(data) {
     amountEl.className = "account-amount";
     amountEl.dataset.real = amount;
 
+    const isSelected = selectedAccounts.includes(name);
+    card.classList.toggle("selected", isSelected);
+    card.classList.toggle("deselected", !isSelected);
+
+    if (isSelected) {
+      realTotal += Math.round(amount * 100) / 100;
+    }
+
+    card.onclick = () => toggleAccountSelection(name);
+
     card.appendChild(nameEl);
     card.appendChild(amountEl);
-
     container.appendChild(card);
+
     accountAmountEls.push(amountEl);
   });
 
+
   updateBalanceVisibility();
+  dashboardLoadState.balances = true;
+  maybeRevealLoaders();
+
 }
+
 
 
 /* ================= RECENT EXPENSES ================= */
@@ -673,6 +809,7 @@ function paymentToClass(value) {
 
 function renderRecentTransactions(items) {
   const list = document.getElementById("recentExpenses");
+  list.innerHTML = "";
   list.classList.remove("skeleton");
 
   if (!items || !items.length) {
@@ -741,6 +878,10 @@ function renderRecentTransactions(items) {
       </li>
     `;
   }).join("");
+
+  dashboardLoadState.recent = true;
+  maybeRevealLoaders();
+
 }
 
 
@@ -887,49 +1028,72 @@ function renderCategoryList(data) {
 
 
   /* ================= LOAD CATEGORY TOTALS ================= */
-  async function loadCategoryTotals(year, month) {
-    const cacheKey = `dashboard_categories_${year}_${month}`;
-    const cached = sessionStorage.getItem(cacheKey);
+async function loadCategoryTotals(year, month) {
+  const cacheKey = `dashboard_categories_${year}_${month}`;
+  const cached = sessionStorage.getItem(cacheKey);
 
-    if (cached) {
-      const data = JSON.parse(cached);
-
-      if (!data.length) {
-        showNoDataState();
-        return;
-      }
-
-      hideNoDataState();
-
-      const sorted = [...data].sort((a, b) => b.total - a.total);
-      lastCategoryData = sorted;
-      updateDonutByCategory(sorted);
-      renderCategoryList(sorted);
-      return;
-    }
-
-    const res = await fetchWithTimeout(
-      `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`
-    );
-
-    const json = await res.json();
-
-    const data = json.data || [];
+  // ✅ USE CACHE FIRST
+  if (cached) {
+    const data = JSON.parse(cached);
 
     if (!data.length) {
-      sessionStorage.setItem(cacheKey, JSON.stringify([]));
+      showSummaryContent();
       showNoDataState();
+
+      dashboardLoadState.categories = true; // ✅ ADD
+      maybeRevealLoaders();                 // ✅ ADD
       return;
     }
 
     hideNoDataState();
+    showSummaryContent();
 
     const sorted = [...data].sort((a, b) => b.total - a.total);
-    sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
+    lastCategoryData = sorted;
+
     updateDonutByCategory(sorted);
     renderCategoryList(sorted);
 
+    dashboardLoadState.categories = true;
+    maybeRevealLoaders();
+
+    return;
   }
+
+  // ✅ FETCH FROM SERVER
+  const res = await fetchWithTimeout(
+    `${scriptURL}?action=categoryTotals&year=${year}&month=${month}`
+  );
+
+  const json = await res.json();
+  const data = json.data || [];
+
+  if (!data.length) {
+    sessionStorage.setItem(cacheKey, JSON.stringify([]));
+    showSummaryContent();
+    showNoDataState();
+
+    dashboardLoadState.categories = true;
+    maybeRevealLoaders();
+
+    return;
+  }
+
+  hideNoDataState();
+  showSummaryContent();
+
+  const sorted = [...data].sort((a, b) => b.total - a.total);
+  lastCategoryData = sorted;
+
+  sessionStorage.setItem(cacheKey, JSON.stringify(sorted));
+  updateDonutByCategory(sorted);
+  renderCategoryList(sorted);
+
+  dashboardLoadState.categories = true;
+  maybeRevealLoaders();
+
+}
+
 
   /* ================= MONTH DROPDOWN ================= */
   const monthSelect = document.getElementById("monthSelect");
@@ -1006,11 +1170,19 @@ function renderCategoryList(data) {
 
   async function initApp() {
     try {
-      renderAccountSkeletons();
       updateBalanceVisibility();
 
-      await Promise.allSettled([
-        loadBalances(),
+      // 🔥 show UI immediately
+      document.body.classList.add("page-ready");
+
+      // load cached first
+      loadBalances();
+      loadCategoryTotals(currentYear, currentMonth);
+      loadRecentTransactions();
+
+      // then refresh in background
+      Promise.allSettled([
+        loadBalances(true),
         loadCategoryTotals(currentYear, currentMonth),
         loadRecentTransactions(true)
       ]);
@@ -1019,13 +1191,10 @@ function renderCategoryList(data) {
       console.error("Init error:", err);
     } finally {
       appInitialized = true;
-      hideLoader();     // ✅ ALWAYS runs
-      revealDonut();    // ✅ ALWAYS runs
-      showApp();        // ✅ ALWAYS runs
       updateDonutMonthLabel(currentYear, currentMonth);
-
     }
   }
+
 
 
   initApp();

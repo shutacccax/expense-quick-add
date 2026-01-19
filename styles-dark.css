@@ -540,3 +540,31 @@ html[data-theme="dark"] .no-data img {
 [data-theme="dark"] .recent-card.transfer .recent-icon {
   background: rgba(59, 130, 246, 0.18);
 }
+
+/* ======================================================
+   DARK MODE SKELETON COLORS
+   ====================================================== */
+
+[data-theme="dark"] #balanceSkeleton,
+[data-theme="dark"] .account-skeleton,
+[data-theme="dark"] .recent-skeleton,
+[data-theme="dark"] .summary-skeleton .skeleton,
+[data-theme="dark"] .summary-skeleton .skeleton-line {
+  background: linear-gradient(
+    100deg,
+    #1f2430 30%,
+    #2b3240 50%,
+    #1f2430 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-dark 1.3s infinite linear;
+}
+
+@keyframes shimmer-dark {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+[data-theme="dark"] .donut-skeleton-ring {
+  stroke: #2f3746;
+}
