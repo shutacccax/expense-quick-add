@@ -1286,11 +1286,19 @@ syncBtn.addEventListener("click", refreshRecentTransactions);
   const SHEETS_URL =
   "https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing";
 
-document
-  .getElementById("logoutBtnBottom")
-  .addEventListener("click", () => {
-    firebase.auth().signOut();
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logoutBtnBottom");
+  if (!logoutBtn) return;
+
+  logoutBtn.onclick = async () => {
+    try {
+      await firebase.auth().signOut();
+      window.location.replace("/login.html");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+});
 
 
 </script>

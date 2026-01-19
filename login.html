@@ -15,85 +15,89 @@
   <link rel="stylesheet" href="styles-dark.css" />
 </head>
 <body>
- <div class="page login-page">
-  <main class="screen">
-    <div class="content">
-      <img src="icon-180.png" alt="Spendr" class="logo" />
+  <div class="page login-page">
+    <main class="screen">
+      <div class="content">
+        <img src="icon-180.png" alt="Spendr" class="logo" />
 
-      <h1 class="welcome">
-        <span class="welcome-sub">Welcome to</span>
-        <span class="welcome-brand">Spendr</span>
-      </h1>
+        <h1 class="welcome">
+          <span class="welcome-sub">Welcome to</span>
+          <span class="welcome-brand">Spendr</span>
+        </h1>
 
-      <p class="tagline">
-        Track your spending.<br>
-        Stay intentional.
-      </p>
-    </div>
+        <p class="tagline">
+          Track your spending.<br />
+          Stay intentional.
+        </p>
+      </div>
 
-    <div class="actions">
-      <button id="googleLogin" class="google-btn">
-        <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          alt=""
-        />
-        Continue with Google
-      </button>
+      <div class="actions">
+        <button id="googleLogin" class="google-btn">
+          <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            alt=""
+          />
+          Continue with Google
+        </button>
 
-      <p class="privacy">
-        We don’t store passwords.<br>
-        Sign-in is handled securely by Google.
-      </p>
-    </div>
-  </main>
-
- </div>
-
+        <p class="privacy">
+          We don’t store passwords.<br />
+          Sign-in is handled securely by Google.
+        </p>
+      </div>
+    </main>
+  </div>
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 
-    <script>
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBn2kufYDw1It3d-yuf351ApSv54w_57Gk",
+      authDomain: "spendr-39376.firebaseapp.com",
+      projectId: "spendr-39376"
+    };
+
+    // Init Firebase (safe)
     if (!firebase.apps.length) {
-        firebase.initializeApp({
-        apiKey: "AIzaSyBn2kufYDw1It3d-yuf351ApSv54w_57Gk",
-        authDomain: "spendr-39376.firebaseapp.com",
-        projectId: "spendr-39376"
-        });
+      firebase.initializeApp(firebaseConfig);
     }
 
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    // Handle redirect result FIRST
-    auth.getRedirectResult().catch(console.error);
+    // Handle redirect result (important even if you prefer popup)
+    auth.getRedirectResult()
+      .then(result => {
+        if (result.user) {
+          window.location.replace("/balances.html");
+        }
+      })
+      .catch(console.error);
 
-    // Hide UI until auth resolves
-    document.body.style.visibility = "hidden";
-
+    // Auth state listener
     auth.onAuthStateChanged(user => {
-    if (user) {
+      if (user) {
         window.location.replace("/balances.html");
-    } else {
-        document.body.style.visibility = "visible";
-    }
+      }
     });
 
-    document.getElementById("googleLogin").onclick = async () => {
-    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    // Login button
+    const loginBtn = document.getElementById("googleLogin");
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    loginBtn.addEventListener("click", async () => {
+      loginBtn.disabled = true;
 
-    if (isMobile) {
-        auth.signInWithRedirect(provider);
-    } else {
-        auth.signInWithPopup(provider);
-    }
-    };
-
-    </script>
-
-
+      try {
+        // Try popup first
+        await auth.signInWithPopup(provider);
+      } catch (popupError) {
+        console.warn("Popup failed, using redirect:", popupError);
+        await auth.signInWithRedirect(provider);
+      }
+    });
+  </script>
 </body>
 </html>
