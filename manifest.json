@@ -1,6 +1,6 @@
 {
-  "name": "Expenses",
-  "short_name": "Expenses",
+  "name": "Spendr",
+  "short_name": "Spendr",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#eef1f5",
