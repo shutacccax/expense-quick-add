@@ -9,15 +9,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+
+  <script>
+    document.documentElement.setAttribute("data-theme", "dark");
+  </script>
+
   <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="styles-dark.css" />
 </head>
 <body>
-
+ <div class="page login-page">
   <main class="screen">
     <div class="content">
       <img src="icon-180.png" alt="Spendr" class="logo" />
 
-      <h1>Welcome to Spendr</h1>
+      <h1 class="welcome">
+        <span class="welcome-sub">Welcome to</span>
+        <span class="welcome-brand">Spendr</span>
+      </h1>
+
       <p class="tagline">
         Track your spending.<br>
         Stay intentional.
@@ -39,6 +49,9 @@
       </p>
     </div>
   </main>
+
+ </div>
+
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>

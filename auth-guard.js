@@ -8,4 +8,5 @@ firebase.auth().onAuthStateChanged(user => {
     alert("Access denied");
     firebase.auth().signOut();
   }
+
 });

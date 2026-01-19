@@ -13,8 +13,9 @@
 
   <style>
     html {
-      background: #0b0f14;
+      background: #ffffff;
     }
+
   </style>
 
 
@@ -49,18 +50,24 @@
 
   <div class="app">
 
-    <div class="header-row">
-      <div class="expense-header">Dashboard</div>
+<div class="header-row">
+  <div class="expense-header">Dashboard</div>
 
-      <a
-        href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
-        target="_blank"
-        class="icon-btn"
-        aria-label="Open Google Sheets"
-      >
-        <img src="svgs/google-sheets.svg" alt="">
-      </a>
-    </div>
+  <button
+    id="utilityBtn"
+    class="icon-btn"
+    aria-label="More actions"
+  >
+    <img src="svgs/google-sheets.svg" alt="">
+  </button>
+
+  <div id="utilityMenu" class="utility-menu hidden">
+    <button id="openSheets">Open Sheets</button>
+    <button id="logoutBtn" class="danger">Log out</button>
+  </div>
+</div>
+
+
 
 
     <!-- BALANCE CARD -->
@@ -284,8 +291,6 @@
       <span>Transfer</span>
     </a>
   </nav>
-
-  <script src="theme-engine.js"></script>
 
   <script>
 
@@ -970,6 +975,9 @@ function updateDonutByCategory(data) {
     donut.classList.add("donut-collapsed");
   }
 
+  function getCategoryColor(category) {
+  return `var(--cat-${category.toLowerCase()})`;
+}
 
 
   /* ================= CATEGORY LIST ================= */
@@ -1274,10 +1282,47 @@ syncBtn.addEventListener("click", refreshRecentTransactions);
     authDomain: "spendr-39376.firebaseapp.com",
     projectId: "spendr-39376"
   });
+
+  const SHEETS_URL =
+  "https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing";
+
+const btn = document.getElementById("utilityBtn");
+const menu = document.getElementById("utilityMenu");
+
+// LEFT CLICK → open Sheets
+btn.addEventListener("click", () => {
+  window.open(SHEETS_URL, "_blank");
+});
+
+// RIGHT CLICK → open menu
+btn.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  menu.classList.toggle("hidden");
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", () => {
+  menu.classList.add("hidden");
+});
+
+// Menu actions
+document.getElementById("openSheets").onclick = () => {
+  window.open(SHEETS_URL, "_blank");
+};
+
+document.getElementById("logoutBtn").onclick = () => {
+  firebase.auth().signOut();
+};
+
 </script>
+
+
 
 <script src="auth-guard.js"></script>
 
+
+  <script src="theme-engine.js"></script>
 
   </body>
   </html>

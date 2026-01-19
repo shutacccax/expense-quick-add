@@ -24,9 +24,7 @@ const CATEGORY_COLORS_DARK = {
   Personal: "#928A9E"         // violet-gray
 };
 
-function getCategoryColor(category) {
-  return `var(--cat-${category.toLowerCase()})`;
-}
+
 
 function applyTheme(isDark) {
   const html = document.documentElement;
