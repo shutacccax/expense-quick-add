@@ -67,15 +67,26 @@
     const provider = new firebase.auth.GoogleAuthProvider();
 
     document.getElementById("googleLogin").onclick = async () => {
-        try {
+    try {
         await auth.setPersistence(
-            firebase.auth.Auth.Persistence.LOCAL
+        firebase.auth.Auth.Persistence.LOCAL
         );
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+        await auth.signInWithRedirect(provider);
+        } else {
         await auth.signInWithPopup(provider);
-        } catch (err) {
-        console.error(err);
         }
+
+    } catch (err) {
+        console.error(err);
+    }
     };
+
+    auth.getRedirectResult().catch(console.error);
+
 
     // 🔒 Hide UI until auth state is known
     document.body.style.visibility = "hidden";
