@@ -58,7 +58,7 @@
     if (!firebase.apps.length) {
         firebase.initializeApp({
         apiKey: "AIzaSyBn2kufYDw1It3d-yuf351ApSv54w_57Gk",
-        authDomain: "spendr-39376.firebaseapp.com",
+        authDomain: "spendr-417990306228.asia-southeast1.run.app",
         projectId: "spendr-39376"
         });
     }
@@ -85,19 +85,24 @@
     }
     };
 
-    auth.getRedirectResult().catch(console.error);
+    let redirectHandled = false;
 
-
-    // 🔒 Hide UI until auth state is known
     document.body.style.visibility = "hidden";
 
+    // 🔑 Must run first
+    auth.getRedirectResult()
+    .then(() => {
+        redirectHandled = true;
+    })
+    .catch(console.error);
 
+    // 🔑 Wait until redirect is handled
     auth.onAuthStateChanged(user => {
+    if (!redirectHandled) return;
+
     if (user) {
-        // Already logged in → skip login page
         window.location.replace("/balances.html");
     } else {
-        // Not logged in → show login UI
         document.body.style.visibility = "visible";
     }
     });
