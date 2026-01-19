@@ -1,0 +1,88 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: #f8fafc; /* clean light app bg */
+  color: #0f172a;
+}
+
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 100px 24px 100px;
+}
+
+/* Top content */
+.content {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin: 0 0 12px;
+  padding: 0px 20px 0px;
+  line-height: 2.4rem;
+}
+
+.tagline {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #475569;
+}
+
+/* Bottom actions */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.google-btn {
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.google-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.google-btn:hover {
+  background: #f9fafb;
+}
+
+.google-btn:active {
+  transform: scale(0.98);
+}
+
+.privacy {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #94a3b8;
+  text-align: center;
+}
