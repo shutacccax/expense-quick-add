@@ -13,18 +13,17 @@
 
   <style>
     html {
-      background: #ffffff;
+      background: var(--bg, #0b0f14);
     }
-
   </style>
 
 
   <!-- 🔥 Decide theme BEFORE styles load -->
   <script>
-    if (localStorage.getItem("theme") === "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
-    }
+    const theme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
   </script>
+
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
