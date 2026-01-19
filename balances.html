@@ -345,31 +345,23 @@ window.addEventListener("scroll", () => {
   let lastCategoryData = [];
 
 
-  function renderAccountSkeletons() {
-    const container = document.getElementById("accounts");
-    container.innerHTML = "";
+function renderAccountSkeletons() {
+  const container = document.getElementById("accounts");
+  container.innerHTML = "";
 
-    const accounts = [
-      { name: "Cash", cls: "cash" },
-      { name: "GCash", cls: "gcash" },
-      { name: "Maya", cls: "maya" },
-      { name: "MariBank", cls: "maribank" }
-    ];
+  for (let i = 0; i < 4; i++) {
+    const card = document.createElement("div");
+    card.className = "account-card";
 
-    accounts.forEach(acc => {
-      const card = document.createElement("div");
-      card.className = `account-card ${acc.cls}`;
+    card.innerHTML = `
+      <div class="account-name">•••••</div>
+      <div class="account-amount skeleton">₱•••••</div>
+    `;
 
-      const amountEl = document.createElement("div");
-      amountEl.className = "account-amount skeleton";
-      amountEl.textContent = "₱∙∙∙∙∙"; // masked placeholder
-
-      card.innerHTML = `<div class="account-name">${acc.name}</div>`;
-      card.appendChild(amountEl);
-
-      container.appendChild(card);
-    });
+    container.appendChild(card);
   }
+}
+
 
 
   /* ================= VISIBILITY / MASKING ================= */
@@ -568,34 +560,48 @@ function resetDonutHighlight() {
     }
   }
 
-  function renderBalances(data) {
-    accountAmountEls = [];
-    realTotal = 0;
+function renderBalances(data) {
+  const container = document.getElementById("accounts");
+  container.innerHTML = "";
 
-    data.forEach(b => {
-      const amount = Number(String(b.balance).replace(/,/g, ""));
-      realTotal += Math.round(amount * 100) / 100;
+  accountAmountEls = [];
+  realTotal = 0;
 
-      const name = b.account.toLowerCase();
-      let cls = "";
+  data.forEach(b => {
+    const amount = Number(String(b.balance).replace(/,/g, ""));
+    realTotal += Math.round(amount * 100) / 100;
 
-      if (name.includes("gcash")) cls = "gcash";
-      else if (name.includes("cash")) cls = "cash";
-      else if (name.includes("maya")) cls = "maya";
-      else cls = "maribank";
+    const name = b.account;
+    const key = name.toLowerCase();
 
-      const card = document.querySelector(`.account-card.${cls}`);
-      if (!card) return;
+    let cls = "maribank"; // default
 
-      const amountEl = card.querySelector(".account-amount");
-      amountEl.dataset.real = amount;
-      amountEl.classList.remove("skeleton");
+    if (key.includes("gcash")) cls = "gcash";
+    else if (key.includes("cash")) cls = "cash";
+    else if (key.includes("maya")) cls = "maya";
+    else if (key.includes("bpi")) cls = "bpi";
 
-      accountAmountEls.push(amountEl);
-    });
+    const card = document.createElement("div");
+    card.className = `account-card ${cls}`;
 
-    updateBalanceVisibility();
-  }
+    const nameEl = document.createElement("div");
+    nameEl.className = "account-name";
+    nameEl.textContent = name;
+
+    const amountEl = document.createElement("div");
+    amountEl.className = "account-amount";
+    amountEl.dataset.real = amount;
+
+    card.appendChild(nameEl);
+    card.appendChild(amountEl);
+
+    container.appendChild(card);
+    accountAmountEls.push(amountEl);
+  });
+
+  updateBalanceVisibility();
+}
+
 
 /* ================= RECENT EXPENSES ================= */
 
@@ -659,6 +665,7 @@ function paymentToClass(value) {
   if (v.includes("gcash")) return "gcash";
   if (v.includes("maya")) return "maya";
   if (v.includes("mari")) return "maribank";
+  if (v.includes("bpi")) return "bpi";
   if (v.includes("cash")) return "cash";
 
   return "";
@@ -1056,7 +1063,38 @@ syncBtn.addEventListener("click", refreshRecentTransactions);
 
 
 
-  </script>
+</script>
+
+<script>
+  const slider = document.querySelector('.accounts');
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  slider.addEventListener('mousedown', (e) => {
+    isDown = true;
+    slider.classList.add('dragging');
+    startX = e.pageX - slider.offsetLeft;
+    scrollLeft = slider.scrollLeft;
+  });
+
+  slider.addEventListener('mouseleave', () => {
+    isDown = false;
+  });
+
+  slider.addEventListener('mouseup', () => {
+    isDown = false;
+  });
+
+  slider.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 1.2; // scroll speed
+    slider.scrollLeft = scrollLeft - walk;
+  });
+</script>
+
 
 
   </body>

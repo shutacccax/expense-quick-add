@@ -69,6 +69,7 @@ body {
   margin: 0 auto;
   padding-top: 40px;
   background: transparent;
+  touch-action: pan-y;
 }
 
 body, nav, .app, .balance-card {
@@ -309,12 +310,95 @@ body, nav, .app, .balance-card {
 
 
 .accounts {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   gap: 12px;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  margin-left: -32px;
+  margin-right: -32px;
+
+  padding-left: 32px;
+  padding-right: 32px;
+  padding-top: 12px;
+  padding-bottom: 40px;
+
+  scroll-padding-left: 16px;
+  scroll-padding-right: 16px;
+
+  -webkit-overflow-scrolling: touch;
 }
 
+.accounts {
+  -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+  -webkit-mask-composite: intersect;
+
+  mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+}
+
+
+.accounts {
+  touch-action: pan-x;
+}
+
+.accounts {
+  cursor: grab;
+}
+
+.accounts.dragging {
+  cursor: grabbing;
+}
+
+.accounts {
+  overflow-x: auto;
+  overflow-y: visible; /* 🔥 allow shadows */
+}
+
+
+.accounts::-webkit-scrollbar {
+  display: none;
+}
+
+/* Reduce gap AFTER Accounts only */
+#accounts {
+  margin-bottom: -40px; /* adjust: -8px to -16px */
+}
+
+
+  
 .account-card {
+  min-width: 160px;
+  flex: 0 0 auto;
+
+  scroll-snap-align: start;
   position: relative;
   padding: 20px 20px 16px;
   border-radius: 18px;
@@ -403,6 +487,14 @@ body, nav, .app, .balance-card {
     0 0 12px rgba(249, 115, 22, 0.65),
     0 0 28px rgba(249, 115, 22, 0.45);
 }
+
+.bpi::before {
+  background: #dc2626;
+  box-shadow:
+    0 0 12px rgba(220, 38, 38, 0.65),
+    0 0 28px rgba(220, 38, 38, 0.45);
+}
+
 
 
 /* Toast container */
@@ -1447,6 +1539,11 @@ input[type="date"]::-webkit-datetime-edit {
 .recent-card.maribank .recent-dot {
   background: #f97316;
 }
+
+.recent-card.bpi .recent-dot {
+  background: #dc2626;
+}
+
 
 .recent-card.expense .recent-icon {
   background: rgba(239, 68, 68, 0.12); /* soft red */

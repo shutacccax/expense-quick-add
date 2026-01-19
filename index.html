@@ -91,6 +91,7 @@
                 <option>GCash</option>
                 <option>MariBank</option>
                 <option>Maya</option>
+                <option>BPI</option>
               </select>
             </div>
 
@@ -405,7 +406,8 @@ addBtn.onclick = () => {
     return;
   }
 
-  const account = payment.value;
+  const account = payment.value.trim();
+
   const available = getAvailableBalance(account);
 
   if (amountNum > available) {
@@ -424,12 +426,12 @@ addBtn.onclick = () => {
     date: date.value,
     description: description.value,
     category: selectedCategory,
-    payment: payment.value,
-    amount: Number(amount.value.replace(/,/g, ""))
+    payment: account,
+    amount: amountNum
   });
 
   // ✅ optimistic local update
-  applyLocalExpense(payment.value, amountNum);
+  applyLocalExpense(account, amountNum);
 
   Object.keys(sessionStorage)
     .filter(k => k.startsWith("dashboard_"))

@@ -77,6 +77,7 @@
         <option>GCash</option>
         <option>MariBank</option>
         <option>Maya</option>
+        <option>BPI</option>
       </select>
     </div>
 
@@ -331,6 +332,7 @@ addBtn.onclick = () => {
   if (addBtn.disabled) return;
 
   const amountVal = Number(amount.value.replace(/,/g, ""));
+  const accountName = account.value.trim();
 
   if (
     !amount.value ||
@@ -350,7 +352,7 @@ addBtn.onclick = () => {
     type: "inflow",
     date: date.value,
     description: description.value,
-    account: account.value,
+    account: accountName,
     amount: amountVal   // ✅ number
   });
 

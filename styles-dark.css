@@ -20,23 +20,21 @@ html[data-theme="dark"] {
 
 /* ================= PAGE ================= */
 
-/* Fixed visual layer */
-html::before {
+/* ================= DARK MODE BACKGROUND ================= */
+
+html[data-theme="dark"] .page {
+  position: relative;
+  background: transparent;
+  isolation: isolate; /* 🔥 critical for backdrop-filter */
+}
+
+html[data-theme="dark"] .page::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
 
-  background: var(--bg);
-  opacity: 0;
-
-  transition: opacity 0.35s ease;
-}
-
-/* Dark mode gradient */
-html[data-theme="dark"]::before {
-  opacity: 1;
   background:
     radial-gradient(
       120% 85% at 50% -10%,
@@ -53,10 +51,9 @@ html[data-theme="dark"]::before {
       rgba(11, 15, 20, 0) 75%
     ),
     #0b0f14;
-}
 
-html[data-theme="dark"] .page {
-  background: transparent;
+  opacity: 1;
+  transition: opacity 0.35s ease;
 }
 
 
@@ -72,7 +69,6 @@ html[data-theme="dark"] body {
 [data-theme="dark"] .balance-page {
   background: transparent; /* 🔥 not solid */
   position: relative;
-  overflow-x: hidden;
 }
 
 
@@ -224,6 +220,12 @@ html[data-theme="dark"] .balances-loading {
   box-shadow:
     0 0 16px rgba(249, 115, 22, 0.75),
     0 0 36px rgba(249, 115, 22, 0.55);
+}
+
+[data-theme="dark"] .bpi::before {
+  box-shadow:
+    0 0 16px rgba(220, 38, 38, 0.75),
+    0 0 36px rgba(220, 38, 38, 0.55);
 }
 
 
@@ -520,6 +522,11 @@ html[data-theme="dark"] .no-data img {
 [data-theme="dark"] .recent-card.maribank .recent-dot {
   box-shadow: 0 0 6px rgba(249, 115, 22, 0.8);
 }
+
+[data-theme="dark"] .recent-card.bpi .recent-dot {
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.8);
+}
+
 
 [data-theme="dark"] .recent-card.expense .recent-icon {
   background: rgba(239, 68, 68, 0.14);

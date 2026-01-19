@@ -72,6 +72,7 @@
       <option>GCash</option>
       <option>MariBank</option>
       <option>Maya</option>
+      <option>BPI</option>
     </select>
   </div>
 
@@ -82,6 +83,7 @@
       <option>GCash</option>
       <option>MariBank</option>
       <option>Maya</option>
+      <option>BPI</option>
     </select>
   </div>
 
@@ -374,8 +376,8 @@ addBtn.onclick = () => {
   const toEl = document.getElementById("toAccount");
   const feeEl = document.getElementById("fee");
 
-  const fromVal = fromEl.value;
-  const toVal = toEl.value;
+  const fromVal = fromEl.value.trim();
+  const toVal = toEl.value.trim();
   const dateVal = dateInput.value;
 
 
