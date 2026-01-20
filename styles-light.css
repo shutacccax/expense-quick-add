@@ -90,7 +90,7 @@ body {
   max-width: 420px;
   margin: 0 auto;
   padding-top: clamp(
-    20px,
+    32px,
     calc(40px - env(safe-area-inset-top)),
     40px
   );
