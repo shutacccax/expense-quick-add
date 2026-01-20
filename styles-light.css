@@ -94,6 +94,15 @@ body {
   touch-action: pan-y;
 }
 
+@supports (padding-top: env(safe-area-inset-top)) {
+  .app {
+    padding-top: calc(
+      32px + max(env(safe-area-inset-top) - 28px, 0px)
+    );
+  }
+}
+
+
 
 .page {
   min-height: 100dvh;
@@ -622,9 +631,9 @@ body, nav, .app, .balance-card {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: max(32px, env(safe-area-inset-bottom));
+  bottom: 32px;
   transform: translateX(-50%);
-
+  will-change: transform;
   width: calc(100% - 80px);
   max-width: 400px;
 
@@ -649,7 +658,11 @@ body, nav, .app, .balance-card {
   z-index: 100;
 }
 
-
+@supports (bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    bottom: calc(32px + env(safe-area-inset-bottom));
+  }
+}
 
 .nav-item,
 .nav-item:link,
