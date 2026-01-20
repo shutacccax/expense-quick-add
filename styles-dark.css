@@ -20,15 +20,9 @@ html[data-theme="dark"] {
 
 /* ================= PAGE ================= */
 
-/* ================= DARK MODE BACKGROUND ================= */
+/* ================= DARK MODE ROOT BACKGROUND ================= */
 
-html[data-theme="dark"] .page {
-  position: relative;
-  background: transparent;
-  isolation: isolate; /* 🔥 critical for backdrop-filter */
-}
-
-html[data-theme="dark"] .page::before {
+html[data-theme="dark"]::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -51,11 +45,16 @@ html[data-theme="dark"] .page::before {
       rgba(11, 15, 20, 0) 75%
     ),
     #0b0f14;
-
-  opacity: 1;
-  transition: opacity 0.35s ease;
 }
 
+
+/* ================= DARK MODE BACKGROUND ================= */
+
+html[data-theme="dark"] .page {
+  position: relative;
+  background: transparent;
+  isolation: isolate; /* 🔥 critical for backdrop-filter */
+}
 
 html[data-theme="dark"],
 html[data-theme="dark"] body {
