@@ -84,9 +84,9 @@ body {
 }
 
 .app {
-  min-height: 100%;
+  min-height: auto;
   padding: 32px;
-  padding-bottom: 150px;
+  padding-bottom: 0;
   max-width: 420px;
   margin: 0 auto;
   padding-top: 32px;
@@ -105,9 +105,11 @@ body {
 
 
 .page {
-  min-height: 100dvh;
+  min-height: 100svh;
   background: var(--bg);
   color: var(--text);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 120px);
 }
 
 
@@ -631,20 +633,24 @@ body, nav, .app, .balance-card {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: 32px;
   transform: translateX(-50%);
   will-change: transform;
+
+  bottom: max(28px, calc(16px + env(safe-area-inset-bottom)));
+  height: calc(64px + env(safe-area-inset-bottom));
+
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+
   width: calc(100% - 80px);
   max-width: 400px;
-
-  height: 64px;
-  padding: 0 8px;
 
   display: flex;
   justify-content: space-around;
   align-items: center;
 
-  background: rgba(240, 240, 240, 0.75); /* gray tint */
+  background: rgba(240, 240, 240, 0.75);
   backdrop-filter: blur(8px) saturate(0.4);
   -webkit-backdrop-filter: blur(20px) saturate(0.9);
 
@@ -656,12 +662,6 @@ body, nav, .app, .balance-card {
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
 
   z-index: 100;
-}
-
-@supports (bottom: env(safe-area-inset-bottom)) {
-  .bottom-nav {
-    bottom: calc(32px + env(safe-area-inset-bottom));
-  }
 }
 
 .nav-item,

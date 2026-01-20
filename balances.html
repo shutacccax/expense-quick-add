@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.7">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.7">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.8">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.8">
 </head>
 
 
@@ -761,6 +761,8 @@ let balancesRenderedOnce = false;
 
 function renderBalances(data) {
   const container = document.getElementById("accounts");
+
+  container.innerHTML = "";
 
   accountAmountEls = [];
   realTotal = 0;
