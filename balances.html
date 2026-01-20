@@ -303,11 +303,20 @@
 let didSyncFromNetwork = false;
 
 
-    const dashboardLoadState = {
-  balances: false,
-  categories: false,
-  recent: false
+const dashboardLoadState = {
+balances: false,
+categories: false,
+recent: false
 };
+
+let lastRenderedCount = 0;
+let isCollapsingRecent = false;
+
+
+let allRecentTransactions = [];
+let visibleRecentCount = 5;
+const RECENT_STEP = 5;
+
 
 
 const toggle = document.querySelector(".theme-toggle");
@@ -457,7 +466,6 @@ window.addEventListener("offline", restoreLastUpdated);
 
 
 
-
 function maybeRevealLoaders() {
   const ready =
     dashboardLoadState.balances &&
@@ -466,34 +474,37 @@ function maybeRevealLoaders() {
 
   if (!ready) return;
 
-  // 🟦 BALANCE
+  /* 🟦 BALANCE */
   document.getElementById("balanceSkeleton")?.remove();
   document.getElementById("balanceCard")?.classList.remove("hidden");
 
-  // 🟦 ACCOUNTS
+  /* 🟦 ACCOUNTS */
   const accounts = document.getElementById("accounts");
   accounts.classList.remove("loading");
+  accounts
+    .querySelectorAll(".account-skeleton")
+    .forEach(el => el.remove());
 
-  // 🟦 SUMMARY
-  showSummaryContent();
+  /* 🟦 SUMMARY (DONUT + CATEGORY) */
+  document.getElementById("summarySkeleton")?.remove();
+  document.getElementById("summaryContent")?.classList.remove("hidden");
 
-  // 🟦 RECENT
+  /* 🟦 RECENT */
   document
     .querySelectorAll(".recent-skeleton")
     .forEach(el => el.remove());
 
-  // 🟦 DONUT ANIMATION
+  /* 🟦 DONUT ANIMATION */
   requestAnimationFrame(() => {
     revealDonut();
   });
 
-  // ✅ ONLY mark updated if real network sync happened
+  /* 🟦 LAST UPDATED */
   if (didSyncFromNetwork) {
     setLastUpdatedNow();
-    didSyncFromNetwork = false; // reset for next cycle
+    didSyncFromNetwork = false;
   }
 }
-
 
 
 
@@ -747,12 +758,6 @@ let balancesRenderedOnce = false;
 function renderBalances(data) {
   const container = document.getElementById("accounts");
 
-  // 🔹 Remove account skeletons (once)
-  if (!balancesRenderedOnce) {
-    container.classList.remove("loading");
-    container.innerHTML = "";
-  }
-
   accountAmountEls = [];
   realTotal = 0;
 
@@ -815,39 +820,6 @@ const RECENT_TX_API =
 const RECENT_TX_CACHE_KEY = "recent_transactions_cache";
 const RECENT_TX_CACHE_TTL = 60 * 1000;
 
-async function loadRecentTransactions(force = false) {
-  const list = document.getElementById("recentExpenses");
-  if (!list) return;
-
-  if (!force) {
-    const cached = getCachedRecentTransactions();
-    if (cached) {
-      renderRecentTransactions(cached);
-      return;
-    }
-  }
-
-
-  try {
-    const res = await fetchWithTimeout(RECENT_TX_API);
-    const json = await res.json();
-
-    if (json.status !== "success") {
-      throw new Error("API error");
-    }
-
-    cacheRecentTransactions(json.data);
-    renderRecentTransactions(json.data);
-
-    didSyncFromNetwork = true;
-
-    
-  } catch (err) {
-    console.error("[Recent TX] failed", err);
-    list.classList.remove("skeleton");
-    list.innerHTML = `<li class="account-card recent-card">Failed to load</li>`;
-  }
-}
 
 function cacheRecentTransactions(data) {
   localStorage.setItem(
@@ -879,12 +851,15 @@ function paymentToClass(value) {
   return "";
 }
 
-function renderRecentTransactions(items) {
+function renderRecentTransactions() {
   const list = document.getElementById("recentExpenses");
   list.innerHTML = "";
   list.classList.remove("skeleton");
 
-  if (!items || !items.length) {
+  const items = allRecentTransactions.slice(0, visibleRecentCount);
+  const newlyAddedStartIndex = lastRenderedCount;
+
+  if (!items.length) {
     list.innerHTML = `
       <li class="account-card recent-card">
         <div class="recent-desc">No recent transactions</div>
@@ -893,7 +868,7 @@ function renderRecentTransactions(items) {
     return;
   }
 
-  list.innerHTML = items.map(tx => {
+  list.innerHTML = items.map((tx, index) => {
     const type = tx.type; // expense | inflow | transfer
     const icon = `svgs/${type}.svg`;
 
@@ -916,15 +891,14 @@ function renderRecentTransactions(items) {
     }
 
     return `
-      <li class="account-card recent-card ${type} ${paymentClass}">
+      <li class="account-card recent-card ${type} ${paymentClass}
+        ${index >= newlyAddedStartIndex ? "recent-animate" : ""}">
         <div class="recent-row">
 
-          <!-- ICON -->
           <div class="recent-icon">
             <img src="${icon}" alt="${type}">
           </div>
 
-          <!-- MAIN -->
           <div class="recent-left">
             <div class="recent-desc" title="${tx.description}">
               ${tx.description}
@@ -936,7 +910,6 @@ function renderRecentTransactions(items) {
             </div>
           </div>
 
-          <!-- RIGHT -->
           <div class="recent-right">
             <div class="recent-amount">
               ₱${Number(tx.amount).toLocaleString(undefined, {
@@ -951,9 +924,111 @@ function renderRecentTransactions(items) {
     `;
   }).join("");
 
+  lastRenderedCount = visibleRecentCount;
+
+  renderLoadMoreButton();
+
   dashboardLoadState.recent = true;
   maybeRevealLoaders();
+}
 
+function renderLoadMoreButton() {
+  const list = document.getElementById("recentExpenses");
+
+  const li = document.createElement("li");
+  li.className = "load-more-row";
+
+  const allVisible =
+    visibleRecentCount >= allRecentTransactions.length;
+
+  li.innerHTML = allVisible
+    ? `<a href="#" class="load-more-link collapse">Show less</a>`
+    : `<a href="#" class="load-more-link">Load more</a>`;
+
+  li.querySelector("a").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (visibleRecentCount >= allRecentTransactions.length) {
+      // 🔽 collapse
+      isCollapsingRecent = true;
+      collapseRecentTransactions();
+    } else {
+      // 🔼 expand
+      visibleRecentCount += RECENT_STEP;
+      renderRecentTransactions();
+    }
+  });
+
+
+  list.appendChild(li);
+}
+
+function collapseRecentTransactions() {
+  const list = document.getElementById("recentExpenses");
+  const items = Array.from(
+    list.querySelectorAll(".recent-card")
+  );
+
+  // items beyond the first 5
+  const toRemove = items.slice(RECENT_STEP);
+
+  toRemove.forEach(el => {
+    el.classList.add("recent-collapse");
+  });
+
+  // wait for animation to finish
+  setTimeout(() => {
+    visibleRecentCount = RECENT_STEP;
+    lastRenderedCount = 0;
+    isCollapsingRecent = false;
+    renderRecentTransactions();
+  }, 220);
+}
+
+
+async function loadRecentTransactions(force = false) {
+  const list = document.getElementById("recentExpenses");
+  if (!list) return;
+
+  // 1️⃣ Use cache first (if allowed)
+  if (!force) {
+    const cached = getCachedRecentTransactions();
+    if (cached) {
+      allRecentTransactions = cached;
+      visibleRecentCount = RECENT_STEP; // start with 5
+      renderRecentTransactions();
+      return;
+    }
+  }
+
+  try {
+    const res = await fetchWithTimeout(RECENT_TX_API);
+    const json = await res.json();
+
+    if (json.status !== "success") {
+      throw new Error("API error");
+    }
+
+    // 2️⃣ Cache + store full list
+    cacheRecentTransactions(json.data);
+
+    allRecentTransactions = json.data || [];
+    visibleRecentCount = RECENT_STEP;
+
+    // 3️⃣ Render initial batch
+    renderRecentTransactions();
+
+    didSyncFromNetwork = true;
+
+  } catch (err) {
+    console.error("[Recent TX] failed", err);
+    list.classList.remove("skeleton");
+    list.innerHTML = `
+      <li class="account-card recent-card">
+        Failed to load
+      </li>
+    `;
+  }
 }
 
 
@@ -1102,7 +1177,7 @@ function renderCategoryList(data) {
 }
 
 
-  /* ================= LOAD CATEGORY TOTALS ================= */
+/* ================= LOAD CATEGORY TOTALS ================= */
 async function loadCategoryTotals(year, month) {
   const cacheKey = `dashboard_categories_${year}_${month}`;
   const cached = sessionStorage.getItem(cacheKey);
@@ -1112,16 +1187,14 @@ async function loadCategoryTotals(year, month) {
     const data = JSON.parse(cached);
 
     if (!data.length) {
-      showSummaryContent();
       showNoDataState();
 
-      dashboardLoadState.categories = true; // ✅ ADD
-      maybeRevealLoaders();                 // ✅ ADD
+      dashboardLoadState.categories = true;
+      maybeRevealLoaders();
       return;
     }
 
     hideNoDataState();
-    showSummaryContent();
 
     const sorted = [...data].sort((a, b) => b.total - a.total);
     lastCategoryData = sorted;
@@ -1131,7 +1204,6 @@ async function loadCategoryTotals(year, month) {
 
     dashboardLoadState.categories = true;
     maybeRevealLoaders();
-
     return;
   }
 
@@ -1145,20 +1217,16 @@ async function loadCategoryTotals(year, month) {
 
   didSyncFromNetwork = true;
 
-
   if (!data.length) {
     sessionStorage.setItem(cacheKey, JSON.stringify([]));
-    showSummaryContent();
     showNoDataState();
 
     dashboardLoadState.categories = true;
     maybeRevealLoaders();
-
     return;
   }
 
   hideNoDataState();
-  showSummaryContent();
 
   const sorted = [...data].sort((a, b) => b.total - a.total);
   lastCategoryData = sorted;
@@ -1169,7 +1237,6 @@ async function loadCategoryTotals(year, month) {
 
   dashboardLoadState.categories = true;
   maybeRevealLoaders();
-
 }
 
 
