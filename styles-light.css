@@ -21,7 +21,7 @@
 }
 
 html {
-  background: var(--bg);
+  background: transparent;
   transition: background-color 0.35s ease;
 }
 
@@ -43,6 +43,22 @@ select,
 textarea {
   touch-action: manipulation;
 }
+
+button {
+  all: unset;
+  box-sizing: border-box;
+
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
 
 img,
 svg {
@@ -615,10 +631,10 @@ body, nav, .app, .balance-card {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 24px);
+  bottom: calc(env(safe-area-inset-bottom) + 30px);
   transform: translateX(-50%);
 
-  width: calc(100% - 32px);
+  width: calc(100% - 80px);
   max-width: 400px;
 
   height: 64px;
@@ -1821,5 +1837,18 @@ input[type="date"]::-webkit-datetime-edit {
 }
 
 .logout-btn:active {
-  transform: scale(0.98);
+  opacity: 0.85;
 }
+
+.google-btn,
+.logout-btn {
+  transform: none !important;
+}
+
+.last-updated {
+  margin: -10px 0 22px;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  color: rgba(0, 0, 0, 0.45);
+}
+

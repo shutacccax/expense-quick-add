@@ -6,6 +6,8 @@
     name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>Balances</title>
 
   <link rel="manifest" href="manifest.json">
@@ -31,8 +33,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles (DO NOT disable any) -->
-  <link rel="stylesheet" href="styles-light.css">
-  <link rel="stylesheet" href="styles-dark.css">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21">
 
   </head>
 
@@ -49,18 +51,22 @@
 
   <div class="app">
 
-  <div class="header-row">
-    <div class="expense-header">Dashboard</div>
+<div class="header-row">
+  <div class="expense-header">Dashboard</div>
 
-    <a
-      href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
-      target="_blank"
-      class="icon-btn"
-      aria-label="Open Google Sheets"
-    >
-      <img src="svgs/google-sheets.svg" alt="">
-    </a>
-  </div>
+  <a
+    href="https://docs.google.com/spreadsheets/d/1btzhbKqJhdoWcHs6G3Fsm3fkS22N9EW1QGImdqtjnEU/edit?usp=sharing"
+    target="_blank"
+    class="icon-btn"
+    aria-label="Open Google Sheets"
+  >
+    <img src="svgs/google-sheets.svg" alt="">
+  </a>
+</div>
+
+<div id="lastUpdated" class="last-updated">
+  Updating…
+</div>
 
 
 
@@ -292,7 +298,10 @@
     </a>
   </nav>
 
-  <script>
+<script>
+
+let didSyncFromNetwork = false;
+
 
     const dashboardLoadState = {
   balances: false,
@@ -403,6 +412,52 @@ window.addEventListener("scroll", () => {
     summary?.classList.remove("summary-loading");
   }
 
+  function setLastUpdatedNow() {
+    const el = document.getElementById("lastUpdated");
+    if (!el) return;
+
+    const now = new Date();
+    localStorage.setItem("lastUpdated", now.toISOString());
+
+    el.textContent = "Updated just now";
+  }
+
+  function restoreLastUpdated() {
+    const el = document.getElementById("lastUpdated");
+    if (!el) return;
+
+    const saved = localStorage.getItem("lastUpdated");
+
+    if (!saved) {
+      el.textContent = "Updating…";
+      return;
+    }
+
+    const diffMs = Date.now() - new Date(saved).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(mins / 60);
+
+    let timeText =
+      mins < 1 ? "just now" :
+      mins === 1 ? "1 minute ago" :
+      mins < 60 ? `${mins} minutes ago` :
+      hours === 1 ? "1 hour ago" :
+      `${hours} hours ago`;
+
+    if (!navigator.onLine) {
+      el.textContent = `Offline · last updated ${timeText}`;
+    } else {
+      el.textContent = `Updated ${timeText}`;
+    }
+  }
+
+  // 🔁 React to connectivity changes
+window.addEventListener("online", restoreLastUpdated);
+window.addEventListener("offline", restoreLastUpdated);
+
+
+
+
 function maybeRevealLoaders() {
   const ready =
     dashboardLoadState.balances &&
@@ -431,6 +486,12 @@ function maybeRevealLoaders() {
   requestAnimationFrame(() => {
     revealDonut();
   });
+
+  // ✅ ONLY mark updated if real network sync happened
+  if (didSyncFromNetwork) {
+    setLastUpdatedNow();
+    didSyncFromNetwork = false; // reset for next cycle
+  }
 }
 
 
@@ -657,6 +718,8 @@ function toggleAccountSelection(accountName) {
     try {
       const res = await fetchWithTimeout(scriptURL);
       const json = await res.json();
+      didSyncFromNetwork = true;
+
 
       sessionStorage.setItem(
         "dashboard_balances",
@@ -764,6 +827,7 @@ async function loadRecentTransactions(force = false) {
     }
   }
 
+
   try {
     const res = await fetchWithTimeout(RECENT_TX_API);
     const json = await res.json();
@@ -775,6 +839,9 @@ async function loadRecentTransactions(force = false) {
     cacheRecentTransactions(json.data);
     renderRecentTransactions(json.data);
 
+    didSyncFromNetwork = true;
+
+    
   } catch (err) {
     console.error("[Recent TX] failed", err);
     list.classList.remove("skeleton");
@@ -1076,6 +1143,9 @@ async function loadCategoryTotals(year, month) {
   const json = await res.json();
   const data = json.data || [];
 
+  didSyncFromNetwork = true;
+
+
   if (!data.length) {
     sessionStorage.setItem(cacheKey, JSON.stringify([]));
     showSummaryContent();
@@ -1178,6 +1248,8 @@ async function loadCategoryTotals(year, month) {
 
   async function initApp() {
     try {
+      restoreLastUpdated();
+
       updateBalanceVisibility();
 
       // 🔥 show UI immediately
@@ -1233,6 +1305,8 @@ async function refreshRecentTransactions() {
     refreshing = false;
     syncBtn.classList.remove("syncing");
     syncBtn.disabled = false;
+
+    setLastUpdatedNow();
   }
 }
 

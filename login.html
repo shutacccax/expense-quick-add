@@ -3,16 +3,24 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>Welcome · Spendr</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21">
+  <link rel="stylesheet" href="login.css?v=2026-01-21">
 
-  <link rel="stylesheet" href="login.css" />
-  <link rel="stylesheet" href="styles-dark.css" />
+
+  
 </head>
 <body>
   <div class="page login-page">
@@ -32,7 +40,7 @@
       </div>
 
       <div class="actions">
-        <button id="googleLogin" class="google-btn">
+        <button id="googleLogin" class="google-btn auth-btn">
           <img
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
             alt=""
