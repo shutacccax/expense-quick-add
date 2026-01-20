@@ -83,7 +83,11 @@ body {
   padding-bottom: 150px;
   max-width: 420px;
   margin: 0 auto;
-  padding-top: 40px;
+  padding-top: clamp(
+    20px,
+    calc(40px - env(safe-area-inset-top)),
+    40px
+  );
   background: transparent;
   touch-action: pan-y;
 }
