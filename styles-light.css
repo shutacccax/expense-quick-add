@@ -22,7 +22,6 @@
 
 html {
   background: transparent;
-  transition: background-color 0.35s ease;
 }
 
 html, body {
@@ -32,6 +31,14 @@ html, body {
 
 body {
   overscroll-behavior: none;
+}
+
+
+/* ================= THEME SWITCH SAFETY ================= */
+
+html.theme-switching * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 
@@ -74,7 +81,6 @@ body {
   letter-spacing: -0.01em;
   background: transparent;
   color: var(--text);
-  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app {
@@ -92,27 +98,13 @@ body {
   touch-action: pan-y;
 }
 
-body, nav, .app, .balance-card {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
 
 .page {
   min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
-  transition:
-    background-color 0.35s ease,
-    color 0.35s ease,
-    opacity 0.35s ease;
 }
 
-.theme-switching .page {
-  transition:
-    background-color 0.35s ease,
-    color 0.35s ease;
-  /* ❌ opacity intentionally removed */
-}
 
 .theme-switching * {
   backdrop-filter: none !important;
@@ -130,7 +122,6 @@ body, nav, .app, .balance-card {
 
 
 body, nav, .app, .balance-card {
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ================= HEADER ================= */

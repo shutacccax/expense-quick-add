@@ -1,23 +1,63 @@
+/* ================= RESET ================= */
+
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+  min-height: 100%;
+  background: transparent;
+  color: #eaeaea;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
-  background: #f8fafc; /* clean light app bg */
-  color: #0f172a;
 }
 
-.screen {
-  min-height: 100vh;
+/* ================= BACKGROUND ================= */
+
+html::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      120% 85% at 50% -10%,
+      rgba(120, 180, 255, 0.28),
+      rgba(120, 180, 255, 0.18) 22%,
+      rgba(120, 180, 255, 0.08) 40%,
+      rgba(11, 15, 20, 0) 65%
+    ),
+    radial-gradient(
+      90% 70% at 70% 100%,
+      rgba(45, 157, 255, 0.20),
+      rgba(45, 157, 255, 0.10) 35%,
+      rgba(45, 157, 255, 0.02) 55%,
+      rgba(11, 15, 20, 0) 75%
+    ),
+    #0b0f14;
+}
+
+/* ================= LAYOUT ================= */
+
+/* Login page layout */
+.login-page .screen {
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 100px 24px 100px !important;
+
+  justify-content: center;   /* ⬅️ centers everything vertically */
+  align-items: stretch;
+
+  gap: 200px;                 /* ⬅️ space BETWEEN content and actions */
+
+  padding: 64px 24px;        /* safe breathing room */
 }
 
-/* Top content */
+/* ================= CONTENT ================= */
+
 .content {
   text-align: center;
   margin-top: 24px;
@@ -35,109 +75,49 @@ h1 {
   font-weight: 700;
   letter-spacing: -0.5px;
   margin: 0 0 12px;
-  padding: 0px 20px 0px;
 }
 
 .tagline {
   font-size: 15px;
   line-height: 1.5;
-  color: #475569;
+  color: rgba(210, 220, 255, 0.65);
 }
 
-/* Bottom actions */
+/* ================= LOGIN TITLE ================= */
+
+.welcome {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.welcome-sub {
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: rgba(180, 195, 235, 0.55);
+}
+
+.welcome-brand {
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  line-height: 2.4rem;
+  color: #eaeaea;
+}
+
+/* ================= ACTIONS ================= */
+
 .actions {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.google-btn {
-  height: 52px;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  font-size: 14px !important;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-
-
-.google-btn img {
-  width: 18px;
-  height: 18px;
-}
-
-.google-btn:hover {
-  background: #f9fafb;
-}
-
-.google-btn:active {
-  opacity: 0.85;
-}
-
-.privacy {
-  font-size: 12px;
-  line-height: 1.4;
-  color: #94a3b8;
-  text-align: center;
-}
-
-
-/* ================= LOGIN TITLE ================= */
-
-.login-page .welcome {
-  margin: 0 0 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-
-}
-
-/* "Welcome to" — light, subtle */
-.login-page .welcome-sub {
-  font-size: 15px;
-  font-weight: 300;
-  letter-spacing: 0.01em;
-
-  color: rgba(180, 195, 235, 0.55);
-}
-
-/* "Spendr" — hero */
-.login-page .welcome-brand {
-  font-size: 48px;
-  font-weight: 600;
-  letter-spacing: -1px;
-  line-height: 2.4rem;
-  color: var(--text);
-}
-
-
-/* ================= LOGIN PAGE ================= */
-
-.login-page .screen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 56px 24px 40px;
-}
-
-.login-page h1 {
-  color: var(--text);
-}
-
-.login-page .tagline {
-  color: rgba(210, 220, 255, 0.65);
-}
-
-.login-page .auth-btn {
+/* Google / Auth button */
+.auth-btn {
   all: unset;
   box-sizing: border-box;
 
@@ -151,7 +131,7 @@ h1 {
 
   background: rgba(20, 28, 44, 0.55);
   border: 1px solid rgba(120, 160, 255, 0.14);
-  color: var(--text);
+  color: #eaeaea;
 
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
@@ -163,10 +143,20 @@ h1 {
   cursor: pointer;
 }
 
-.login-page .google-btn:hover {
-  background: rgba(32, 44, 72, 0.55);
+.auth-btn img {
+  width: 18px;
+  height: 18px;
 }
 
-.login-page .privacy {
+.auth-btn:active {
+  opacity: 0.85;
+}
+
+/* ================= FOOTER ================= */
+
+.privacy {
+  font-size: 12px;
+  line-height: 1.4;
   color: rgba(180, 195, 235, 0.45);
+  text-align: center;
 }

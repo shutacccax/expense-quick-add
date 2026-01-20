@@ -29,10 +29,14 @@ const CATEGORY_COLORS_DARK = {
 function applyTheme(isDark) {
   const html = document.documentElement;
 
-  // 🔥 1. Tell CSS we're switching themes
+  // 🔒 freeze scroll position
+  const scrollY = window.scrollY;
+  html.style.position = "fixed";
+  html.style.top = `-${scrollY}px`;
+  html.style.width = "100%";
+
   html.classList.add("theme-switching");
 
-  // 🔥 2. Apply theme on next frame (prevents mid-scroll seam)
   requestAnimationFrame(() => {
     html.setAttribute("data-theme", isDark ? "dark" : "light");
     localStorage.setItem("theme", isDark ? "dark" : "light");
@@ -42,11 +46,17 @@ function applyTheme(isDark) {
     }
   });
 
-  // 🔥 3. Re-enable transitions after animations finish
   setTimeout(() => {
     html.classList.remove("theme-switching");
-  }, 400); // must match your longest CSS transition
+
+    // 🔓 restore scroll
+    html.style.position = "";
+    html.style.top = "";
+    html.style.width = "";
+    window.scrollTo(0, scrollY);
+  }, 400);
 }
+
 
 if (themeToggle) {
   themeToggle.onclick = () => {
