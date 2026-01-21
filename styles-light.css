@@ -25,13 +25,27 @@ html {
 }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   touch-action: manipulation;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 body {
   overscroll-behavior: contain;
+}
+
+body {
+  background: var(--bg);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 
@@ -76,16 +90,6 @@ svg {
 }
 
 
-body {
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  letter-spacing: -0.01em;
-  background: transparent;
-  color: var(--text);
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
 .app {
   -webkit-overflow-scrolling: touch;
   padding: 32px;
@@ -108,8 +112,8 @@ body {
 
 
 .page {
-  min-height: 100dvh;
-  overflow-y: auto;
+  overflow: visible;
+  min-height: auto;
   -webkit-overflow-scrolling: touch;
   background: var(--bg);
   color: var(--text);
@@ -646,7 +650,7 @@ body, nav, .app, .balance-card {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: 32px;
+  bottom: calc(32px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   will-change: transform;
   width: calc(100% - 80px);
@@ -1528,6 +1532,7 @@ input[type="date"]::-webkit-datetime-edit {
   font-size: 11px;
   margin-top: 2px;
   color: #6b7280;
+  opacity: 0.45;
 }
 
 .recent-card::before {
@@ -1928,9 +1933,8 @@ input[type="date"]::-webkit-datetime-edit {
 /* For pages with short content (inflow, expense, transfer) */
 
 .short-page {
-  min-height: 100dvh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  min-height: 100%;
+  overflow: visible;
 }
 
 .short-page .app {

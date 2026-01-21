@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.12">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.12">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-22.1">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-22.1">
 </head>
 
 
@@ -324,7 +324,6 @@ const RECENT_STEP = 5;
 
 
 const toggle = document.querySelector(".theme-toggle");
-const page = document.querySelector(".page");
 
 let hideTimeout;
 let scrollTimer;
@@ -340,22 +339,22 @@ function showToggle() {
   }, 2000);
 }
 
-// show on mouse movement (desktop)
+// desktop
 document.addEventListener("mousemove", (e) => {
   if (e.clientY > window.innerHeight - 200) {
     showToggle();
   }
 });
 
-// show on scroll (container scroll)
-page.addEventListener("scroll", () => {
+// mobile + desktop scroll
+window.addEventListener("scroll", () => {
   showToggle();
 
   clearTimeout(scrollTimer);
   scrollTimer = setTimeout(() => {
     toggle.classList.remove("visible");
   }, 1500);
-});
+}, { passive: true });
 
 
   let appInitialized = false;

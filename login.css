@@ -1,61 +1,22 @@
 /* ================= RESET ================= */
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
   margin: 0;
-  min-height: 100svh;
-  background: #0b0f14; /* 👈 MUST be solid */
-  color: #eaeaea;
+  min-height: 100%;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-body {
-  margin: 0;
-  min-height: 100dvh;
-  background: transparent; /* 👈 body stays transparent */
-  overscroll-behavior-y: none;
-}
+/* ================= ROOT BACKGROUND ================= */
+/* 🔥 html paints EVERYTHING (notch + home indicator) */
 
-
-body {
-  overscroll-behavior-y: none;
-}
-
-
-/* ================= BACKGROUND ================= */
-
-/* html::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  min-height: 100%;
-  height: 100%;
-
-  z-index: -1;
-  pointer-events: none;
-
-  outline: 2px solid red;
-
-  background:
-    radial-gradient(
-      120% 85% at 50% -10%,
-      rgba(120, 180, 255, 0.28),
-      rgba(120, 180, 255, 0.18) 22%,
-      rgba(120, 180, 255, 0.08) 40%,
-      rgba(11, 15, 20, 0) 65%
-    ),
-    #0b0f14;
-} */
-
-body {
-  margin: 0;
-  min-height: 100%;
+html {
   background:
     radial-gradient(
       120% 85% at 50% -10%,
@@ -73,39 +34,42 @@ body {
     ),
     #0b0f14;
 
-  background-repeat: no-repeat;
-  background-size: cover;
+  color: #eaeaea;
 }
 
+/* ================= BODY ================= */
+/* body scrolls, but never paints */
 
-/* ================= LAYOUT ================= */
-
-.login-page {
-  min-height: 100svh;
+body {
+  background: transparent;
+  overscroll-behavior-y: none;
 }
 
+/* ================= PAGE LAYOUT ================= */
 
-/* Login page layout */
+.page.login-page {
+  min-height: 100%;
+  display: flex;
+}
+
+/* Main screen */
 .login-page .screen {
-  min-height: 100svh;
+  min-height: 100%;
+  width: 100%;
 
   display: flex;
   flex-direction: column;
-
   justify-content: center;
-  align-items: stretch;
 
-  gap: clamp(80px, 12vh, 160px);
-
+    gap: 48px;
   padding: 64px 24px;
+  transform: translateY(100px);
 }
-
 
 /* ================= CONTENT ================= */
 
 .content {
   text-align: center;
-  margin-top: 24px;
 }
 
 .logo {
@@ -115,27 +79,12 @@ body {
   margin-bottom: 15px;
 }
 
-h1 {
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  margin: 0 0 12px;
-}
-
-.tagline {
-  font-size: 15px;
-  line-height: 1.5;
-  color: rgba(210, 220, 255, 0.65);
-}
-
-/* ================= LOGIN TITLE ================= */
-
 .welcome {
-  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  margin-bottom: 30px;
 }
 
 .welcome-sub {
@@ -153,6 +102,12 @@ h1 {
   color: #eaeaea;
 }
 
+.tagline {
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(210, 220, 255, 0.65);
+}
+
 /* ================= ACTIONS ================= */
 
 .actions {
@@ -162,7 +117,7 @@ h1 {
   margin-top: 60px;
 }
 
-/* Google / Auth button */
+/* Google login button */
 .auth-btn {
   all: unset;
   box-sizing: border-box;
