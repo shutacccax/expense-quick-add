@@ -82,21 +82,22 @@ body {
 
 .login-page {
   min-height: 100svh;
-  padding-bottom: calc(160px + env(safe-area-inset-bottom));
 }
 
 
 /* Login page layout */
 .login-page .screen {
+  min-height: 100svh;
+
   display: flex;
   flex-direction: column;
 
   justify-content: center;
   align-items: stretch;
 
-  gap: 200px;
+  gap: clamp(80px, 12vh, 160px);
+
   padding: 64px 24px;
-  min-height: auto;
 }
 
 

@@ -20,29 +20,10 @@
 
   <!-- 🔥 Decide theme BEFORE styles load -->
   <style>
-    html, body {
-      height: auto !important;
-      min-height: 100% !important;
+    html {
+      background: #0b0f14;
     }
-
-    .app {
-      margin-bottom: 50px !important;
-    }
-
-    html, body {
-      overflow-y: auto !important;
-    }
-
-    /* optional: smoother iOS feel */
-    body {
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .page, .app {
-    overflow: visible !important;
-  }
   </style>
-
 
   <script>
     const theme = localStorage.getItem("theme") || "dark";
@@ -58,12 +39,13 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.10">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.10">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.11">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.11">
 </head>
 
 
-<body class="page">
+<body class="page short-page">
+
 
 
 <button id="themeToggle" class="theme-toggle">🌙</button>

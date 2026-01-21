@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.10">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.10">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.11">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.11">
 </head>
 
 
@@ -324,10 +324,14 @@ const RECENT_STEP = 5;
 
 
 const toggle = document.querySelector(".theme-toggle");
+const page = document.querySelector(".page");
 
 let hideTimeout;
+let scrollTimer;
 
 function showToggle() {
+  if (!toggle) return;
+
   toggle.classList.add("visible");
   clearTimeout(hideTimeout);
 
@@ -343,10 +347,10 @@ document.addEventListener("mousemove", (e) => {
   }
 });
 
-// show on scroll stop
-let scrollTimer;
-window.addEventListener("scroll", () => {
+// show on scroll (container scroll)
+page.addEventListener("scroll", () => {
   showToggle();
+
   clearTimeout(scrollTimer);
   scrollTimer = setTimeout(() => {
     toggle.classList.remove("visible");

@@ -21,7 +21,7 @@
 }
 
 html {
-  background: transparent;
+  background: var(--bg);
 }
 
 html, body {
@@ -82,12 +82,12 @@ body {
   letter-spacing: -0.01em;
   background: transparent;
   color: var(--text);
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .app {
-  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  height: 100dvh;
   padding: 32px;
   padding-bottom: 170px;
   max-width: 420px;
@@ -109,6 +109,8 @@ body {
 
 .page {
   min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg);
   color: var(--text);
 }
@@ -1920,4 +1922,19 @@ input[type="date"]::-webkit-datetime-edit {
 
 .recent-collapse {
   animation: fadeSlideOut 0.2s ease forwards;
+}
+
+/* ================= SHORT PAGE UTILITY ================= */
+/* For pages with short content (inflow, expense, transfer) */
+
+.short-page {
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.short-page .app {
+  padding-bottom: calc(
+    160px + env(safe-area-inset-bottom)
+  );
 }
