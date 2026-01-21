@@ -39,8 +39,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.11">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.11">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.12">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.12">
 </head>
 
 
@@ -144,39 +144,42 @@ const amountInput = document.getElementById("amount");
 
 amountInput.addEventListener("input", (e) => {
   const input = e.target;
+  let value = input.value;
 
-  // caret position
+  if (!value) return;
+
   const caretPos = input.selectionStart;
 
-  // count digits before caret
-  const digitsBeforeCaret = input.value
-    .slice(0, caretPos)
-    .replace(/[^0-9]/g, "").length;
+  // remove commas
+  const raw = value.replace(/,/g, "");
 
-  // raw numeric value
-  const raw = input.value.replace(/,/g, "");
-  if (isNaN(raw)) return;
-
-  // format
-  const formatted = formatNumberWithCommas(raw);
-  input.value = formatted;
-
-  // restore caret after same number of digits
-  let pos = 0;
-  let digitsSeen = 0;
-
-  while (pos < formatted.length) {
-    if (/\d/.test(formatted[pos])) {
-      digitsSeen++;
-      if (digitsSeen === digitsBeforeCaret) {
-        pos++;
-        break;
-      }
-    }
-    pos++;
+  // ❌ block multiple decimals
+  if ((raw.match(/\./g) || []).length > 1) {
+    input.value = value.slice(0, -1);
+    input.setSelectionRange(caretPos - 1, caretPos - 1);
+    return;
   }
 
-  input.setSelectionRange(pos, pos);
+  // allow only numbers and dot
+  if (!/^[0-9.]*$/.test(raw)) return;
+
+  const [intPart, decPart] = raw.split(".");
+
+  // format integer part only
+  const formattedInt = intPart.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    ","
+  );
+
+  const formatted =
+    decPart !== undefined
+      ? `${formattedInt}.${decPart}`
+      : formattedInt;
+
+  const diff = formatted.length - value.length;
+
+  input.value = formatted;
+  input.setSelectionRange(caretPos + diff, caretPos + diff);
 });
 
 

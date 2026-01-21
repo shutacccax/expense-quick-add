@@ -100,11 +100,11 @@ body {
 @supports (padding-top: env(safe-area-inset-top)) {
   .app {
     padding-top: calc(
-      32px + max(env(safe-area-inset-top) - 28px, 0px)
+      32px
+      + max(env(safe-area-inset-top) - 28px + 3px, 0px)
     );
   }
 }
-
 
 
 .page {
@@ -880,7 +880,7 @@ input {
   border: none;
   background: var(--card);
   color: var(--text);
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
 }
 

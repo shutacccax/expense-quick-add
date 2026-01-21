@@ -37,8 +37,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.11">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.11">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.12">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.12">
 </head>
 
 
@@ -158,33 +158,42 @@ const feeInput = document.getElementById("fee");
 function attachMoneyFormatter(input) {
   input.addEventListener("input", (e) => {
     const el = e.target;
+    let value = el.value;
+
+    if (!value) return;
+
     const caretPos = el.selectionStart;
 
-    const digitsBefore = el.value
-      .slice(0, caretPos)
-      .replace(/[^0-9]/g, "").length;
+    // remove commas
+    const raw = value.replace(/,/g, "");
 
-    const raw = el.value.replace(/,/g, "");
-    if (isNaN(raw)) return;
-
-    const formatted = formatNumberWithCommas(raw);
-    el.value = formatted;
-
-    let pos = 0;
-    let digitsSeen = 0;
-
-    while (pos < formatted.length) {
-      if (/\d/.test(formatted[pos])) {
-        digitsSeen++;
-        if (digitsSeen === digitsBefore) {
-          pos++;
-          break;
-        }
-      }
-      pos++;
+    // ❌ block multiple decimals
+    if ((raw.match(/\./g) || []).length > 1) {
+      el.value = value.slice(0, -1);
+      el.setSelectionRange(caretPos - 1, caretPos - 1);
+      return;
     }
 
-    el.setSelectionRange(pos, pos);
+    // allow only numbers and dot
+    if (!/^[0-9.]*$/.test(raw)) return;
+
+    const [intPart, decPart] = raw.split(".");
+
+    // format integer part only
+    const formattedInt = intPart.replace(
+      /\B(?=(\d{3})+(?!\d))/g,
+      ","
+    );
+
+    const formatted =
+      decPart !== undefined
+        ? `${formattedInt}.${decPart}`
+        : formattedInt;
+
+    const diff = formatted.length - value.length;
+
+    el.value = formatted;
+    el.setSelectionRange(caretPos + diff, caretPos + diff);
   });
 
   input.addEventListener("blur", () => {
@@ -193,15 +202,13 @@ function attachMoneyFormatter(input) {
 
     if (isNaN(num)) return;
 
-    // Did the user actually type a decimal?
-    const hasDecimal = raw.includes(".");
-
     input.value = num.toLocaleString(undefined, {
-      minimumFractionDigits: hasDecimal ? 0 : 0,
+      minimumFractionDigits: raw.includes(".") ? 2 : 0,
       maximumFractionDigits: 2
     });
   });
 }
+
 
 attachMoneyFormatter(amountInput);
 attachMoneyFormatter(feeInput);
@@ -269,8 +276,32 @@ function getAccountBalance(accountName) {
 }
 
 function getAvailableBalance(account) {
-  return getAccountBalance(account);
+  // 1️⃣ Prefer dashboard-computed balances
+  const dashboardRaw = sessionStorage.getItem("dashboard_balances");
+  if (dashboardRaw) {
+    const balances = JSON.parse(dashboardRaw);
+    const match = balances.find(
+      b => b.account.toLowerCase() === account.toLowerCase()
+    );
+    if (match) {
+      return Number(String(match.balance).replace(/,/g, ""));
+    }
+  }
+
+  // 2️⃣ Fallback (old cache, offline, cold start)
+  const localRaw = localStorage.getItem("account_balances");
+  if (!localRaw) return Infinity;
+
+  const balances = JSON.parse(localRaw);
+  const match = balances.find(
+    b => b.account.toLowerCase() === account.toLowerCase()
+  );
+
+  return match
+    ? Number(String(match.balance).replace(/,/g, ""))
+    : 0;
 }
+
 
 let syncing = false;
 
@@ -366,6 +397,39 @@ function showToast(message, type = "success") {
   }, 2500);
 }
 
+function recomputeBalanceFromTransactions(account) {
+  const raw = localStorage.getItem("all_transactions");
+  if (!raw) return 0;
+
+  const txs = JSON.parse(raw);
+  let balance = 0;
+
+  txs.forEach(tx => {
+    const amt = Number(tx.amount) || 0;
+    const fee = Number(tx.fee) || 0;
+
+    if (tx.type === "inflow" && tx.account === account) {
+      balance += amt;
+    }
+
+    if (tx.type === "expense" && tx.account === account) {
+      balance -= amt;
+    }
+
+    if (tx.type === "transfer") {
+      if (tx.fromAccount === account) {
+        balance -= (amt + fee);
+      }
+      if (tx.toAccount === account) {
+        balance += amt;
+      }
+    }
+  });
+
+  return balance;
+}
+
+
 /* ===== GOOGLE SHEETS SUBMIT ===== */
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbx0j7hBNOI9P_zceaZeLrkypGOXP5s7Emk0GqOfUiNns1K6kEq0Xy2DJR00BVuEejw/exec";
@@ -414,6 +478,7 @@ addBtn.onclick = () => {
   }
 
   // balance check (amount + fee)
+  // balance check (amount + fee)
   const available = getAvailableBalance(fromVal);
 
   if (amountNum + feeNum > available) {
@@ -444,13 +509,6 @@ addBtn.onclick = () => {
 
   localStorage.setItem("data_dirty", "1");
 
-
-  // ✅ OPTIMISTIC LOCAL UPDATE
-  applyLocalTransfer(fromVal, toVal, amountNum);
-
-  if (feeNum > 0) {
-    applyLocalTransfer(fromVal, null, feeNum);
-  }
 
 
 

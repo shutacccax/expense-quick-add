@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.11">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.11">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.12">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.12">
 </head>
 
 
@@ -1030,7 +1030,8 @@ async function loadRecentTransactions(force = false) {
   }
 
   try {
-    const res = await fetchWithTimeout(RECENT_TX_API);
+    const res = await fetchWithTimeout(RECENT_TX_API, {}, 15000);
+
     const json = await res.json();
 
     if (json.status !== "success") {
@@ -1049,7 +1050,7 @@ async function loadRecentTransactions(force = false) {
     didSyncFromNetwork = true;
 
   } catch (err) {
-    console.error("[Recent TX] failed", err);
+    console.warn("[Recent TX] timeout, using cache or retry later");
 
     list.classList.remove("skeleton");
     list.innerHTML = `
