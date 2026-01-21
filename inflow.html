@@ -20,10 +20,29 @@
 
   <!-- 🔥 Decide theme BEFORE styles load -->
   <style>
-    html {
-      background: var(--bg, #0b0f14);
+    html, body {
+      height: auto !important;
+      min-height: 100% !important;
     }
+
+    .app {
+      margin-bottom: 50px !important;
+    }
+
+    html, body {
+      overflow-y: auto !important;
+    }
+
+    /* optional: smoother iOS feel */
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .page, .app {
+    overflow: visible !important;
+  }
   </style>
+
 
   <script>
     const theme = localStorage.getItem("theme") || "dark";
@@ -39,8 +58,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.9">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.9">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.10">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.10">
 </head>
 
 

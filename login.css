@@ -27,13 +27,35 @@ body {
 
 /* ================= BACKGROUND ================= */
 
-html::before {
+/* html::before {
   content: "";
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+
   z-index: -1;
   pointer-events: none;
 
+  outline: 2px solid red;
+
+  background:
+    radial-gradient(
+      120% 85% at 50% -10%,
+      rgba(120, 180, 255, 0.28),
+      rgba(120, 180, 255, 0.18) 22%,
+      rgba(120, 180, 255, 0.08) 40%,
+      rgba(11, 15, 20, 0) 65%
+    ),
+    #0b0f14;
+} */
+
+body {
+  margin: 0;
+  min-height: 100%;
   background:
     radial-gradient(
       120% 85% at 50% -10%,
@@ -50,23 +72,33 @@ html::before {
       rgba(11, 15, 20, 0) 75%
     ),
     #0b0f14;
+
+  background-repeat: no-repeat;
+  background-size: cover;
 }
+
 
 /* ================= LAYOUT ================= */
 
+.login-page {
+  min-height: 100svh;
+  padding-bottom: calc(160px + env(safe-area-inset-bottom));
+}
+
+
 /* Login page layout */
 .login-page .screen {
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 
-  justify-content: center;   /* ⬅️ centers everything vertically */
+  justify-content: center;
   align-items: stretch;
 
-  gap: 200px;                 /* ⬅️ space BETWEEN content and actions */
-
-  padding: 64px 24px;        /* safe breathing room */
+  gap: 200px;
+  padding: 64px 24px;
+  min-height: auto;
 }
+
 
 /* ================= CONTENT ================= */
 
@@ -126,6 +158,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 60px;
 }
 
 /* Google / Auth button */

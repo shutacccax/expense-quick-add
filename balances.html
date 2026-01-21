@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.9">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.9">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-21.10">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-21.10">
 </head>
 
 
@@ -722,40 +722,46 @@ function toggleAccountSelection(accountName) {
 }
 
 
-  async function loadBalances(force = false) {
-    if (!force) {
-      const cached = sessionStorage.getItem("dashboard_balances");
-      if (cached) {
-        renderBalances(JSON.parse(cached));
-      }
-    }
+async function loadBalances(force = false) {
+  let cachedBalances = null;
 
-    try {
-      const res = await fetchWithTimeout(scriptURL);
-      const json = await res.json();
-      didSyncFromNetwork = true;
-
-
-      sessionStorage.setItem(
-        "dashboard_balances",
-        JSON.stringify(json.data)
-      );
-
-      localStorage.setItem(
-        "account_balances",
-        JSON.stringify(
-          json.data.map(b => ({
-            account: b.account,
-            balance: Number(String(b.balance).replace(/,/g, ""))
-          }))
-        )
-      );
-
-      renderBalances(json.data);
-    } catch (e) {
-      console.warn("Using cached balances (offline)");
+  // 1️⃣ Read cache, but DO NOT render yet
+  if (!force) {
+    const cached = sessionStorage.getItem("dashboard_balances");
+    if (cached) {
+      cachedBalances = JSON.parse(cached);
     }
   }
+
+  try {
+    // 2️⃣ Try network
+    const res = await fetchWithTimeout(scriptURL);
+    const json = await res.json();
+
+    didSyncFromNetwork = true;
+
+    sessionStorage.setItem(
+      "dashboard_balances",
+      JSON.stringify(json.data)
+    );
+
+    // Prefer fresh data
+    cachedBalances = json.data;
+
+  } catch (e) {
+    console.warn("Using cached balances (offline)");
+  } finally {
+    // 3️⃣ Render ONCE, here
+    if (cachedBalances) {
+      renderBalances(cachedBalances);
+    }
+
+    // 4️⃣ Mark balances ready
+    dashboardLoadState.balances = true;
+    maybeRevealLoaders();
+  }
+}
+
 
 let balancesRenderedOnce = false;
 
@@ -857,8 +863,9 @@ function paymentToClass(value) {
   return "";
 }
 
-function renderRecentTransactions() {
+function renderRecentTransactions({ silent = false } = {}) {
   const list = document.getElementById("recentExpenses");
+
   list.innerHTML = "";
   list.classList.remove("skeleton");
 
@@ -871,6 +878,11 @@ function renderRecentTransactions() {
         <div class="recent-desc">No recent transactions</div>
       </li>
     `;
+
+    if (!silent) {
+      dashboardLoadState.recent = true;
+      maybeRevealLoaders();
+    }
     return;
   }
 
@@ -934,9 +946,13 @@ function renderRecentTransactions() {
 
   renderLoadMoreButton();
 
-  dashboardLoadState.recent = true;
-  maybeRevealLoaders();
+  // 🔓 ONLY unlock loaders when not silent
+  if (!silent) {
+    dashboardLoadState.recent = true;
+    maybeRevealLoaders();
+  }
 }
+
 
 function renderLoadMoreButton() {
   const list = document.getElementById("recentExpenses");
@@ -996,13 +1012,15 @@ async function loadRecentTransactions(force = false) {
   const list = document.getElementById("recentExpenses");
   if (!list) return;
 
-  // 1️⃣ Use cache first (if allowed)
+  // 1️⃣ Use cache first (visual prep ONLY)
   if (!force) {
     const cached = getCachedRecentTransactions();
     if (cached) {
       allRecentTransactions = cached;
-      visibleRecentCount = RECENT_STEP; // start with 5
-      renderRecentTransactions();
+      visibleRecentCount = RECENT_STEP;
+
+      // 🔇 silent render (do NOT unlock loaders)
+      renderRecentTransactions({ silent: true });
       return;
     }
   }
@@ -1021,19 +1039,24 @@ async function loadRecentTransactions(force = false) {
     allRecentTransactions = json.data || [];
     visibleRecentCount = RECENT_STEP;
 
-    // 3️⃣ Render initial batch
+    // 3️⃣ Normal render → unlock loaders
     renderRecentTransactions();
 
     didSyncFromNetwork = true;
 
   } catch (err) {
     console.error("[Recent TX] failed", err);
+
     list.classList.remove("skeleton");
     list.innerHTML = `
       <li class="account-card recent-card">
         Failed to load
       </li>
     `;
+
+    // Even on failure, mark as done so app can continue
+    dashboardLoadState.recent = true;
+    maybeRevealLoaders();
   }
 }
 

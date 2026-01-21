@@ -27,10 +27,11 @@ html {
 html, body {
   height: 100%;
   touch-action: manipulation;
+  overflow: hidden;
 }
 
 body {
-  overscroll-behavior: none;
+  overscroll-behavior: contain;
 }
 
 
@@ -84,9 +85,11 @@ body {
 }
 
 .app {
-  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100dvh;
   padding: 32px;
-  padding-bottom: 150px;
+  padding-bottom: 170px;
   max-width: 420px;
   margin: 0 auto;
   padding-top: 32px;
@@ -533,11 +536,20 @@ body, nav, .app, .balance-card {
   top: calc(env(safe-area-inset-top) + 16px);
   left: 50%;
   transform: translateX(-50%);
+
   z-index: 9999;
 
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  pointer-events: none; /* optional: taps pass through */
+}
+
+@media (min-width: 768px) {
+  .toast-container {
+    top: 24px;
+  }
 }
 
 
@@ -545,6 +557,7 @@ body, nav, .app, .balance-card {
 .toast {
   min-width: 280px;
   max-width: 340px;
+  pointer-events: auto;
 
   display: flex;
   align-items: center;
@@ -1119,7 +1132,7 @@ input[type="date"] {
   height: 48px;
   line-height: normal;
   padding: 0 14px;   /* matches your other fields */
-  font-size: 16px;   /* stops iOS zoom on focus */
+  font-size: 14px;   /* stops iOS zoom on focus */
 }
 
 
