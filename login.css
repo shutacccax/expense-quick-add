@@ -48,13 +48,13 @@ body {
 /* ================= PAGE LAYOUT ================= */
 
 .page.login-page {
-  min-height: 100%;
+  min-height: 100svh;
   display: flex;
 }
 
 /* Main screen */
 .login-page .screen {
-  min-height: 100%;
+  min-height: 100svh;
   width: 100%;
 
   display: flex;
@@ -63,7 +63,8 @@ body {
 
     gap: 48px;
   padding: 64px 24px;
-  transform: translateY(100px);
+  padding-top: calc(64px + 20px);
+
 }
 
 /* ================= CONTENT ================= */
