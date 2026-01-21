@@ -161,3 +161,17 @@ body {
   color: rgba(180, 195, 235, 0.45);
   text-align: center;
 }
+
+/* ================= SHORT PAGE UTILITY ================= */
+/* For pages with short content (inflow, expense, transfer) */
+
+.short-page {
+  min-height: 100%;
+  overflow: visible;
+}
+
+.short-page .app {
+  padding-bottom: calc(
+    160px + env(safe-area-inset-bottom)
+  );
+}
