@@ -1641,6 +1641,10 @@ input[type="date"]::-webkit-datetime-edit {
   opacity: 0.75;
 
   transform: translateY(3px); /* vertical alignment */
+
+  user-select: none;          /* desktop text highlight */
+  -webkit-user-select: none;  /* Safari */
+  -webkit-tap-highlight-color: transparent; /* mobile tap glow */
 }
 
 .sync-btn:hover {
@@ -1946,4 +1950,20 @@ input[type="date"]::-webkit-datetime-edit {
   padding-bottom: calc(
     160px + env(safe-area-inset-bottom)
   );
+}
+
+
+/* Emoji icon in recent transactions */
+.emoji-icon {
+  font-size: 20px;            /* size of emoji */
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  transform: translateY(-2px);
+  background: var(--icon-bg, rgba(255, 255, 255, 0.08));
 }

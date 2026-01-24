@@ -304,6 +304,18 @@
 
 <script>
 
+const CATEGORY_EMOJI_MAP = {
+  Food: "🍔",
+  Transpo: "🚌",
+  Bills: "💡",
+  Personal: "👤",
+  Shopping: "🛍",
+  Entertainment: "🎬",
+  Others: "📦"
+};
+
+
+
 let didSyncFromNetwork = false;
 
 
@@ -829,8 +841,9 @@ function renderBalances(data) {
 
 /* ================= RECENT EXPENSES ================= */
 
-const RECENT_TX_API =
-  `${scriptURL}?action=recentTransactions`;
+function getRecentTxUrl() {
+  return `${scriptURL}?action=recentTransactions&_=${Date.now()}`;
+}
 
 const RECENT_TX_CACHE_KEY = "recent_transactions_cache";
 const RECENT_TX_CACHE_TTL = 60 * 1000;
@@ -889,61 +902,69 @@ function renderRecentTransactions({ silent = false } = {}) {
     return;
   }
 
-  list.innerHTML = items.map((tx, index) => {
-    const type = tx.type; // expense | inflow | transfer
-    const icon = `svgs/${type}.svg`;
+list.innerHTML = items.map((tx, index) => {
+  const type = tx.type;
 
-    let metaText = "";
-    let paymentClass = "";
+  let metaText = "";
+  let paymentClass = "";
 
-    if (type === "expense") {
-      metaText = tx.payment;
-      paymentClass = paymentToClass(tx.payment);
-    }
+  if (type === "expense") {
+    metaText = tx.payment;
+    paymentClass = paymentToClass(tx.payment);
+  }
 
-    if (type === "inflow") {
-      metaText = tx.account;
-      paymentClass = paymentToClass(tx.account);
-    }
+  if (type === "inflow") {
+    metaText = tx.account;
+    paymentClass = paymentToClass(tx.account);
+  }
 
-    if (type === "transfer") {
-      metaText = `${tx.from} → ${tx.to}`;
-      paymentClass = paymentToClass(tx.from);
-    }
+  if (type === "transfer") {
+    metaText = `${tx.from} → ${tx.to}`;
+    paymentClass = paymentToClass(tx.from);
+  }
 
-    return `
-      <li class="account-card recent-card ${type} ${paymentClass}
-        ${index >= newlyAddedStartIndex ? "recent-animate" : ""}">
-        <div class="recent-row">
+  let iconHTML = "";
+  if (type === "expense") {
+    const emoji = CATEGORY_EMOJI_MAP[tx.category] || "💸";
+    iconHTML = `<span class="emoji-icon">${emoji}</span>`;
+  } else {
+    iconHTML = `<img src="svgs/${type}.svg" alt="${type}">`;
+  }
 
-          <div class="recent-icon">
-            <img src="${icon}" alt="${type}">
-          </div>
+  return `
+    <li class="account-card recent-card ${type} ${paymentClass}
+      ${index >= newlyAddedStartIndex ? "recent-animate" : ""}">
+      <div class="recent-row">
 
-          <div class="recent-left">
-            <div class="recent-desc" title="${tx.description}">
-              ${tx.description}
-            </div>
-
-            <div class="recent-meta">
-              <span class="recent-dot"></span>
-              ${metaText}
-            </div>
-          </div>
-
-          <div class="recent-right">
-            <div class="recent-amount">
-              ₱${Number(tx.amount).toLocaleString(undefined, {
-                minimumFractionDigits: 2
-              })}
-            </div>
-            <div class="recent-date">${tx.date}</div>
-          </div>
-
+        <div class="recent-icon">
+          ${iconHTML}
         </div>
-      </li>
-    `;
-  }).join("");
+
+        <div class="recent-left">
+          <div class="recent-desc" title="${tx.description}">
+            ${tx.description}
+          </div>
+
+          <div class="recent-meta">
+            <span class="recent-dot"></span>
+            ${metaText}
+          </div>
+        </div>
+
+        <div class="recent-right">
+          <div class="recent-amount">
+            ₱${Number(tx.amount).toLocaleString(undefined, {
+              minimumFractionDigits: 2
+            })}
+          </div>
+          <div class="recent-date">${tx.date}</div>
+        </div>
+
+      </div>
+    </li>
+  `;
+}).join("");
+
 
   lastRenderedCount = visibleRecentCount;
 
@@ -1010,26 +1031,42 @@ function collapseRecentTransactions() {
   }, 220);
 }
 
+function resetRecentSkeleton() {
+  const list = document.getElementById("recentExpenses");
+  if (!list) return;
+
+  dashboardLoadState.recent = false;
+  lastRenderedCount = 0;
+  visibleRecentCount = RECENT_STEP;
+
+  list.innerHTML = `
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
+    <li class="recent-skeleton"></li>
+  `;
+}
+
+
 
 async function loadRecentTransactions(force = false) {
   const list = document.getElementById("recentExpenses");
   if (!list) return;
 
-  // 1️⃣ Use cache first (visual prep ONLY)
-  if (!force) {
+  // 🚫 DO NOT silent-render if dashboard entry reset just happened
+  if (!force && dashboardLoadState.recent === false) {
+    // skip cache
+  } else if (!force) {
     const cached = getCachedRecentTransactions();
     if (cached) {
       allRecentTransactions = cached;
-      visibleRecentCount = RECENT_STEP;
-
-      // 🔇 silent render (do NOT unlock loaders)
       renderRecentTransactions({ silent: true });
       return;
     }
   }
 
   try {
-    const res = await fetchWithTimeout(RECENT_TX_API, {}, 15000);
+    const res = await fetchWithTimeout(getRecentTxUrl(), {}, 15000);
 
     const json = await res.json();
 
@@ -1308,18 +1345,17 @@ async function loadCategoryTotals(year, month) {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden || !appInitialized) return;
 
-    if (!localStorage.getItem("data_dirty")) return;
-
-    // 🔔 acknowledge update
-    localStorage.removeItem("data_dirty");
-
     clearTimeout(resumeTimer);
     resumeTimer = setTimeout(() => {
       loadBalances(true);
       loadCategoryTotals(currentYear, currentMonth);
       loadRecentTransactions(true);
+
+      // acknowledge refresh
+      localStorage.removeItem("data_dirty");
     }, 150);
   });
+
 
 
   // reload data on change
@@ -1354,6 +1390,9 @@ async function loadCategoryTotals(year, month) {
 
       // 🔥 show UI immediately
       document.body.classList.add("page-ready");
+
+      // 🔥 RESET RECENT UI STATE
+      resetRecentSkeleton();
 
       // load cached first
       loadBalances();
@@ -1393,19 +1432,27 @@ async function refreshRecentTransactions() {
   syncBtn.disabled = true;
 
   try {
-    // 1️⃣ Clear ONLY recent transactions cache
+    resetRecentSkeleton();
+
+    // 🔥 clear ALL dashboard caches
     localStorage.removeItem("recent_transactions_cache");
+    sessionStorage.removeItem("dashboard_balances");
 
-    // 2️⃣ Force reload from server (cache-busted)
-    await loadRecentTransactions(true);
+    Object.keys(sessionStorage)
+      .filter(k => k.startsWith("dashboard_categories_"))
+      .forEach(k => sessionStorage.removeItem(k));
 
-  } catch (err) {
-    console.error("[RECENT REFRESH FAILED]", err);
+    // 🔥 force reload everything
+    await Promise.all([
+      loadBalances(true),
+      loadCategoryTotals(currentYear, currentMonth),
+      loadRecentTransactions(true)
+    ]);
+
   } finally {
     refreshing = false;
     syncBtn.classList.remove("syncing");
     syncBtn.disabled = false;
-
     setLastUpdatedNow();
   }
 }

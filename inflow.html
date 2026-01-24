@@ -226,7 +226,7 @@ async function submitTransaction(payload) {
 let syncing = false;
 
 async function trySyncPending() {
-  if (!navigator.onLine || syncing) return;
+  if (syncing) return;
 
   syncing = true;
 
@@ -265,9 +265,9 @@ async function trySyncPending() {
 
     if (didSync) {
       localStorage.removeItem("recent_transactions_cache");
-      loadRecentTransactions(true);
-      loadBalances(true);
+      console.info("✅ Inflows synced");
     }
+
 
   } finally {
     syncing = false;
@@ -363,6 +363,14 @@ addBtn.onclick = () => {
     account: accountName,
     amount: amountVal   // ✅ number
   });
+
+  // 🔔 notify dashboard
+  localStorage.setItem("data_dirty", "1");  
+
+  Object.keys(sessionStorage)
+  .filter(k => k.startsWith("dashboard_"))
+  .forEach(k => sessionStorage.removeItem(k));
+
 
   // clear fields
   description.value = "";

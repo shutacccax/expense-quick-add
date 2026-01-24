@@ -306,7 +306,7 @@ function getAvailableBalance(account) {
 let syncing = false;
 
 async function trySyncPending() {
-  if (!navigator.onLine || syncing) return;
+  if (syncing) return;
 
   syncing = true;
 
@@ -345,8 +345,6 @@ async function trySyncPending() {
     setPending(remaining);
 
     if (didSync) {
-        // 🔥 mark global data change
-        localStorage.setItem("data_dirty", "1");
 
         // 🔥 clear client caches
         localStorage.removeItem("recent_transactions_cache");
