@@ -1,110 +1,77 @@
-# Personal Expense Tracker (PWA + Google Sheets)
+# Spendr 💸
 
-A lightweight, mobile-first personal finance tracker built using a Progressive Web App (PWA) frontend and Google Sheets as the backend database.
+Spendr is a lightweight personal finance Progressive Web App (PWA) for tracking **expenses, inflows, and transfers** with a clean, mobile-first interface.
 
-Designed for **fast daily logging**, minimal friction, and full control over data.
+It’s designed to feel fast, simple, and reliable — with a focus on daily money tracking rather than complex budgeting systems.
 
 ---
 
 ## ✨ Features
 
-### Core
-- 📱 **PWA (Add to Home Screen)** — works like a native app
-- ➕ **Quick Add Expense**
-- 💰 **Add Inflows**
-- 🔁 **Transfer Between Accounts**
-- 📊 **Dedicated Balances Page**
-- 🌙 **Light / Dark Mode (persistent)**
-- 🔔 **Toast feedback + haptic vibration**
-
-### Accounting Logic
-- Real-time balance updates
-- Supports multiple accounts (Cash, GCash, Maya, MariBank)
-- Transfers debit one account and credit another
-- Single source of truth: Google Sheets
-
-### UX
-- Bottom navigation (app-style)
-- Clean, distraction-free input flow
-- Color-coded balances
-- Loading states for async data
-- Mobile-first spacing and layout
+- 💸 Track expenses with categories
+- 📈 Record inflows (income)
+- 🔁 Transfer money between accounts
+- 📊 Monthly spending summary
+- 🕘 Recent transactions list
+- 🌙 Light & Dark mode
+- 👁️ Optional balance masking
+- 📱 Mobile-first PWA experience
+- ⚡ Fast UI with skeleton loaders
 
 ---
 
-## 🧱 Architecture
+## 🧩 Tech Stack
 
-### Frontend
-- HTML + CSS + Vanilla JavaScript
-- Progressive Web App (PWA)
-- Hosted via GitHub Pages
-- Optimized for mobile use
-
-### Backend
-- Google Apps Script (Web App)
-- Single API endpoint:
-  - `POST` → add expense / inflow / transfer
-  - `GET` → fetch balances
-- Google Sheets as database
+- **Frontend:** HTML, CSS, Vanilla JavaScript  
+- **Backend:** Google Apps Script  
+- **Data Storage:** Google Sheets  
+- **Auth:** Firebase Authentication  
+- **Hosting:** Static hosting (PWA-ready)
 
 ---
 
-## 📂 Pages
+## 🚀 Getting Started
 
-- `index.html` — Add Expense
-- `inflow.html` — Add Inflow
-- `transfer.html` — Transfer Funds
-- `balances.html` — View Account Balances
-
-Each page is focused on **one task only**.
-
----
-
-## 📊 Data Model (Sheets)
-
-- **Expenses sheet** — all expense entries
-- **Inflows sheet** — incoming funds
-- **Transfers sheet** — internal transfers
-- **Balances sheet** — current account balances (authoritative)
-
-All validations are enforced server-side.
+1. Open the app in a modern browser
+2. Sign in using Firebase authentication
+3. Add expenses, inflows, or transfers
+4. View your balances and recent activity on the dashboard
+5. (Optional) Install as a PWA for an app-like experience
 
 ---
 
-## 🔐 Design Principles
+## 📱 Progressive Web App
 
-- Backend is the source of truth
-- Frontend never assumes balances
-- No auto-corrections or silent overrides
-- Errors are explicit and user-friendly
-- UI favors clarity over density
+Spendr can be installed on:
+- Chrome (Desktop / Android)
+- Safari (iOS)
 
----
-
-## 🧠 Why This Exists
-
-This tracker was built for:
-- Personal daily use
-- Full ownership of data
-- No subscriptions
-- No ads
-- No third-party finance APIs
-
-Simple, fast, and intentional.
+Once installed, it runs in a standalone window like a native app.
 
 ---
 
-## 🚧 Future Ideas (Optional)
+## 🎨 UI Philosophy
 
-- Total balance summary
-- Low-balance warnings
-- Undo last transaction
-- Read-only monthly summaries
-- Widgets / shortcuts
+- Minimal and distraction-free
+- Mobile-first layout
+- Emoji-based visual cues
+- Skeleton loaders instead of blocking spinners
+- Instant feedback on user actions
+
+---
+
+## 🧪 Project Status
+
+This is an actively developed personal project and may change frequently.
 
 ---
 
 ## 📄 License
 
-Personal use only.
+This project is for personal and educational use.
 
+---
+
+## 🙌 Acknowledgements
+
+Built with care to make daily money tracking feel effortless.
