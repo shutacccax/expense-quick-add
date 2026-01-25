@@ -10,7 +10,7 @@ const IS_LOCAL =
 
 const PDF_BASE = IS_LOCAL
   ? "http://localhost:8080"
-  : "https://spendr-417990306228.asia-southeast1.run.app";
+  : "https://spendr-pdf-417990306228.asia-southeast1.run.app";
 
 const PDF_SERVICE_ENDPOINT = `${PDF_BASE}/generate-pdf`;
 const PDF_PREVIEW_ENDPOINT = `${PDF_BASE}/preview-report`;
