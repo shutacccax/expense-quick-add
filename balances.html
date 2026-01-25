@@ -37,8 +37,8 @@
   >
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles-light.css?v=2026-01-24.1">
-  <link rel="stylesheet" href="styles-dark.css?v=2026-01-24.1">
+  <link rel="stylesheet" href="styles-light.css?v=2026-01-25">
+  <link rel="stylesheet" href="styles-dark.css?v=2026-01-25">
 </head>
 
 
@@ -271,6 +271,12 @@
 
 </section>
 
+<button id="generateReportBtn" class="generate-btn">
+  <span class="btn-text">Generate Report</span>
+  <span class="btn-spinner hidden"></span>
+</button>
+
+
 <button id="logoutBtnBottom" class="logout-btn">
   Log out
 </button>
@@ -423,12 +429,18 @@ window.addEventListener("scroll", () => {
     document.getElementById("noDataState")?.classList.remove("hidden");
     document.querySelector(".expense-donut")?.classList.add("hidden");
     document.getElementById("categoryTotals").classList.add("hidden");
+      document
+    .getElementById("generateReportBtn")
+    ?.setAttribute("disabled", true);
   }
 
   function hideNoDataState() {
     document.getElementById("noDataState")?.classList.add("hidden");
     document.querySelector(".expense-donut")?.classList.remove("hidden");
     document.getElementById("categoryTotals").classList.remove("hidden");
+      document
+    .getElementById("generateReportBtn")
+    ?.removeAttribute("disabled");
   }
 
   function showSummaryContent() {
@@ -1338,6 +1350,21 @@ async function loadCategoryTotals(year, month) {
   monthSelect.value = `${currentYear}-${currentMonth}`;
 
 
+
+  const generateBtn = document.getElementById("generateReportBtn");
+
+  generateBtn.addEventListener("click", () => {
+    const value = monthSelect.value; // "YYYY-M"
+    if (!value) return;
+
+    const [year, month] = value.split("-").map(Number);
+
+    generateMonthlyPDF(year, month);
+  });
+
+
+
+
   /* ================= APP RESUME (iOS / PWA) ================= */
 
   let resumeTimer = null;
@@ -1527,7 +1554,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 <script src="auth-guard.js"></script>
-
+<script src="pdf-report.js"></script>
 
   <script src="theme-engine.js"></script>
 
