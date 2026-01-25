@@ -8,13 +8,12 @@ const IS_LOCAL =
   location.hostname === "localhost" ||
   location.hostname === "127.0.0.1";
 
-const PDF_SERVICE_ENDPOINT = IS_LOCAL
-  ? "http://localhost:8080/generate-pdf"
-  : `${location.origin}/generate-pdf`;
+const PDF_BASE = IS_LOCAL
+  ? "http://localhost:8080"
+  : "https://spendr-417990306228.asia-southeast1.run.app";
 
-const PDF_PREVIEW_ENDPOINT = IS_LOCAL
-  ? "http://localhost:8080/preview-report"
-  : `${location.origin}/preview-report`;
+const PDF_SERVICE_ENDPOINT = `${PDF_BASE}/generate-pdf`;
+const PDF_PREVIEW_ENDPOINT = `${PDF_BASE}/preview-report`;
 
 async function generateMonthlyPDF(year, month) {
   const btn = document.getElementById("generateReportBtn");
